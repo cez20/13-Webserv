@@ -1,0 +1,76 @@
+name: Run Google Test
+
+on:
+  pull_request_review:
+    types:
+      - submitted
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check review status
+        id: review
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const { data: reviews } = await github.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const approved = reviews.some(review => review.state === 'APPROVED');
+            console.log(`Review status: ${approved ? 'Approved' : 'Not approved'}`);
+            return approved;
+
+      - name: Run tests
+        if: steps.review.outputs.result == 'true'
+        run: |
+          mkdir build
+          cd build 
+          cmake ..
+          make
+          ctest --output-on-failure
+
+      - name: Check test status and block pull request
+        if: steps.review.outputs.result == 'true' && failure()
+        run: |
+          echo "Tests failed. Blocking the pull request."
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -d '{"body": "Tests failed. Please fix the failing tests before merging.", "event": "COMMENT"}' "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews"
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -d '{"body": "Tests failed. Please fix the failing tests before merging.", "state": "FAILURE"}' "https://api.github.com/repos/${{ github.repository }}/check-runs"
+
+          # Mark the job as failed to prevent the pull request from merging
+          exit 1
+
+# name: Run Google Test
+
+# on:
+#   push:
+#     branches:
+#       - master  # Modify this according to your branch name
+
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v3   # This step checks out your repository code 
+      
+#       # - name: Set up C++ environment
+#       #   uses: actions/setup-cxx@v2
+#       #   with:
+#       #     cpp-version: '98'
+      
+#       - name: Build and run tests
+#         run: |
+#           mkdir build
+#           cd build 
+#           cmake ..
+#           make
+#           ctest --output-on-failure
