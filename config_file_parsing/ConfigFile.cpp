@@ -18,9 +18,13 @@ ConfigFile::~ConfigFile(){}
 
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
+	std::string buffer;
+	std::regex regex;
 
 	if (infile.is_open()){
-		while(getline(infile, _config_file_content))
+		while(getline(infile, buffer)){
+
+		}
 		
 	}
 }

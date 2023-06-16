@@ -15,6 +15,7 @@
 #include<cstring>
 #include<fstream>
 #include<iostream>
+#include<regex>
 
 class ConfigFile{
 	public:
