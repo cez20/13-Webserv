@@ -37,5 +37,11 @@
 .DS_Store
 *.json
 
+#Tristan
+config
+
+#César
 webserv
 build
+
+#Sam
