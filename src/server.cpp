@@ -20,7 +20,7 @@ void handleClient(int clientSocket) {
 
 
 //main function. creating the server socket: using a poll to track if we can read the sockets
-int server(ServerConfiguration config) {
+int server(const ServerConfiguration& config) {
 
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {

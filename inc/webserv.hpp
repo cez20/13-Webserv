@@ -27,5 +27,5 @@
 #define GREEN_CL "\033[0;32m"
 #define DEFAULT_CL "\033[0m"
 
-int server(ServerConfiguration config);
+int server(const ServerConfiguration& config);
 std::string extractFileContent(const std::string& path);
