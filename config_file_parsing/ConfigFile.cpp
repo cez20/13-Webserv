@@ -16,14 +16,32 @@ ConfigFile::ConfigFile(std::string configPath): _fd_path(configPath){
 
 ConfigFile::~ConfigFile(){}
 
+//const char* ConfigFile::EmptyFd::what() const throw() {return ("Empty or missing fd");}
+
+
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
+	if (!infile){
+		throw EmptyFd();
+		return ;
+	}
+	int			match_index = 0;
 	std::string buffer;
-	std::regex regex;
+
+	std::smatch	matches;
+	std::regex 	listen("listen");
+	std::regex 	server_name("server_name");
+	std::regex 	root("root");
+	std::regex 	error_404("error_page 404");
+	//std::regex 
 
 	if (infile.is_open()){
 		while(getline(infile, buffer)){
-
+			int i = 0;
+			if (std::regex_search(buffer, matches, listen){
+				_listen = matches[match_index];
+				match_index++;
+			}
 		}
 		
 	}

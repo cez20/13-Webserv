@@ -34,6 +34,11 @@ class ConfigFile{
 
 		void 		extract_config_file();
 
+		class EmptyFd: public std::exception{
+			public:
+				const char* what() const throw(){return ("Empty or missing fd");};
+		};
+
 	private:
 		std::string _fd_path;
 		std::string _config_file_content;
