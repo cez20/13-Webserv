@@ -2,6 +2,12 @@
 
 int main(){
 	std::string testfile = "./configtest.conf";
-	ConfigFile test(testfile);
-	std::cout << test.get_config_file_content() << std::endl;
+	try{
+		ConfigFile test(testfile);
+		std::cout << test.get_listen() << std::endl;
+		std::cout << test.get_server_name() << std::endl;
+	}
+	catch(const std::exception& e){
+		std::cerr << e.what() << '\n';
+	}
 }

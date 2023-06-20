@@ -18,6 +18,22 @@ ConfigFile::~ConfigFile(){}
 
 //const char* ConfigFile::EmptyFd::what() const throw() {return ("Empty or missing fd");}
 
+std::string	ConfigFile::parse_found_line(std::string charset, std::string found_line){
+	std::string ret;
+
+	size_t i = found_line.find(charset);
+	if (i != std::string::npos){
+		i += charset.length();
+		while (std::isspace(found_line[i]))
+			++i;
+		size_t end = found_line.find(';', i);
+		if (end != std::string::npos) {
+			ret = found_line.substr(i, end - i);
+		}
+	}
+
+	return (ret);
+}
 
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
@@ -25,7 +41,7 @@ void	ConfigFile::extract_config_file(){
 		throw EmptyFd();
 		return ;
 	}
-	int			match_index = 0;
+	// int			match_index = 0;
 	std::string buffer;
 
 	std::smatch	matches;
@@ -37,11 +53,14 @@ void	ConfigFile::extract_config_file(){
 
 	if (infile.is_open()){
 		while(getline(infile, buffer)){
-			int i = 0;
-			if (std::regex_search(buffer, matches, listen){
-				_listen = matches[match_index];
-				match_index++;
-			}
+			if (std::regex_search(buffer, matches, listen))				
+				_listen = parse_found_line(matches[0], buffer);
+			if (std::regex_search(buffer, matches, server_name))				
+				_server_name = parse_found_line(matches[0], buffer);
+			if (std::regex_search(buffer, matches, root))				
+				_root = parse_found_line(matches[0], buffer);
+			// if (std::regex_search(buffer, matches, error_404))				
+			// 	_root = parse_found_line(matches[0], buffer);
 		}
 		
 	}

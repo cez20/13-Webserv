@@ -33,6 +33,7 @@ class ConfigFile{
 		// std::string get_(){return (_);};
 
 		void 		extract_config_file();
+		std::string	parse_found_line(std::string charset, std::string found_line);
 
 		class EmptyFd: public std::exception{
 			public:
