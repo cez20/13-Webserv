@@ -1,46 +1,37 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: cemenjiv <cemenjiv@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/04/03 17:54:38 by cemenjiv          #+#    #+#              #
-#    Updated: 2023/06/12 11:28:48 by cemenjiv         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+NAME        = Webserv
 
-NAME			= webserv 
+SRC_DIR     = src
+OBJ_DIR     = obj
+INC_DIR     = inc
 
-SRCS_DIR   		= srcs/
-SRCS_FILES		= main.cpp
-SRCS 			= $(addprefix $(SRCS_DIR), $(SRCS_FILES))
+SERVER_SRC  = server.cpp ServerConfiguration.cpp main.cpp HttpRequest.cpp HttpResponse.cpp utils.cpp
+INC_FILES   = webserv.hpp ServerConfiguration.hpp HttpRequest.hpp HttpResponse.hpp
 
-OBJS_DIR		= objs/
-OBJS 			= $(patsubst $(SRCS_DIR)%.cpp, $(OBJS_DIR)%.o, $(SRCS))
+SERVER_OBJ  = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(SERVER_SRC)))
+INCS        = $(addprefix $(INC_DIR)/,$(INC_FILES))
 
-CC				= c++
-CFLAGS			= -Wall -Wextra -Werror -g -std=c++98
-RM				= rm -f 
+CC          = c++
+CFLAGS      = -Wall -Wextra -Werror -std=c++98
 
-$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
-				$(CC) ${CFLAGS}  -c $< -o $@
-	
-all:			objs $(NAME)
+SERVER_EXEC = server.exe
 
-$(NAME):		$(OBJS)
-				$(CC) $(CFLAGS) ${OBJS} -o $@ 
-			
-clean:		
-				@rm -rf $(OBJS)
-				@rm -rf $(OBJS_DIR)
-				
-fclean:			clean
-				$(RM) $(NAME)
-				
-re:				fclean all
 
-objs:
-				@mkdir -p objs
+all: $(SERVER_EXEC)
 
-.PHONY:			all clean fclean re 
+$(SERVER_EXEC): $(SERVER_OBJ)
+	$(CC) $(CFLAGS) $(SERVER_OBJ) -o $(SERVER_EXEC)
+
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCS)
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -rf $(OBJ_DIR)
+
+fclean: clean
+	rm -rf $(SERVER_EXEC)
+
+re: fclean all
+
+.PHONY: all clean fclean re
