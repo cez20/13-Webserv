@@ -2,7 +2,7 @@
 
 //parse and analyse the resquest on the client socket. After send the appropriate response to the client.
 
-void handleClient(int clientSocket) {
+void handleClient(int clientSocket, const ServerConfiguration& config) {
     char buffer[8192];
     int bytesRead = read(clientSocket, buffer, sizeof(buffer));
     if (bytesRead == -1) {
@@ -11,7 +11,7 @@ void handleClient(int clientSocket) {
         return;
     }
     std::string request(buffer, bytesRead);
-    HttpRequest clientRequest(request);
+    HttpRequest clientRequest(request, config);
     //clientRequest.showRequest();
     HttpResponse response(clientRequest);
     response.writeOnSocket(clientSocket);
@@ -27,7 +27,6 @@ int server(const ServerConfiguration& config) {
         std::cerr << "Error while creating the server socket." << std::endl;
         return 1;
     }
-
     std::vector<pollfd> pollFds(1);
     pollFds[0].fd = serverSocket;
     pollFds[0].events = POLLIN;
@@ -73,7 +72,7 @@ int server(const ServerConfiguration& config) {
                     pollFds.push_back(newClientFd);
                 }
                 else {
-                    handleClient(pollFds[i].fd);
+                    handleClient(pollFds[i].fd, config);
                     std::cout << "Closing the connection" << std::endl;
                     close(pollFds[i].fd);
                     pollFds.erase(pollFds.begin() + i);

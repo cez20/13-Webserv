@@ -6,7 +6,7 @@ int main (int argc, char **argv){
         exit(EXIT_FAILURE);
     }
     else {
-        // to be raplaced with real parsing (Tristan)
+        // to be replaced with real parsing (Tristan)
         ServerConfiguration config(argv[1]);
         config.printConfig();
         //

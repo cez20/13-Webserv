@@ -35,7 +35,10 @@ ServerConfiguration::ServerConfiguration(const std::string& configFile) : port_(
         } 
         else if (key == "log_level") {
             log_level_ = value;
-        } 
+        }
+        else if (key == "cgi_root") {
+            cgi_root_ = value;
+        }  
     } 
 }
 

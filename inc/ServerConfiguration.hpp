@@ -25,6 +25,9 @@ public:
     std::string getLogLevel() const {
         return log_level_;
     }
+    std::string getCgiRoot() const {
+        return cgi_root_;
+    }
 
     void printConfig();
 
@@ -34,4 +37,5 @@ private:
     std::string document_root_;
     std::string log_file_;
     std::string log_level_;
+    std::string cgi_root_;
 };
