@@ -41,26 +41,36 @@ void	ConfigFile::extract_config_file(){
 		throw EmptyFd();
 		return ;
 	}
-	// int			match_index = 0;
 	std::string buffer;
+
+	size_t		non_blank;
 
 	std::smatch	matches;
 	std::regex 	listen("listen");
 	std::regex 	server_name("server_name");
 	std::regex 	root("root");
-	std::regex 	error_404("error_page 404");
+	std::regex 	error_log("error_log");
+	std::regex 	access_log("access_log");
+	std::regex	include("include");
 	//std::regex 
 
 	if (infile.is_open()){
 		while(getline(infile, buffer)){
-			if (std::regex_search(buffer, matches, listen))				
+			non_blank = buffer.find_first_not_of(" \t\n");
+			if(buffer[non_blank] == '#')
+				continue ;
+			else if (std::regex_search(buffer, matches, listen))				
 				_listen = parse_found_line(matches[0], buffer);
-			if (std::regex_search(buffer, matches, server_name))				
+			else if (std::regex_search(buffer, matches, server_name))				
 				_server_name = parse_found_line(matches[0], buffer);
-			if (std::regex_search(buffer, matches, root))				
+			else if (std::regex_search(buffer, matches, root))				
 				_root = parse_found_line(matches[0], buffer);
-			// if (std::regex_search(buffer, matches, error_404))				
-			// 	_root = parse_found_line(matches[0], buffer);
+			else if (std::regex_search(buffer, matches, access_log))				
+				_access_log = parse_found_line(matches[0], buffer);
+			else if (std::regex_search(buffer, matches, error_log))				
+				_error_log = parse_found_line(matches[0], buffer);
+			else if (std::regex_search(buffer, matches, include))				
+				_include_types = parse_found_line(matches[0], buffer);
 		}
 		
 	}
