@@ -24,7 +24,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (CgiPath + "test.php" ==  clientRequest.path) {
         if (clientRequest.headers.find("Content-Type") != clientRequest.headers.end() && clientRequest.headers.at("Content-Type") == "application/x-www-form-urlencoded"){
             try{
-                std::string output  = executeCgi(clientRequest.path, clientRequest.body);
+                std::string output  = executeCgi(clientRequest);
                 analyseCgiOutput(output);
                 return(0);
             }
@@ -64,7 +64,8 @@ bool HttpResponse::fileExist(const std::string& filename) {
     return file.good();
 }
 
-std::string HttpResponse::executeCgi(const std::string& scriptPath, const std::string& requestBody) {
+std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
+    std::string output;
     int pipefd[2];
     if (pipe(pipefd) == -1) {
         throw std::runtime_error("Erreur lors de la création du tube (pipe).");
@@ -73,30 +74,32 @@ std::string HttpResponse::executeCgi(const std::string& scriptPath, const std::s
     pid_t pid = fork();
     if (pid == -1) {
         throw std::runtime_error("Erreur lors de la création du processus fils.");
-    } else if (pid == 0) {
+    } 
+    else if (pid == 0) {
         // Processus fils
-
-        // Fermer l'extrémité de lecture inutilisée du tube
         close(pipefd[0]);
-
-        // Rediriger la sortie standard vers l'extrémité d'écriture du tube
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
-
-        // Exécuter le script CGI
-        execl("/usr/bin/php-cgi", "php-cgi", "-q", scriptPath.c_str(), nullptr);
-
-        // En cas d'erreur lors de l'exécution du script CGI
-        std::cerr << "Erreur lors de l'exécution du script CGI." << std::endl;
-        exit(EXIT_FAILURE);
-    } else {
+        std::string arguments = clientRequest.querryString;
+        std::stringstream ss(arguments);
+        std::string argument;
+        std::vector<std::string> argumentList;
+        while (std::getline(ss, argument, '&')) {
+            argumentList.push_back(argument);
+        }
+        std::vector<char*> argvList;
+        argvList.push_back(const_cast<char*>(clientRequest.path.c_str()));
+        for (size_t i = 0; i < argumentList.size(); ++i) {
+            argvList.push_back(const_cast<char*>(argumentList[i].c_str()));
+        }
+        argvList.push_back(nullptr);    
+        char** argv = argvList.data();
+        char* envp[] = {nullptr};
+        execve("/usr/bin/php-cgi", argv, envp);
+    }
+    else{
         // Processus parent
-
-        // Fermer l'extrémité d'écriture inutilisée du tube
         close(pipefd[1]);
-
-        // Lire la sortie générée par le processus fils à partir du tube de lecture
-        std::string output;
         char buffer[128];
         ssize_t bytesRead;
         while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
@@ -105,7 +108,6 @@ std::string HttpResponse::executeCgi(const std::string& scriptPath, const std::s
 
         close(pipefd[0]);
 
-        // Attendre la fin du processus fils
         int status;
         waitpid(pid, &status, 0);
 
@@ -113,44 +115,9 @@ std::string HttpResponse::executeCgi(const std::string& scriptPath, const std::s
             throw std::runtime_error("Le script CGI a retourné une erreur.");
         }
 
-        return output;
+       
     }
-    //exemple d<utilisation de exeve.
-//     std::string HttpResponse::executeCgi(const std::string& scriptPath, const std::string& queryString) {
-//     // ...
-
-//     if (pid == 0) {
-//         // Processus fils
-
-//         // ...
-
-//         // Séparer la chaîne de requête en paramètres individuels
-//         std::istringstream iss(queryString);
-//         std::string param;
-//         std::vector<const char*> params;
-//         while (std::getline(iss, param, '&')) {
-//             params.push_back(param.c_str());
-//         }
-//         params.push_back(nullptr); // Terminer la liste d'arguments
-
-//         // Préparer le tableau d'environnement
-//         extern char** environ; // Déclarer la variable d'environnement externe
-//         std::vector<const char*> env;
-//         for (char** envp = environ; *envp != nullptr; ++envp) {
-//             env.push_back(*envp);
-//         }
-//         env.push_back(nullptr); // Terminer le tableau d'environnement
-
-//         // Exécuter le script CGI avec les paramètres
-//         execve("/usr/bin/php-cgi", const_cast<char**>(params.data()), const_cast<char**>(env.data()));
-
-//         // ...
-//     } else {
-//         // Processus parent
-
-//         // ...
-//     }
-// }
+    return output;
 }
 void HttpResponse::analyseCgiOutput(const std::string& output){
     std::size_t headerEnd = output.find("\r\n\r\n");

@@ -9,7 +9,7 @@ void HttpRequest::parseRequest(std::string rawRequest){
     if (method == "GET"){
         size_t quePos = path.find("?");  
         if (quePos != std::string::npos){
-                this->queryString =path.substr(quePos +1);
+                this->querryString =path.substr(quePos +1);
                 path = path.substr(0, quePos);
         }
     }
