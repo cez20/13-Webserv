@@ -22,19 +22,16 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
     std::string CgiPath = clientRequest.config.getCgiRoot();
     if (CgiPath + "test.php" ==  clientRequest.path) {
-        if (clientRequest.headers.find("Content-Type") != clientRequest.headers.end() && clientRequest.headers.at("Content-Type") == "application/json"){
+        if (clientRequest.headers.find("Content-Type") != clientRequest.headers.end() && clientRequest.headers.at("Content-Type") == "application/x-www-form-urlencoded"){
             try{
-                executeCgi(clientRequest.path, clientRequest.body);
+                std::string output  = executeCgi(clientRequest.path, clientRequest.body);
+                analyseCgiOutput(output);
+                return(0);
             }
-            catch{}
-    }
-        else{
-            this->statusCode = "501";
-            this->headers["contentType"] = " text/html";
-            this->body = extractFileContent("/Users/slord/Desktop/13-WEBSERVER/html/501.html");       
-            return (1);
+            catch (const std::exception& e) {
+                return(1);
+            }
         }
-
     }
     // else if (clientRequest.method == "POST"){
         
@@ -42,15 +39,13 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     // else if (clientRequest.method == "DELETE"){
         
     // }
-    else
-    {
+    else{
         this->statusCode = "501";
         this->headers["contentType"] = " text/html";
         this->body = extractFileContent("/Users/slord/Desktop/13-WEBSERVER/html/501.html");       
         return (1);
     }
     return (0);
-    
 }
 
  //this fucntion will write on the socket the response to send to the client
@@ -68,7 +63,8 @@ bool HttpResponse::fileExist(const std::string& filename) {
     std::ifstream file(filename.c_str());
     return file.good();
 }
-    std::string HttpRequest::executeCgi(const std::string& scriptPath, const std::string& requestBody) {
+
+std::string HttpResponse::executeCgi(const std::string& scriptPath, const std::string& requestBody) {
     int pipefd[2];
     if (pipe(pipefd) == -1) {
         throw std::runtime_error("Erreur lors de la création du tube (pipe).");
@@ -119,7 +115,54 @@ bool HttpResponse::fileExist(const std::string& filename) {
 
         return output;
     }
+    //exemple d<utilisation de exeve.
+//     std::string HttpResponse::executeCgi(const std::string& scriptPath, const std::string& queryString) {
+//     // ...
+
+//     if (pid == 0) {
+//         // Processus fils
+
+//         // ...
+
+//         // Séparer la chaîne de requête en paramètres individuels
+//         std::istringstream iss(queryString);
+//         std::string param;
+//         std::vector<const char*> params;
+//         while (std::getline(iss, param, '&')) {
+//             params.push_back(param.c_str());
+//         }
+//         params.push_back(nullptr); // Terminer la liste d'arguments
+
+//         // Préparer le tableau d'environnement
+//         extern char** environ; // Déclarer la variable d'environnement externe
+//         std::vector<const char*> env;
+//         for (char** envp = environ; *envp != nullptr; ++envp) {
+//             env.push_back(*envp);
+//         }
+//         env.push_back(nullptr); // Terminer le tableau d'environnement
+
+//         // Exécuter le script CGI avec les paramètres
+//         execve("/usr/bin/php-cgi", const_cast<char**>(params.data()), const_cast<char**>(env.data()));
+
+//         // ...
+//     } else {
+//         // Processus parent
+
+//         // ...
+//     }
+// }
 }
+void HttpResponse::analyseCgiOutput(const std::string& output){
+    std::size_t headerEnd = output.find("\r\n\r\n");
+    if (headerEnd != std::string::npos) {
+        std::string responseBody = output.substr(headerEnd + 4);
+        this->body = (responseBody);
+        return;
+    }
+
+    this->body = ("Error: Invalid CGI output format");
+
+ }
     //We will fork, and execute de CGI script in a child process, redirect the output to a fd  and finally store it the variable CgiOut.
     
 

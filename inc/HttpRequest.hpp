@@ -8,7 +8,7 @@ class HttpRequest {
         std::string path;
         std::map<std::string, std::string> headers;
         std::string body;
-        std::string envVariables;
+        std::string queryString;
         bool isValid;
         const ServerConfiguration& config;
         void showRequest(){

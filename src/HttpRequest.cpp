@@ -6,6 +6,13 @@ void HttpRequest::parseRequest(std::string rawRequest){
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
     request >> method >> path;
+    if (method == "GET"){
+        size_t quePos = path.find("?");  
+        if (quePos != std::string::npos){
+                this->queryString =path.substr(quePos +1);
+                path = path.substr(0, quePos);
+        }
+    }
     while(std::getline(request, line) && !line.empty()){
         std::string headerName, headerValue;
         size_t colonPos = line.find(":");
