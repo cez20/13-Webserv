@@ -21,7 +21,7 @@ class HttpResponse {
 
         int analyseRequest(const HttpRequest& clientRequest);
         bool fileExist(const std::string& filename);
-        void executeCgi(const std::string& cgiPath, const std::string env);
+        std::string executeCgi(const std::string& scriptPath, const std::string& requestBody);
 
 };
 
