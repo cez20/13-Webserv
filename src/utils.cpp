@@ -15,3 +15,4 @@ std::string extractFileContent(const std::string& path) {
     file.close();
     return content;
 }
+

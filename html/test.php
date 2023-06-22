@@ -1,13 +1,16 @@
 <?php
 // Récupérer les paramètres de la ligne de commande
-$options = getopt("", ["name:", "age:"]);
-$name = isset($options['name']) ? $options['name'] : '';
-$age = isset($options['age']) ? $options['age'] : '';
+// $options = getopt("", ["name:", "age:"]);
+// $name = isset($options['name']) ? $options['name'] : '';
+// $age = isset($options['age']) ? $options['age'] : '';
+$name = getenv('NAME');
+$age = getenv('AGE');
 
 // Effectuer une vérification de base sur les paramètres
 if (empty($name) || empty($age)) {
-    echo "Content-Type: text/html\r\n\r\n";
+    echo "<html>";
     echo "Erreur: Veuillez fournir un nom et un âge valides.";
+    echo "</html>";
     exit;
 }
 
@@ -20,7 +23,13 @@ if ($age < 18) {
 }
 
 // Générer une réponse HTML
-echo "Content-Type: text/html\r\n\r\n";
+echo "<html>";
+echo "<head>";
+echo "<title>Resulat du script </title>";
+echo "</head>";
+echo "<body>";
 echo "<h1>Réponse du script PHP</h1>";
 echo "<p>$greeting</p>";
+echo "</body>";
+echo "</html>";
 ?>

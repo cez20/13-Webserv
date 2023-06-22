@@ -14,6 +14,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
     std::string request(buffer, bytesRead);
     HttpRequest clientRequest(request, config);
     //clientRequest.showRequest();
+    //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
     response.writeOnSocket(clientSocket);
     close(clientSocket);
