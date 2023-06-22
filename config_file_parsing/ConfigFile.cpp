@@ -27,29 +27,32 @@ std::string	ConfigFile::parse_found_line(std::string charset, std::string found_
 		while (std::isspace(found_line[i]))
 			++i;
 		size_t end = found_line.find(';', i);
-		if (end != std::string::npos) {
+		if (end != std::string::npos) 
 			ret = found_line.substr(i, end - i);
-		}
+		
 	}
 
 	return (ret);
 }
 
-std::string	ConfigFile::parse_found_line(std::string charset, std::string found_line){
-	std::string ret;
+std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
+	std::string ret[2];
+	size_t i = 0;
 
-	size_t i = found_line.find(charset);
-	if (i != std::string::npos){
-		i += charset.length();
-		while (std::isspace(found_line[i]))
-			++i;
-		size_t end = found_line.find(';', i);
-		if (end != std::string::npos) {
-			ret = found_line.substr(i, end - i);
-		}
+	while(str[i] != ' '){
+		ret[0] += str[i];
+		i++;
+	}
+	i = str.find_first_not_of(" \t\n");
+	if (i == std::string::npos){
+		return (std::make_pair(ret[0], ret[0]));
+	}
+	while (str[i]){
+		ret[1] += str[i];
+		i++;
 	}
 
-	return (ret);
+	return (std::make_pair(ret[0], ret[1]));
 }
 
 void	ConfigFile::extract_config_file(){
@@ -59,6 +62,8 @@ void	ConfigFile::extract_config_file(){
 		return ;
 	}
 	std::string buffer;
+	std::string temp;
+	std::pair<std::string, std::string> temp_tab;
 
 	size_t		non_blank;
 
@@ -77,17 +82,20 @@ void	ConfigFile::extract_config_file(){
 			if(buffer[non_blank] == '#')
 				continue ;
 			else if (std::regex_search(buffer, matches, listen))				
-				_listen = parse_found_line(matches[0], buffer);
+				_listen = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, server_name))				
-				_server_name = parse_found_line(matches[0], buffer);
+				_server_name = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, root))				
-				_root = parse_found_line(matches[0], buffer);
+				_root = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, access_log))				
-				_access_log = parse_found_line(matches[0], buffer);
-			else if (std::regex_search(buffer, matches, error_log))				
-				_error_log = parse_found_line(matches[0], buffer);
+				_access_log = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, error_log)){
+				temp = parse_found_line(matches.str(), buffer);
+				temp_tab = split_on_space(temp);
+				_error_log[temp_tab.first] = temp_tab.second; 
+			}				
 			else if (std::regex_search(buffer, matches, include))				
-				_include_types = parse_found_line(matches[0], buffer);
+				_include_types = parse_found_line(matches.str(), buffer);
 		}
 		
 	}
