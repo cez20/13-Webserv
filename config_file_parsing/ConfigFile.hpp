@@ -26,7 +26,7 @@ class ConfigFile{
 		std::string get_server_name(){return (_server_name);};
 		std::string get_root(){return (_root);};
 		std::string get_access_log(){return (_access_log);};
-		std::string get_error_log(){return (_error_log);};
+		std::map<std::string, std::string>& get_error_log(){return (_error_log);};
 		std::string get_include_types(){return (_include_types);};
 		std::string get_location(){return (_location);};
 		std::string get_config_file_content(){return (_config_file_content);};
@@ -34,6 +34,7 @@ class ConfigFile{
 
 		void 		extract_config_file();
 		std::string	parse_found_line(std::string charset, std::string found_line);
+		std::pair<std::string, std::string>	split_on_space(std::string str);
 
 		class EmptyFd: public std::exception{
 			public:
@@ -59,7 +60,7 @@ class ConfigFile{
 		std::string	_access_log;
 
 		//Path to the error logs.
-		std::string	_error_log;
+		//std::string	_error_log;
 
 		//-------------------------OPTIONNAL------------------------------------//
 		//Include separate file that contains MIME type mappings for the server to handle different types of files.
@@ -68,7 +69,7 @@ class ConfigFile{
 		//Define the configuration for handling requests that match the root location("/").
 		std::string	_location;
 
-		
+		std::map<std::string, std::string> _error_log;
 };
 
 #endif
