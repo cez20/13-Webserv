@@ -27,30 +27,30 @@ std::string	ConfigFile::parse_found_line(std::string charset, std::string found_
 		while (std::isspace(found_line[i]))
 			++i;
 		size_t end = found_line.find(';', i);
-		if (end != std::string::npos) {
+		if (end != std::string::npos) 
 			ret = found_line.substr(i, end - i);
-		}
+		
 	}
 
 	return (ret);
 }
 
-std::string	ConfigFile::parse_found_line(std::string charset, std::string found_line){
-	std::string ret;
+//std::string	ConfigFile::parse_found_line(std::string charset, std::string found_line){
+//	std::string ret;
 
-	size_t i = found_line.find(charset);
-	if (i != std::string::npos){
-		i += charset.length();
-		while (std::isspace(found_line[i]))
-			++i;
-		size_t end = found_line.find(';', i);
-		if (end != std::string::npos) {
-			ret = found_line.substr(i, end - i);
-		}
-	}
+//	size_t i = found_line.find(charset);
+//	if (i != std::string::npos){
+//		i += charset.length();
+//		while (std::isspace(found_line[i]))
+//			++i;
+//		size_t end = found_line.find(';', i);
+//		if (end != std::string::npos) {
+//			ret = found_line.substr(i, end - i);
+//		}
+//	}
 
-	return (ret);
-}
+//	return (ret);
+//}
 
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
