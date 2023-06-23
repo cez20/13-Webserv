@@ -8,19 +8,37 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (!fileExist(clientRequest.path)){
         this->statusCode = "404";
-        this->body=extractFileContent("/Users/slord/Desktop/13-WEBSERVER/html/404.html");
+        this->body=extractFileContent(clientRequest.config.getDocumentRoot() + "/404.html");
         this->headers["contentType"] = "text/html";
         return (1);
     }
     else if (clientRequest.method == "GET"){
         this->statusCode = "200";
-        this->headers["contentType"] = "text/html";
         if (clientRequest.isCgi) {
             std::string output  = executeCgi(clientRequest);
             analyseCgiOutput(output);
             return(0);
         }
+        else if (clientRequest.toBeDownloaded) {
+            std::string filePath = clientRequest.path;  // Chemin du fichier à télécharger
+            std::ifstream fileStream(filePath, std::ios::binary);
+            std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
+
+    // Définir les en-têtes de la réponse
+        this->headers["contentDisposition"] = "attachment; filename=" + fileName;
+        this->headers["contentType"] = "application/pdf";  // Type MIME pour les fichiers téléchargeables
+
+    // Lire le contenu du fichier et l'affecter à la réponse
+    std::stringstream fileContent;
+    fileContent << fileStream.rdbuf();
+    this->body = fileContent.str();
+
+    // Définir la longueur du contenu
+    this->headers["contentLength"] = std::to_string(this->body.length());
+            return 0;
+        }
         else{
+            this->headers["contentType"] = "text/html";
             this->body = extractFileContent(clientRequest.path);
             this->headers["contentLength"] = std::to_string(this->body.length());
         } 
@@ -36,7 +54,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     else{
         this->statusCode = "501";
         this->headers["contentType"] = " text/html";
-        this->body = extractFileContent("/Users/slord/Desktop/13-WEBSERVER/html/501.html");       
+        this->body=extractFileContent(clientRequest.config.getDocumentRoot() + "/501.html");      
         return (1);
     }
     return (0);
@@ -111,7 +129,6 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
         while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
             output += std::string(buffer, bytesRead);
         }
-
         close(pipefd[0]);
 
          if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
@@ -123,8 +140,6 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
      return output;
 }
 
-
-   
 void HttpResponse::analyseCgiOutput(const std::string& output){
         this->body = (output);
         //this->headers["contentDispositon"] = "inline";

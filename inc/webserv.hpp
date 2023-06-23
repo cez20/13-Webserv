@@ -30,6 +30,7 @@
 
 int server(const ServerConfiguration& config);
 std::string extractFileContent(const std::string& path);
+bool endsWith(const std::string& str, const std::string& suffix);
 
 template <typename Key, typename Value>
 void printMap(const std::map<Key, Value>& mapContainer) {

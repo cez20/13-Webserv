@@ -10,6 +10,7 @@ class HttpRequest {
         std::string body;
         std::string querryString;
         bool isValid;
+        bool toBeDownloaded;
         bool isCgi;
         const ServerConfiguration& config;
         void showRequest(){
@@ -19,14 +20,16 @@ class HttpRequest {
         
         // Constructor
         HttpRequest(std::string rawRequest, const ServerConfiguration& config): config(config){
-            parseRequest(rawRequest);
+            parseRequest(rawRequest, config);
             checkCgi(config);
+            checkDownload(config);
         }
         // Destructor
         ~HttpRequest();
     private:
-        void parseRequest(std::string rawRequest);
+        void parseRequest(std::string rawRequest, const ServerConfiguration& config);
         void validityCheck();
         void checkCgi(const ServerConfiguration& config);
+        void checkDownload(const ServerConfiguration& config);
       
 };
