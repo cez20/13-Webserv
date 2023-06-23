@@ -6,20 +6,6 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
 }
 
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
-     std::string CgiPath = clientRequest.config.getCgiRoot();
-     std::cout << clientRequest.path << std::endl;
-    if ( "/Users/slord/Desktop/13-WEBSERVER/html/test.php"   ==  clientRequest.path) {
-        //if (clientRequest.headers.find("Content-Type") != clientRequest.headers.end() && clientRequest.headers.at("Content-Type") == "application/x-www-form-urlencoded"){
-            //try{
-                std::string output  = executeCgi(clientRequest);
-                analyseCgiOutput(output);
-                return(0);
-            //}
-            //catch (const std::exception& e) {
-                //return(1);
-           // }
-       // }
-    }
     if (!fileExist(clientRequest.path)){
         this->statusCode = "404";
         this->body=extractFileContent("/Users/slord/Desktop/13-WEBSERVER/html/404.html");
@@ -28,11 +14,17 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
     else if (clientRequest.method == "GET"){
         this->statusCode = "200";
-        this->body = extractFileContent(clientRequest.path);
         this->headers["contentType"] = "text/html";
-        this->headers["contentLength"] = std::to_string(this->body.length());
+        if (clientRequest.isCgi) {
+            std::string output  = executeCgi(clientRequest);
+            analyseCgiOutput(output);
+            return(0);
+        }
+        else{
+            this->body = extractFileContent(clientRequest.path);
+            this->headers["contentLength"] = std::to_string(this->body.length());
+        } 
         return (0);
-
     }
     
     // else if (clientRequest.method == "POST"){
@@ -78,11 +70,10 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
         throw std::runtime_error("Erreur lors de la création du processus fils.");
     }
     else if (pid == 0) {
-        // Processus fils
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
-
+        //separate variable from URL
         std::string arguments = clientRequest.querryString;
         std::stringstream ss(arguments);
         std::string argument;
@@ -90,26 +81,19 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
         while (std::getline(ss, argument, '&')) {
             argumentList.push_back(argument);
         }
-        
+        //set args for execve
         std::vector<char*> argvList;
         argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
         argvList.push_back(const_cast<char*>("/Users/slord/Desktop/13-WEBSERVER/html/test.php"));
-        // for (size_t i = 0; i < argumentList.size(); ++i) {
-        //     std::string argument = "--" + argumentList[i];
-        //     std::cerr << argument << std::endl;
-        //     argvList.push_back(const_cast<char*>(argument.c_str()));
-        // }
         argvList.push_back(nullptr);
+        //set envp for execve
         std::vector<char*> envpList;      
         for (size_t i = 0; i < argumentList.size(); ++i) {
             envpList.push_back(const_cast<char*>(argumentList[i].c_str()));  // Définit la variable d'environnement NAME avec la valeur "John"
-
         }
-          envpList.push_back(nullptr);
-
+        envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-       // char* const* envp = { nullptr };
         if (execve("/usr/bin/php", argv, envp) == -1) {
             std::cerr << "Erreur lors de l'exécution de execve: " << strerror(errno) << std::endl;
             std::cerr << "Problème avec execve" << std::endl;
@@ -130,10 +114,9 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
 
         close(pipefd[0]);
 
-        if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-            throw std::runtime_error("Le script CGI a retourné une erreur.");
-        }
-        std::cout << output<< std::endl;
+         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+             throw std::runtime_error("Le script CGI a retourné une erreur.");
+         }
         return output;
     }
 
@@ -144,9 +127,7 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
    
 void HttpResponse::analyseCgiOutput(const std::string& output){
         this->body = (output);
-        this->headers["contentType"] = "text/html";
-        this->headers["contentDispositon"] = "inline";
-        this->statusCode = "200";
+        //this->headers["contentDispositon"] = "inline";
         this->headers["contentLength"] = std::to_string(this->body.length());
         return;
     }

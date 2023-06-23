@@ -36,7 +36,13 @@ void HttpRequest::parseRequest(std::string rawRequest){
     this->headers = headers;
 }
 void HttpRequest::validityCheck(){
-    //this function will check if the resquest sent by the client is a valid one.
 }
+void HttpRequest::checkCgi(const ServerConfiguration& config){
+    if(this->path == config.getCgiRoot() + "/test.php"){
+        this->isCgi = true;
+    }
+     else
+        this->isCgi = false;
+ }
 // Default destructor
 HttpRequest::~HttpRequest() { return; }

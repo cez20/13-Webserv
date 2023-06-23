@@ -10,6 +10,7 @@ class HttpRequest {
         std::string body;
         std::string querryString;
         bool isValid;
+        bool isCgi;
         const ServerConfiguration& config;
         void showRequest(){
             std::cout << method << "  " << path << "  " << std::endl;
@@ -19,12 +20,13 @@ class HttpRequest {
         // Constructor
         HttpRequest(std::string rawRequest, const ServerConfiguration& config): config(config){
             parseRequest(rawRequest);
-            validityCheck();
+            checkCgi(config);
         }
         // Destructor
         ~HttpRequest();
     private:
         void parseRequest(std::string rawRequest);
         void validityCheck();
+        void checkCgi(const ServerConfiguration& config);
       
 };
