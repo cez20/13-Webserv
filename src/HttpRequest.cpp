@@ -1,5 +1,5 @@
 
-#include "../inc/HttpRequest.hpp"
+#include "HttpRequest.hpp"
 
 void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration& config){
     std::string method, path, body, line;

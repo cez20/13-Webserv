@@ -1,4 +1,4 @@
-#include "../inc/webserv.hpp"
+#include "webserv.hpp"
 
 //extract a string from a file
 std::string extractFileContent(const std::string& path) {

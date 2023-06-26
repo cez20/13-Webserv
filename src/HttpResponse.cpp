@@ -1,5 +1,5 @@
 
-#include "../inc/HttpResponse.hpp"
+#include "HttpResponse.hpp"
 // constructor
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     analyseRequest(clientRequest);
