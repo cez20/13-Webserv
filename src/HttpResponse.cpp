@@ -40,7 +40,19 @@ int HttpResponse::writeOnSocket(const int& clientSocket){
         response += it->first + ": " + it->second + "\r\n";
     }
     response += "\r\n" + body;
-    send(clientSocket, response.c_str(), response.length(), 0);
+    size_t totalBytesSent =0;
+    size_t bytesRemaining = response.length();
+
+    while(totalBytesSent < response.length()){
+      int bytesSent=send(clientSocket, response.c_str(), response.length(), 0);
+       if (bytesSent == -1) {
+            std::cerr << "error while sending response to the client" << std::endl;
+            return -1;
+        }
+        totalBytesSent += bytesSent;
+        bytesRemaining -= bytesSent;
+    }
+    
     return (0);
 }
 
@@ -53,12 +65,12 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
     std::string output;
     int pipefd[2];
     if (pipe(pipefd) == -1) {
-        throw std::runtime_error("Erreur lors de la création du tube (pipe).");
+        throw std::runtime_error("Error when creating pipe");
     }
 
     pid_t pid = fork();
     if (pid == -1) {
-        throw std::runtime_error("Erreur lors de la création du processus fils.");
+        throw std::runtime_error("Error wheile forking");
     }
     else if (pid == 0) {
         dup2(pipefd[1], STDOUT_FILENO);
@@ -86,8 +98,7 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
         if (execve("/usr/bin/php", argv, envp) == -1) {
-            std::cerr << "Erreur lors de l'exécution de execve: " << strerror(errno) << std::endl;
-            std::cerr << "Problème avec execve" << std::endl;
+            std::cerr << "Error with execve" << std::endl;
         }
     }
     else {
@@ -105,7 +116,7 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
         close(pipefd[0]);
 
          if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-             throw std::runtime_error("Le script CGI a retourné une erreur.");
+             throw std::runtime_error("Script returned an error");
          }
         return output;
     }
