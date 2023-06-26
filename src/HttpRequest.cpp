@@ -1,11 +1,18 @@
 
 #include "../inc/HttpRequest.hpp"
 
-void HttpRequest::parseRequest(std::string rawRequest){
+void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration& config){
     std::string method, path, body, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
     request >> method >> path;
+    if (method == "GET"){
+        size_t quePos = path.find("?");  
+        if (quePos != std::string::npos){
+                this->querryString =path.substr(quePos +1);
+                path = path.substr(0, quePos);
+        }
+    }
     while(std::getline(request, line) && !line.empty()){
         std::string headerName, headerValue;
         size_t colonPos = line.find(":");
@@ -24,12 +31,27 @@ void HttpRequest::parseRequest(std::string rawRequest){
     body = request.str();
     this->method = method;
     //we will get the info via the configutation file
-    this->path = "/Users/slord/Desktop/13-WEBSERVER/html" + path;
+    this->path = config.getDocumentRoot() + path;
     this->body = body;
     this->headers = headers;
 }
 void HttpRequest::validityCheck(){
-    //this function will check if the resquest sent by the client is a valid one.
 }
+void HttpRequest::checkCgi(const ServerConfiguration& config){
+    if(this->path == config.getCgiRoot() + "/test.php"){
+        this->isCgi = true;
+    }
+     else
+        this->isCgi = false;
+ }
+ void HttpRequest::checkDownload(const ServerConfiguration& config){
+    if(endsWith(this->path, ".pdf")){
+        this->toBeDownloaded = true;
+    }
+     else
+        this->toBeDownloaded = false;
+    std::string test = config.getCgiRoot();
+
+ }
 // Default destructor
 HttpRequest::~HttpRequest() { return; }

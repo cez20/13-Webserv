@@ -21,8 +21,11 @@ class HttpResponse {
 
         int analyseRequest(const HttpRequest& clientRequest);
         bool fileExist(const std::string& filename);
-        void executeCgi(const std::string& cgiPath, const std::string env);
+        std::string executeCgi(const HttpRequest& clientRequest);
+        void analyseCgiOutput(const std::string& output);
 
 };
 
 #endif // HTTPRESPONSE_HPP_
+
+
