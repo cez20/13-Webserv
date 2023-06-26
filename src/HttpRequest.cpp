@@ -27,7 +27,7 @@ void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration
     if (path.empty() || path == "/") {
         path = "/index.html";
     }
-    //extract the reminder of the resquest into the variable body
+    //extract the reminder of the rsequest into the variable body
     body = request.str();
     this->method = method;
     //we will get the info via the configutation file
