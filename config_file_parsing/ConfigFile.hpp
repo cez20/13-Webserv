@@ -16,6 +16,9 @@
 #include<fstream>
 #include<iostream>
 #include<regex>
+#include<map>
+#include <utility>
+
 
 class ConfigFile{
 	public:
@@ -28,18 +31,21 @@ class ConfigFile{
 		std::string get_access_log(){return (_access_log);};
 		std::map<std::string, std::string>& get_error_log(){return (_error_log);};
 		std::string get_include_types(){return (_include_types);};
-		std::string get_location(){return (_location);};
+		// std::string get_location(){return (_location);};
 		std::string get_config_file_content(){return (_config_file_content);};
 		// std::string get_(){return (_);};
 
 		void 		extract_config_file();
 		std::string	parse_found_line(std::string charset, std::string found_line);
+		std::string	parse_found_location(std::string charset, std::string found_line);
 		std::pair<std::string, std::string>	split_on_space(std::string str);
 
 		class EmptyFd: public std::exception{
 			public:
 				const char* what() const throw(){return ("Empty or missing fd");};
 		};
+		std::map<std::string, std::string> _error_log;
+		std::map<std::string, std::map<std::string, std::string> > _location;
 
 	private:
 		std::string _fd_path;
@@ -67,9 +73,8 @@ class ConfigFile{
 		std::string	_include_types;
 
 		//Define the configuration for handling requests that match the root location("/").
-		std::string	_location;
+		// std::string	_location;
 
-		std::map<std::string, std::string> _error_log;
 };
 
 #endif

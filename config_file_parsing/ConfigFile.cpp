@@ -35,6 +35,25 @@ std::string	ConfigFile::parse_found_line(std::string charset, std::string found_
 	return (ret);
 }
 
+std::string	ConfigFile::parse_found_location(std::string charset, std::string found_line){
+	std::string ret;
+
+	size_t i = found_line.find(charset);
+	if (i != std::string::npos){
+		i += charset.length();
+		while (std::isspace(found_line[i]))
+			++i;
+		size_t end = found_line.find(' ', i);
+		if (end == std::string::npos)
+			end = found_line.find('{', i);
+		if (end != std::string::npos) 
+			ret = found_line.substr(i, end - i);
+		
+	}
+
+	return (ret);
+}
+
 std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 	std::string ret[2];
 	size_t i = 0;
@@ -43,7 +62,8 @@ std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 		ret[0] += str[i];
 		i++;
 	}
-	i = str.find_first_not_of(" \t\n");
+	while (str[i] == ' ' || str[i] == '\t')
+		i++;
 	if (i == std::string::npos){
 		return (std::make_pair(ret[0], ret[0]));
 	}
@@ -51,7 +71,6 @@ std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 		ret[1] += str[i];
 		i++;
 	}
-
 	return (std::make_pair(ret[0], ret[1]));
 }
 
@@ -63,17 +82,21 @@ void	ConfigFile::extract_config_file(){
 	}
 	std::string buffer;
 	std::string temp;
+	std::string location_temp;
 	std::pair<std::string, std::string> temp_tab;
 
 	size_t		non_blank;
+	bool		location_flag = false;
 
 	std::smatch	matches;
 	std::regex 	listen("listen");
 	std::regex 	server_name("server_name");
 	std::regex 	root("root");
-	std::regex 	error_log("error_log");
+	std::regex 	error_log("error_page");
 	std::regex 	access_log("access_log");
 	std::regex	include("include");
+	std::regex	location("location");
+	std::regex	close("}");
 	//std::regex 
 
 	if (infile.is_open()){
@@ -81,6 +104,20 @@ void	ConfigFile::extract_config_file(){
 			non_blank = buffer.find_first_not_of(" \t\n");
 			if(buffer[non_blank] == '#')
 				continue ;
+			else if (location_flag == true){
+				if (std::regex_search(buffer, matches, close))
+					location_flag = false;
+				else{
+					temp_tab = split_on_space(buffer);
+					_location[location_temp][temp_tab.first] = temp_tab.second;	
+				}
+			}
+			else if (std::regex_search(buffer, matches, location)){
+				location_flag = true;
+				location_temp = parse_found_location(matches.str(), buffer);
+				_location[location_temp];
+			}
+
 			else if (std::regex_search(buffer, matches, listen))				
 				_listen = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, server_name))				
@@ -92,8 +129,8 @@ void	ConfigFile::extract_config_file(){
 			else if (std::regex_search(buffer, matches, error_log)){
 				temp = parse_found_line(matches.str(), buffer);
 				temp_tab = split_on_space(temp);
-				_error_log[temp_tab.first] = temp_tab.second; 
-			}				
+				_error_log[temp_tab.first] = temp_tab.second;
+			}
 			else if (std::regex_search(buffer, matches, include))				
 				_include_types = parse_found_line(matches.str(), buffer);
 		}
