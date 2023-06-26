@@ -15,10 +15,11 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
             return;
         }
         request.append(buffer, bytesRead);
-        // check is the request is complete
+        // check is the reques header is complete
         if (request.find("\r\n\r\n") != std::string::npos) {
             break;
         }
+        //I will have to check if the body is not fragmented too.  Will do later, I will havwe to use conent-length in the header
     }
     HttpRequest clientRequest(request, config);
     //clientRequest.showRequest();
