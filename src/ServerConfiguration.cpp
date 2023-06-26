@@ -1,5 +1,5 @@
 
-#include "../inc/ServerConfiguration.hpp"
+#include "ServerConfiguration.hpp"
 
 
 ServerConfiguration::ServerConfiguration(const std::string& configFile) : port_(0), document_root_(""), log_file_(""),log_level_("")  {

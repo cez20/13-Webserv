@@ -1,4 +1,4 @@
-#include "../inc/webserv.hpp"
+#include "webserv.hpp"
 
 //parse and analyse the resquest on the client socket. After send the appropriate response to the client.
 

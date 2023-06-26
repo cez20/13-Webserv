@@ -1,6 +1,6 @@
 #pragma once
 //to do : vars private, getter & setter
-#include "../inc/webserv.hpp"
+#include "webserv.hpp"
 class ServerConfiguration;
 class HttpRequest {
     public:
