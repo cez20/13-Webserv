@@ -44,4 +44,7 @@ config
 webserv
 build
 
+server.exe
+
+
 #Sam

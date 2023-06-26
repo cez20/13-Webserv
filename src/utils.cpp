@@ -1,4 +1,4 @@
-#include "../inc/webserv.hpp"
+#include "webserv.hpp"
 
 //extract a string from a file
 std::string extractFileContent(const std::string& path) {
@@ -15,3 +15,10 @@ std::string extractFileContent(const std::string& path) {
     file.close();
     return content;
 }
+bool endsWith(const std::string& str, const std::string& suffix) {
+    if (str.length() >= suffix.length()) {
+        return (str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0);
+    }
+    return false;
+}
+

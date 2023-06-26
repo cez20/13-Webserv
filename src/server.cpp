@@ -1,18 +1,20 @@
-#include "../inc/webserv.hpp"
+#include "webserv.hpp"
 
 //parse and analyse the resquest on the client socket. After send the appropriate response to the client.
 
 void handleClient(int clientSocket, const ServerConfiguration& config) {
     char buffer[8192];
-    int bytesRead = read(clientSocket, buffer, sizeof(buffer));
+    int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
     if (bytesRead == -1) {
         std::cerr << "Cannot read the client data" << std::endl;
         close(clientSocket);
         return;
     }
+
     std::string request(buffer, bytesRead);
     HttpRequest clientRequest(request, config);
     //clientRequest.showRequest();
+    //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
     response.writeOnSocket(clientSocket);
     close(clientSocket);
@@ -22,6 +24,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
 //main function. creating the server socket: using a poll to track if we can read the sockets
 int server(const ServerConfiguration& config) {
 
+//SETTING UP THE SERVER
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {
         std::cerr << "Error while creating the server socket." << std::endl;
@@ -35,18 +38,21 @@ int server(const ServerConfiguration& config) {
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(config.getPort()); 
     serverAddress.sin_addr.s_addr = INADDR_ANY;
+
     if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
-        std::cerr << "Errort while trying to bind trhe socket." << std::endl;
+        std::cerr << "Error while trying to bind the socket." << std::endl;
         close(serverSocket);
         return 1;
     }
-
     if (listen(serverSocket, 5) == -1) {
         std::cerr << "Error while trying to listen" << std::endl;
         close(serverSocket);
         return 1;
     }
     std::cout << "SOCKETSERVER VOUS ECOUTE." << std::endl;
+
+    //SERVER IS STARTED
+
     while (true) {
         int ready = poll(pollFds.data(), pollFds.size(), -1);
         if (ready == -1) {
@@ -74,14 +80,14 @@ int server(const ServerConfiguration& config) {
                 else {
                     handleClient(pollFds[i].fd, config);
                     std::cout << "Closing the connection" << std::endl;
-                    close(pollFds[i].fd);
+                    close(pollFds[i].fd); 
                     pollFds.erase(pollFds.begin() + i);
                     --i;
                 }
             }
         }
-     
     }
+
     close(serverSocket);
     return 0;
 }

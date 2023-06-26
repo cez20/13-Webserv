@@ -13,6 +13,7 @@
 #include <map>
 #include <sstream>
 #include <regex>
+#include <cerrno>
 
 
 #include "HttpRequest.hpp"
@@ -29,3 +30,13 @@
 
 int server(const ServerConfiguration& config);
 std::string extractFileContent(const std::string& path);
+bool endsWith(const std::string& str, const std::string& suffix);
+
+template <typename Key, typename Value>
+void printMap(const std::map<Key, Value>& mapContainer) {
+    typedef typename std::map<Key, Value>::const_iterator MapIterator;
+    for (MapIterator it = mapContainer.begin(); it != mapContainer.end(); ++it) {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+}
+
