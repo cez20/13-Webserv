@@ -9,7 +9,7 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     //check if the te path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
-        this->statusCode = "404";
+        this->statusCode = "404 Not Found";
         this->body=extractFileContent(clientRequest.config.getDocumentRoot() + "/404.html");
         this->headers["contentType"] = "text/html";
         return (1);
@@ -124,16 +124,19 @@ int HttpResponse::getMethod(const HttpRequest& clientRequest){
     if (clientRequest.isCgi) {
             std::string output  = executeCgi(clientRequest);
             analyseCgiOutput(output);
+            this->statusCode = "200 OK";
             return(0);
     }
     else if (clientRequest.toBeDownloaded) {
         std::string filePath = clientRequest.path;  // Chemin du fichier à télécharger
         std::ifstream fileStream(filePath, std::ios::binary);
         std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
-
+        std::cout << "to be downloaded!!!" << std::endl;
+         std::cout << fileName << std::endl;
         // Définir les en-têtes de la réponse
         this->headers["contentDisposition"] = "attachment; filename=\"" + fileName + "\"";
-        this->headers["contentType"] = "application/octet-stream";  // Type MIME pour les fichiers téléchargeables
+        this->headers["contentType"] = "application/octet-stream"; // Type MIME pour les fichiers téléchargeables
+        this->headers["Cache-Control"] = "no-cache";  
 
         // Lire le contenu du fichier et l'affecter à la réponse
         std::stringstream fileContent;
@@ -145,6 +148,7 @@ int HttpResponse::getMethod(const HttpRequest& clientRequest){
         return 0;
     }
     else{
+        this->statusCode = "200 OK";
         this->headers["contentType"] = "text/html";
         this->body = extractFileContent(clientRequest.path);
         this->headers["contentLength"] = std::to_string(this->body.length());

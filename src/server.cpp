@@ -4,14 +4,22 @@
 
 void handleClient(int clientSocket, const ServerConfiguration& config) {
     char buffer[8192];
-    int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-    if (bytesRead == -1) {
-        std::cerr << "Cannot read the client data" << std::endl;
-        close(clientSocket);
-        return;
+    std::string request;
+    while (true) {
+        int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
+        if (bytesRead <= 0) {
+            // Erreur de lecture ou fin de la connexion
+            close(clientSocket);
+            if (bytesRead == 0)
+                std::cout << "\rConnection was closed by client.\n" << std::endl;
+            return;
+        }
+        request.append(buffer, bytesRead);
+        // check is the request is complete
+        if (request.find("\r\n\r\n") != std::string::npos) {
+            break;
+        }
     }
-
-    std::string request(buffer, bytesRead);
     HttpRequest clientRequest(request, config);
     //clientRequest.showRequest();
     //printMap(clientRequest.headers);
