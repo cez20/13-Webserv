@@ -24,17 +24,18 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             std::ifstream fileStream(filePath, std::ios::binary);
             std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
 
-    // Définir les en-têtes de la réponse
-        this->headers["contentDisposition"] = "attachment; filename=" + fileName;
-        this->headers["contentType"] = "application/pdf";  // Type MIME pour les fichiers téléchargeables
+            // Définir les en-têtes de la réponse
+            this->headers["contentDisposition"] = "attachment; filename=\"" + fileName + "\"";
 
-    // Lire le contenu du fichier et l'affecter à la réponse
-    std::stringstream fileContent;
-    fileContent << fileStream.rdbuf();
-    this->body = fileContent.str();
+            this->headers["contentType"] = "application/octet-stream";  // Type MIME pour les fichiers téléchargeables
 
-    // Définir la longueur du contenu
-    this->headers["contentLength"] = std::to_string(this->body.length());
+            // Lire le contenu du fichier et l'affecter à la réponse
+            std::stringstream fileContent;
+            fileContent << fileStream.rdbuf();
+            this->body = fileContent.str();
+
+            // Définir la longueur du contenu
+            this->headers["contentLength"] = std::to_string(this->body.length());
             return 0;
         }
         else{
