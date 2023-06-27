@@ -18,7 +18,8 @@ enable_testing()      #enable testing in CMake.
 
 add_executable(
   webservTests         			# Name of the executable that will be created
-  tests/webservTests.cpp        # Srcs files that is available 
+  tests/compilationTests.cpp    # Srcs files for first series of tests
+  tests/webservTests.cpp        # Srcs files for second series of tests
 )
 
 target_link_libraries(
