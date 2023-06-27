@@ -26,13 +26,13 @@ class ConfigFile{
 	ConfigFile(std::string configPath);
 	~ConfigFile();
 
-		std::string get_listen(){return (_listen);};
+		// std::string get_listen(){return (_listen);};
+		std::string get_listen_pre_parsed(){return (_listen_pre_parsed);};
 		std::string get_server_name(){return (_server_name);};
 		std::string get_root(){return (_root);};
 		std::string get_access_log(){return (_access_log);};
 		std::map<std::string, std::string>& get_error_log(){return (_error_log);};
 		std::string get_include_types(){return (_include_types);};
-		// std::string get_location(){return (_location);};
 		std::string get_config_file_content(){return (_config_file_content);};
 		// std::string get_(){return (_);};
 
@@ -49,26 +49,28 @@ class ConfigFile{
 			public:
 				const char* what() const throw(){return ("Formating error, check your configuration file");};
 		};
-		std::map<std::string, std::string> _error_log;
-		// std::map<std::string, std::map<std::string, std::string> > _location;
+		std::map<std::string, std::string>		_error_log;
 		struct location{
-			std::map<std::string, std::string> _loc_error_log;
-			std::string	_loc_listen;
-			std::string	_loc_server_name;
-			std::string	_loc_root;
-			std::string	_loc_access_log;
-			std::string	_loc_include_types;
+			std::map<std::string, std::string>	_loc_error_log;
+			std::string							_loc_listen;
+			std::string							_loc_server_name;
+			std::string							_loc_root;
+			std::string							_loc_access_log;
+			std::string							_loc_include_types;
+			std::string							_loc_index;
 		};
-		std::map<std::string, location> _location; 
+		std::map<std::string, location>			_location; 
 
 	private:
-		std::string _fd_path;
-		std::string _config_file_content;
-		std::string	_listen;
-		std::string	_server_name;
-		std::string	_root;
-		std::string	_access_log;
-		std::string	_include_types;
+		std::string 							_fd_path;
+		std::string 							_config_file_content;
+		std::string								_listen_pre_parsed;
+		std::vector<std::string>				_listen;
+		std::string								_server_name;
+		std::string								_root;
+		std::string								_index;
+		std::string								_access_log;
+		std::string								_include_types;
 
 };
 
