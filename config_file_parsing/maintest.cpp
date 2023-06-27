@@ -1,7 +1,7 @@
 #include "./ConfigFile.hpp"
 
 int main(){
-	std::string testfile = "./config2.conf";
+	std::string testfile = "./config3.conf";
 	try{
 		ConfigFile test(testfile);
 		std::cout << test.get_listen() << std::endl;
@@ -16,6 +16,21 @@ int main(){
 		for (iter = test._error_log.begin(); iter != test._error_log.end(); ++iter) {
         std::cout << "Key: " << iter->first << ", Value: " << iter->second << std::endl;
     	}
+		typedef std::map<std::string, std::string> InnerMap;
+		typedef std::map<std::string, InnerMap> OuterMap;
+
+		OuterMap::const_iterator outerIt;
+		InnerMap::const_iterator innerIt;
+
+		for (outerIt = test._location.begin(); outerIt != test._location.end(); ++outerIt) {
+			std::cout << "Location: " << outerIt->first << std::endl;
+   			const InnerMap& innerMap = outerIt->second;
+
+ 		   	for (innerIt = innerMap.begin(); innerIt != innerMap.end(); ++innerIt) {
+ 	      		std::cout << "Key: " << innerIt->first << ", Value: " << innerIt->second << std::endl;
+    	}
+  	 	std::cout << std::endl;
+		}
 		std::cout << test.get_include_types() << std::endl;
 	}
 	catch(const std::exception& e){

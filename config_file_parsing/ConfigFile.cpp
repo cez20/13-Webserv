@@ -58,7 +58,8 @@ std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 	std::string ret[2];
 	size_t i = 0;
 
-	while(str[i] != ' '){
+	i = str.find_first_not_of(" \t\n");
+	while(str[i] != ' ' && str[i] != '\t'){
 		ret[0] += str[i];
 		i++;
 	}
@@ -67,7 +68,7 @@ std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 	if (i == std::string::npos){
 		return (std::make_pair(ret[0], ret[0]));
 	}
-	while (str[i]){
+	while (str[i] && str[i] != ';'){
 		ret[1] += str[i];
 		i++;
 	}
@@ -96,7 +97,7 @@ void	ConfigFile::extract_config_file(){
 	std::regex 	access_log("access_log");
 	std::regex	include("include");
 	std::regex	location("location");
-	std::regex	close("}");
+	std::regex	close("\\s*\\}");
 	//std::regex 
 
 	if (infile.is_open()){
@@ -109,13 +110,16 @@ void	ConfigFile::extract_config_file(){
 					location_flag = false;
 				else{
 					temp_tab = split_on_space(buffer);
+					std::cout << location_temp << std::endl;
+					std::cout << temp_tab.first << std::endl;
+					std::cout << temp_tab.second << std::endl;
 					_location[location_temp][temp_tab.first] = temp_tab.second;	
 				}
 			}
 			else if (std::regex_search(buffer, matches, location)){
 				location_flag = true;
 				location_temp = parse_found_location(matches.str(), buffer);
-				_location[location_temp];
+				// std::cout << location_temp << std::endl;
 			}
 
 			else if (std::regex_search(buffer, matches, listen))				
