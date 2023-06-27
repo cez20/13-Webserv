@@ -13,7 +13,7 @@ class HttpRequest {
         bool toBeDownloaded;
         bool isCgi;
         const ServerConfiguration& config;
-        void showRequest(){
+        void showRequest()const {
             std::cout << method << "  " << path << "  " << std::endl;
         }
         // Add any other necessary members or methods

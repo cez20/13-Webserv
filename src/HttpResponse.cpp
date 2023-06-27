@@ -22,7 +22,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
          return(postMethod(clientRequest));
     }
     else if (clientRequest.method == "DELETE"){
-        return(postMethod(clientRequest));  
+        return(deleteMethod(clientRequest));  
     }
     else{
         this->statusCode = "501";
@@ -36,13 +36,16 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
  //this fucntion will write on the socket the response to send to the client
 int HttpResponse::writeOnSocket(const int& clientSocket){
     std::string response = "HTTP/1.1 " + statusCode + "\r\n";
-    for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
-        response += it->first + ": " + it->second + "\r\n";
+    if (statusCode != "HTTP/1.1 204 No Content"){
+        for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
+            response += it->first + ": " + it->second + "\r\n";
+        }
+        response += "\r\n" + body;
     }
-    response += "\r\n" + body;
+    std::cout << response << std::endl;
     size_t totalBytesSent =0;
     size_t bytesRemaining = response.length();
-
+    
     while(totalBytesSent < response.length()){
       int bytesSent=send(clientSocket, response.c_str(), response.length(), 0);
        if (bytesSent == -1) {
@@ -174,9 +177,19 @@ int HttpResponse::postMethod(const HttpRequest& clientRequest){
             std::string output  = executeCgi(clientRequest);
             analyseCgiOutput(output);
             return(0);
-    }
-    return(0);
+   }
+   else{
+        if (clientRequest.body.empty()){
+            this->statusCode = "204 No Content";
+            return(0);
+        }
 
+        std::string dataToProcess = clientRequest.body;
+        this->statusCode = "200 OK";
+        //this->headers["contentType"] = "text/html";
+        //this->body = "POST request handled successfully.";
+        return(0);
+    }
 }
 
 int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
@@ -185,6 +198,10 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
             analyseCgiOutput(output);
             return(0);
     }
+    this->statusCode = "200 OK";
+    this->headers["contentType"] = "text/html";
+    this->body = "DELETE request handled successfully.";
+    
     return(0);
 
 }

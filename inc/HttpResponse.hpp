@@ -10,6 +10,9 @@ class HttpResponse {
     public:
         HttpResponse(const HttpRequest& clientRequest);
         int writeOnSocket(const int& clientSocket);
+        void showResponse()const {
+            std::cout << this->statusCode<< "  " << body << "  " << std::endl;
+        }
     
         //~HttpResponse();
 

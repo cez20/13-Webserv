@@ -34,6 +34,7 @@ void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration
     this->path = config.getDocumentRoot() + path;
     this->body = body;
     this->headers = headers;
+    this->showRequest();
 }
 void HttpRequest::validityCheck(){
 }
