@@ -1,0 +1,6 @@
+|TODO:
+
+[] Why when I do a connection to localhost with a PORT(that is not the correct one Ex: 8081), my programme
+	does accept the connection?
+[] I have done test with lapresse.ca before, and when I access this website it accepts the connection as if
+	the socket keeps in memory the domain I have used with it in the past 

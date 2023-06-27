@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
@@ -15,7 +17,6 @@
 #include <regex>
 #include <cerrno>
 
-
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "ServerConfiguration.hpp"
@@ -28,7 +29,7 @@
 #define GREEN_CL "\033[0;32m"
 #define DEFAULT_CL "\033[0m"
 
-int server(const ServerConfiguration& config);
+int launchServer(const ServerConfiguration& config);
 std::string extractFileContent(const std::string& path);
 bool endsWith(const std::string& str, const std::string& suffix);
 
