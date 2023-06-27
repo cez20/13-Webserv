@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>POST Request Test</title>
+</head>
+<body>
+  <h1>POST Request Test</h1>
+  
+  <form id="myForm" action="/submit" method="post">
+    <input type="text" name="username" placeholder="Enter username">
+    <br>
+    <input type="password" name="password" placeholder="Enter password">
+    <br>
+    <input type="submit" value="Submit">
+  </form>
+  
+  <script>
+    // Function to trigger the POST request
+    function triggerPost() {
+      document.getElementById('myForm').submit();
+    }
+  </script>
+  
+  <p>Click the link below to generate a POST request:</p>
+  <a href="#" onclick="triggerPost()">Submit POST Request</a>
+</body>
+</html>

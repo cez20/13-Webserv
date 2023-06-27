@@ -10,6 +10,9 @@ class HttpResponse {
     public:
         HttpResponse(const HttpRequest& clientRequest);
         int writeOnSocket(const int& clientSocket);
+        void showResponse()const {
+            std::cout << this->statusCode<< "  " << body << "  " << std::endl;
+        }
     
         //~HttpResponse();
 
@@ -23,6 +26,9 @@ class HttpResponse {
         bool fileExist(const std::string& filename);
         std::string executeCgi(const HttpRequest& clientRequest);
         void analyseCgiOutput(const std::string& output);
+        int getMethod(const HttpRequest& clientRequest);
+        int postMethod(const HttpRequest& clientRequest);
+        int deleteMethod(const HttpRequest& clientRequest);
 
 };
 
