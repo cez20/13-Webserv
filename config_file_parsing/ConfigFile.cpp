@@ -29,7 +29,8 @@ std::string	ConfigFile::parse_found_line(std::string charset, std::string found_
 		size_t end = found_line.find(';', i);
 		if (end != std::string::npos) 
 			ret = found_line.substr(i, end - i);
-		
+		else
+			throw BadFormat();
 	}
 
 	return (ret);
@@ -43,11 +44,13 @@ std::string	ConfigFile::parse_found_location(std::string charset, std::string fo
 		i += charset.length();
 		while (std::isspace(found_line[i]))
 			++i;
-		size_t end = found_line.find(' ', i);
-		if (end == std::string::npos)
-			end = found_line.find('{', i);
+		size_t end = found_line.find('{', i);
+		// if (end == std::string::npos)
+		// 	end = found_line.find('\n', i);
 		if (end != std::string::npos) 
 			ret = found_line.substr(i, end - i);
+		else
+			throw BadFormat();
 		
 	}
 
@@ -83,13 +86,16 @@ void	ConfigFile::extract_config_file(){
 	}
 	std::string buffer;
 	std::string temp;
+	std::string temp2;
 	std::string location_temp;
 	std::pair<std::string, std::string> temp_tab;
+	std::pair<std::string, std::string> temp_tab2;
 
 	size_t		non_blank;
 	bool		location_flag = false;
 
 	std::smatch	matches;
+	std::smatch	matches2;
 	std::regex 	listen("listen");
 	std::regex 	server_name("server_name");
 	std::regex 	root("root");
@@ -109,19 +115,27 @@ void	ConfigFile::extract_config_file(){
 				if (std::regex_search(buffer, matches, close))
 					location_flag = false;
 				else{
-					temp_tab = split_on_space(buffer);
-					std::cout << location_temp << std::endl;
-					std::cout << temp_tab.first << std::endl;
-					std::cout << temp_tab.second << std::endl;
-					_location[location_temp][temp_tab.first] = temp_tab.second;	
+					if (std::regex_search(buffer, matches2, listen))				
+						_location[location_temp]._loc_listen = parse_found_line(matches2.str(), buffer);
+					else if (std::regex_search(buffer, matches2, server_name))				
+						_location[location_temp]._loc_server_name = parse_found_line(matches2.str(), buffer);
+					else if (std::regex_search(buffer, matches2, root))				
+						_location[location_temp]._loc_root = parse_found_line(matches2.str(), buffer);
+					else if (std::regex_search(buffer, matches2, access_log))				
+						_location[location_temp]._loc_access_log = parse_found_line(matches2.str(), buffer);
+					else if (std::regex_search(buffer, matches2, error_log)){
+						temp2 = parse_found_line(matches2.str(), buffer);
+						temp_tab2 = split_on_space(temp2);
+						_location[location_temp]._loc_error_log[temp_tab2.first] = temp_tab2.second;
+					}
 				}
 			}
+			else if (std::regex_search(buffer, matches, include))			
+				_include_types = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, location)){
 				location_flag = true;
 				location_temp = parse_found_location(matches.str(), buffer);
-				// std::cout << location_temp << std::endl;
 			}
-
 			else if (std::regex_search(buffer, matches, listen))				
 				_listen = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, server_name))				

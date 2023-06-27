@@ -17,7 +17,8 @@
 #include<iostream>
 #include<regex>
 #include<map>
-#include <utility>
+#include<utility>
+#include"color.h"
 
 
 class ConfigFile{
@@ -44,36 +45,30 @@ class ConfigFile{
 			public:
 				const char* what() const throw(){return ("Empty or missing fd");};
 		};
+		class BadFormat: public std::exception{
+			public:
+				const char* what() const throw(){return ("Formating error, check your configuration file");};
+		};
 		std::map<std::string, std::string> _error_log;
-		std::map<std::string, std::map<std::string, std::string> > _location;
+		// std::map<std::string, std::map<std::string, std::string> > _location;
+		struct location{
+			std::map<std::string, std::string> _loc_error_log;
+			std::string	_loc_listen;
+			std::string	_loc_server_name;
+			std::string	_loc_root;
+			std::string	_loc_access_log;
+			std::string	_loc_include_types;
+		};
+		std::map<std::string, location> _location; 
 
 	private:
 		std::string _fd_path;
 		std::string _config_file_content;
-
-		//--------------------------NEEDED-----------------------------------//
-		//Specifies the port on which the server should listen for incoming connections.
 		std::string	_listen;
-	
-		//Defines the server name or domain for which this configuration block applies.
-		//Optionnal but need at least a default name.
 		std::string	_server_name;
-
-		//Specifies the root directory from which files will be served.
 		std::string	_root;
-
-		//Path to the access logs.
 		std::string	_access_log;
-
-		//Path to the error logs.
-		//std::string	_error_log;
-
-		//-------------------------OPTIONNAL------------------------------------//
-		//Include separate file that contains MIME type mappings for the server to handle different types of files.
 		std::string	_include_types;
-
-		//Define the configuration for handling requests that match the root location("/").
-		// std::string	_location;
 
 };
 
