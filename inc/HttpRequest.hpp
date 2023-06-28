@@ -8,13 +8,13 @@ class HttpRequest {
         std::string path;
         std::map<std::string, std::string> headers;
         std::string body;
-        std::string querryString;
+        std::string queryString;
         bool isValid;
         bool toBeDownloaded;
         bool isCgi;
         const ServerConfiguration& config;
         void showRequest()const {
-            std::cout << method << "  " << path << "  " << std::endl;
+            std::cout << method << "  " << path << "  " <<  std::endl << body << std::endl;
         }
         // Add any other necessary members or methods
         
@@ -30,6 +30,5 @@ class HttpRequest {
         void parseRequest(std::string rawRequest, const ServerConfiguration& config);
         void validityCheck();
         void checkCgi(const ServerConfiguration& config);
-        void checkDownload(const ServerConfiguration& config);
-      
+        void checkDownload(const ServerConfiguration& config);   
 };

@@ -21,6 +21,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
         }
         //I will have to check if the body is not fragmented too.  Will do later, I will havwe to use conent-length in the header
     }
+    std::cout <<"raw request " << request <<std::endl;
     HttpRequest clientRequest(request, config);
     //clientRequest.showRequest();
     //printMap(clientRequest.headers);

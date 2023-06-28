@@ -1,41 +1,58 @@
 
 #include "HttpRequest.hpp"
 
-void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration& config){
-    std::string method, path, body, line;
+void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration& config) {
+    std::string method, path, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
+
+    // Parse the request line to get the method and path
     request >> method >> path;
-    if (method == "GET"){
-        size_t quePos = path.find("?");  
-        if (quePos != std::string::npos){
-                this->querryString =path.substr(quePos +1);
-                path = path.substr(0, quePos);
+
+    if (method == "GET") {
+        size_t quePos = path.find("?");
+        if (quePos != std::string::npos) {
+            this->queryString = path.substr(quePos + 1);
+            path = path.substr(0, quePos);
         }
     }
-    while(std::getline(request, line) && !line.empty()){
+
+    // Parse the headers
+    while (std::getline(request, line) && !line.empty()) {
         std::string headerName, headerValue;
         size_t colonPos = line.find(":");
-        if(colonPos != std::string::npos){
+        if (colonPos != std::string::npos) {
             headerName = line.substr(0, colonPos);
             headerValue = line.substr(colonPos + 1);
-            //the following line delete whitespaces at the begining of the string headerValue and at the end
-            headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), ""); 
-            headers[headerName] = headerValue; 
+            headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
+            headers[headerName] = headerValue;
         }
     }
+
+    // The remaining content of the request is considered as the body
+    std::string body;
+    char buffer[4096];
+    while (request.read(buffer, sizeof(buffer))) {
+         body.append(buffer, request.gcount());
+}
+body.append(buffer, request.gcount());
+
     if (path.empty() || path == "/") {
         path = "/index.html";
     }
-    //extract the reminder of the rsequest into the variable body
-    body = request.str();
+
+    // Set the parsed values to the corresponding member variables
     this->method = method;
-    //we will get the info via the configutation file
     this->path = config.getDocumentRoot() + path;
-    this->body = body;
+    //this->queryString = queryString;
     this->headers = headers;
-    this->showRequest();
+    this->body = body;
+    std:: cout <<"THIS IS HTE BODY " << body << std::endl;
+    std:: cout <<"THIS IS HTE BODY " << body << std::endl;
+    //this->showRequest();
+    printMap(headers);
 }
+
 void HttpRequest::validityCheck(){
 }
 void HttpRequest::checkCgi(const ServerConfiguration& config){
