@@ -14,6 +14,7 @@ void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration
             path = path.substr(0, quePos);
         }
     }
+    //Je vais devoir rajouter une fonction pour modifier le path en en vertu des locations que je recois. Et consquemment, en fonction de la configuration specifique de cette location, modifier les variables de ma resquest.
     // Parse the headers
     while (std::getline(request, line) && !line.empty()) {
         std::string headerName, headerValue;
@@ -49,7 +50,7 @@ void HttpRequest::checkCgi(const ServerConfiguration& config){
      else
         this->isCgi = false;
  }
- void HttpRequest::checkDownload(const ServerConfiguration& config){
+void HttpRequest::checkDownload(const ServerConfiguration& config){
     if(endsWith(this->path, ".pdf")){
         this->toBeDownloaded = true;
     }
@@ -58,5 +59,20 @@ void HttpRequest::checkCgi(const ServerConfiguration& config){
     std::string test = config.getCgiRoot();
 
  }
+void HttpRequest::cleanPath(const ServerConfiguration& config){
+    for (int i = 0; i < loc.size(); ++i){
+        if (loc[i].name.find(this->path))
+            this->location = loc[i];
+    }
+    //verifier le repertoire par default "/, mias je pense que cva va se faire tout seul"
+    if (!location->root.empty())
+        this->path.replace(0, this->location->name.size(), this->location->root);
+    this->index = location->index;
+    if (!location->limit_except.empty())
+        this->limit_except = location->limit_except;
+    if (!location->return.empty())
+        this->redirection = location.return;
+        //je vais devoir prend la map dans la struct po
+}
 // Default destructor
 HttpRequest::~HttpRequest() { return; }

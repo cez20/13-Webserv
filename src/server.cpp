@@ -14,6 +14,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
             return;
         }
         request.append(buffer, bytesRead);
+        std::cout<< request <<std::endl;
         // check is the reques header is complete
         if (request.find("\r\n\r\n") != std::string::npos) {
             break;

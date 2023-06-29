@@ -2,6 +2,7 @@
 //to do : vars private, getter & setter
 #include "webserv.hpp"
 class ServerConfiguration;
+//struct location;
 class HttpRequest {
     public:
         std::string method;
@@ -12,6 +13,7 @@ class HttpRequest {
         bool isValid;
         bool toBeDownloaded;
         bool isCgi;
+        //const location*  locationRequest; 
         const ServerConfiguration& config;
         void showRequest()const {
             std::cout << method << "  " << path << "  " <<  std::endl << body << std::endl;
@@ -21,6 +23,7 @@ class HttpRequest {
         // Constructor
         HttpRequest(std::string rawRequest, const ServerConfiguration& config): config(config){
             parseRequest(rawRequest, config);
+            cleanPath(config);
             checkCgi(config);
             checkDownload(config);
         }
@@ -30,5 +33,6 @@ class HttpRequest {
         void parseRequest(std::string rawRequest, const ServerConfiguration& config);
         void validityCheck();
         void checkCgi(const ServerConfiguration& config);
+        void cleanPath(const ServerConfiguration& config);
         void checkDownload(const ServerConfiguration& config);   
 };
