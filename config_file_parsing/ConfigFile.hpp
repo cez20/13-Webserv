@@ -17,6 +17,8 @@
 #include<iostream>
 #include<regex>
 #include<map>
+#include<vector>
+#include<sstream>
 #include<utility>
 #include"color.h"
 
@@ -27,19 +29,20 @@ class ConfigFile{
 	~ConfigFile();
 
 		// std::string get_listen(){return (_listen);};
-		std::string get_listen_pre_parsed(){return (_listen_pre_parsed);};
-		std::string get_server_name(){return (_server_name);};
-		std::string get_root(){return (_root);};
-		std::string* get_methods(){return (_methods);};
-		std::string get_access_log(){return (_access_log);};
-		std::map<std::string, std::string>& get_error_log(){return (_error_log);};
-		std::string get_include_types(){return (_include_types);};
-		std::string get_config_file_content(){return (_config_file_content);};
+		std::string 						get_listen_pre_parsed(){return (_listen_pre_parsed);};
+		std::string 						get_server_name(){return (_server_name);};
+		std::string 						get_root(){return (_root);};
+		std::vector<std::string>&			get_methods(){return (_methods);};
+		std::string 						get_access_log(){return (_access_log);};
+		std::map<std::string, std::string>&	get_error_log(){return (_error_log);};
+		std::string 						get_include_types(){return (_include_types);};
+		std::string 						get_config_file_content(){return (_config_file_content);};
 		// std::string get_(){return (_);};
 
-		void 		extract_config_file();
-		std::string	parse_found_line(std::string charset, std::string found_line);
-		std::string	parse_found_location(std::string charset, std::string found_line);
+		void 								extract_config_file();
+		std::string							parse_found_line(std::string charset, std::string found_line);
+		std::string							parse_found_location(std::string charset, std::string found_line);
+		std::vector<std::string>			split_methods(std::string str);
 		std::pair<std::string, std::string>	split_on_space(std::string str);
 
 		class EmptyFd: public std::exception{
@@ -50,6 +53,7 @@ class ConfigFile{
 			public:
 				const char* what() const throw(){return ("Formating error, check your configuration file");};
 		};
+
 		std::map<std::string, std::string>		_error_log;
 		struct location{
 			std::map<std::string, std::string>	_loc_error_log;
@@ -59,7 +63,7 @@ class ConfigFile{
 			std::string							_loc_access_log;
 			std::string							_loc_include_types;
 			std::string							_loc_index;
-			std::string							_loc_methods[3];
+			std::vector<std::string>			_loc_methods;
 		};
 		std::map<std::string, location>			_location; 
 
@@ -71,7 +75,7 @@ class ConfigFile{
 		std::string								_server_name;
 		std::string								_root;
 		std::string								_index;
-		std::string								_methods[3];
+		std::vector<std::string>				_methods;
 		std::string								_access_log;
 		std::string								_include_types;
 

@@ -78,15 +78,56 @@ std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 	return (std::make_pair(ret[0], ret[1]));
 }
 
+// std::vector<std::string>	ConfigFile::split_methods(std::string str){
+// 	std::string 				ret[3];
+// 	std::vector<std::string>	vector_ret;
+// 	size_t i = 0;
+
+// 	i = str.find_first_not_of(" \t\n");
+// 	while(str[i] != ' ' && str[i] != '\t'){
+// 		ret[0] += str[i];
+// 		i++;
+// 	}
+// 	vector_ret.push_back(ret[0]);
+// 	while (str[i] == ' ' || str[i] == '\t')
+// 		i++;
+// 	while (str[i] && str[i] != ' ' && str[i] != '\t'){
+// 		ret[1] += str[i];
+// 		i++;
+// 	}
+// 	vector_ret.push_back(ret[1]);
+// 	while (str[i] == ' ' || str[i] == '\t')
+// 		i++;
+// 	while (str[i] && str[i] != ' ' && str[i] != '\t'){
+// 		ret[2] += str[i];
+// 		i++;
+// 	}
+// 	vector_ret.push_back(ret[2]);
+
+// 	return (vector_ret);
+// }
+std::vector<std::string>	ConfigFile::split_methods(std::string str){
+	std::vector<std::string>	ret;
+	std::istringstream iss(str);
+	std::string token;
+
+	while(iss >> token){
+		ret.push_back(token);
+	}
+
+	return (ret);
+}
+
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
 	if (!infile){
 		throw EmptyFd();
 		return ;
 	}
-	std::string buffer;
-	std::string temp;
-	std::string location_temp;
+	std::string 						buffer;
+	std::string 						temp;
+	std::vector<std::string> 			temp_methods;
+	std::string 						location_temp;
 	std::pair<std::string, std::string> temp_tab;
 
 	size_t		non_blank;
@@ -129,6 +170,12 @@ void	ConfigFile::extract_config_file(){
 						temp_tab = split_on_space(temp);
 						_location[location_temp]._loc_error_log[temp_tab.first] = temp_tab.second;
 					}
+					else if (std::regex_search(buffer, matches, methods)){
+						temp = parse_found_line(matches.str(), buffer);
+						temp_methods = split_methods(temp);
+						for(size_t i = 0; i < temp_methods.size(); i++)
+							_location[location_temp]._loc_methods.push_back(temp_methods[i]);
+					}				
 				}
 			}
 			else if (std::regex_search(buffer, matches, include))			
@@ -149,11 +196,9 @@ void	ConfigFile::extract_config_file(){
 				_access_log = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, methods)){
 				temp = parse_found_line(matches.str(), buffer);
-				temp_tab = split_on_space(temp);
-				_methods[0] = temp_tab.first;
-				temp_tab = split_on_space(temp_tab.second);
-				_methods[1] = temp_tab.first;
-				_methods[2] = temp_tab.second;
+				temp_methods = split_methods(temp);
+				for(size_t i = 0; i < temp_methods.size(); i++)
+					_methods.push_back(temp_methods[i]);
 			}				
 			else if (std::regex_search(buffer, matches, error_log)){
 				temp = parse_found_line(matches.str(), buffer);

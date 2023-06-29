@@ -24,6 +24,8 @@ int main(){
 			std::cout << "  Index: " << it->second._loc_index << std::endl;
 			std::cout << "  Access Log: " << it->second._loc_access_log << std::endl;
 			std::cout << "  Include Types: " << it->second._loc_include_types << std::endl;
+			for (size_t i = 0; i < it->second._loc_methods.size(); i++)
+				std::cout << "  Methods: "<< it->second._loc_methods[i] << std::endl;
 	    	std::cout << "  Error Log:" << std::endl;
     		std::map<std::string, std::string>::const_iterator errorLogIt;
    				for (errorLogIt = it->second._loc_error_log.begin(); errorLogIt != it->second._loc_error_log.end(); ++errorLogIt) {
