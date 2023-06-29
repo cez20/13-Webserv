@@ -8,7 +8,6 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
     while (true) {
         int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (bytesRead <= 0) {
-            // Erreur de lecture ou fin de la connexion
             close(clientSocket);
             if (bytesRead == 0)
                 std::cout << "\rConnection was closed by client.\n" << std::endl;
@@ -21,10 +20,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
         }
         //I will have to check if the body is not fragmented too.  Will do later, I will havwe to use conent-length in the header
     }
-    std::cout <<"raw request " << request <<std::endl;
     HttpRequest clientRequest(request, config);
-    //clientRequest.showRequest();
-    //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
     response.writeOnSocket(clientSocket);
     close(clientSocket);

@@ -5,10 +5,8 @@ void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration
     std::string method, path, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
-
     // Parse the request line to get the method and path
     request >> method >> path;
-
     if (method == "GET") {
         size_t quePos = path.find("?");
         if (quePos != std::string::npos) {
@@ -16,7 +14,6 @@ void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration
             path = path.substr(0, quePos);
         }
     }
-
     // Parse the headers
     while (std::getline(request, line) && !line.empty()) {
         std::string headerName, headerValue;
@@ -28,29 +25,19 @@ void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration
             headers[headerName] = headerValue;
         }
     }
-
-    // The remaining content of the request is considered as the body
-    std::string body;
-    char buffer[4096];
-    while (request.read(buffer, sizeof(buffer))) {
-         body.append(buffer, request.gcount());
-}
-body.append(buffer, request.gcount());
-
+    //find the end of the headers and throw the rest into the ody varariable
+    size_t separatorPos = rawRequest.find("\r\n\r\n");
+    if (separatorPos != std::string::npos) {
+        this->body = rawRequest.substr(separatorPos + 4);
+    } else {
+        this->body = "";
+    }
     if (path.empty() || path == "/") {
         path = "/index.html";
     }
-
-    // Set the parsed values to the corresponding member variables
+    this->headers = headers;
     this->method = method;
     this->path = config.getDocumentRoot() + path;
-    //this->queryString = queryString;
-    this->headers = headers;
-    this->body = body;
-    std:: cout <<"THIS IS HTE BODY " << body << std::endl;
-    std:: cout <<"THIS IS HTE BODY " << body << std::endl;
-    //this->showRequest();
-    printMap(headers);
 }
 
 void HttpRequest::validityCheck(){

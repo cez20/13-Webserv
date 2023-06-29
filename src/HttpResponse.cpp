@@ -51,7 +51,6 @@ int HttpResponse::writeOnSocket(const int& clientSocket){
         }
         response += "\r\n" + body;
     }
-    std::cout << response << std::endl;
     size_t totalBytesSent =0;
     size_t bytesRemaining = response.length();
     
