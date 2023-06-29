@@ -76,16 +76,39 @@ std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 	return (std::make_pair(ret[0], ret[1]));
 }
 
-std::vector<std::string>	ConfigFile::split_vectors(std::string str){
+std::vector<std::string>	ConfigFile::split_vectors(std::string str, char delimiter){
 	std::vector<std::string>	ret;
-	std::istringstream iss(str);
+	std::stringstream ss(str);
 	std::string token;
 
-	while(iss >> token){
+	while(std::getline(ss, token, delimiter)){
 		ret.push_back(token);
 	}
 
 	return (ret);
+}
+
+void	ConfigFile::parse_listen(std::string str){
+	if (!str.empty() && str.back() == ';')
+		str.pop_back();
+	std::vector<std::string> values;
+	std::vector<std::string> temp;
+	values = split_vectors(str, ' ');
+	for (size_t i = 0; i < values.size(); i++){
+		size_t j = value[i].find_first_of(":");
+		if (j == std::string:npos){
+			try{
+				_listen[value[i]] = atoi(value[i]);
+			}
+			catch(const std::exception& e){
+				throw BadFormat();
+			}
+		}
+		else{
+			temp = split_vectors(str, ':');
+			_listen[temp[0]] = atoi(temp[1]);
+		}
+	}
 }
 
 void	ConfigFile::extract_config_file(){
@@ -125,8 +148,10 @@ void	ConfigFile::extract_config_file(){
 				if (std::regex_search(buffer, matches, close))
 					location_flag = false;
 				else{
-					if (std::regex_search(buffer, matches, listen))				
+					if (std::regex_search(buffer, matches, listen)){
+
 						_location[location_temp]._loc_listen = parse_found_line(matches.str(), buffer);
+					}			
 					else if (std::regex_search(buffer, matches, server_name))				
 						_location[location_temp]._loc_server_name = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, root))				
@@ -142,20 +167,22 @@ void	ConfigFile::extract_config_file(){
 					}
 					else if (std::regex_search(buffer, matches, methods)){
 						temp = parse_found_line(matches.str(), buffer);
-						temp_methods = split_vectors(temp);
+						temp_methods = split_vectors(temp, ' ');
 						for(size_t i = 0; i < temp_methods.size(); i++)
 							_location[location_temp]._loc_methods.push_back(temp_methods[i]);
 					}				
 				}
 			}
-			else if (std::regex_search(buffer, matches, include))			
-				_include_types = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, location)){
 				location_flag = true;
 				location_temp = parse_found_location(matches.str(), buffer);
 			}
-			else if (std::regex_search(buffer, matches, listen))				
-				_listen_pre_parsed = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, include))			
+				_include_types = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, listen)){
+				// parse_found_line(matches.str(), buffer);
+				parse_listen(parse_found_line(matches.str(), buffer));
+			}				
 			else if (std::regex_search(buffer, matches, server_name))				
 				_server_name = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, root))				
@@ -166,7 +193,7 @@ void	ConfigFile::extract_config_file(){
 				_access_log = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, methods)){
 				temp = parse_found_line(matches.str(), buffer);
-				temp_methods = split_vectors(temp);
+				temp_methods = split_vectors(temp, ' ');
 				for(size_t i = 0; i < temp_methods.size(); i++)
 					_methods.push_back(temp_methods[i]);
 			}				
@@ -180,4 +207,12 @@ void	ConfigFile::extract_config_file(){
 		}
 		
 	}
+}
+
+bool is_string_digit(const std::string& str){
+	for (char c : str){
+		if (!isdigit(c))
+			return (false);
+	}
+	return (true);
 }

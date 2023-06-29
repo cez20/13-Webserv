@@ -13,6 +13,7 @@
 #define CONFIGFILE_HPP
 
 #include<cstring>
+#include<cctype>
 #include<fstream>
 #include<iostream>
 #include<regex>
@@ -40,9 +41,10 @@ class ConfigFile{
 		// std::string get_(){return (_);};
 
 		void 								extract_config_file();
+		void								parse_listen(std::string str);
 		std::string							parse_found_line(std::string charset, std::string found_line);
 		std::string							parse_found_location(std::string charset, std::string found_line);
-		std::vector<std::string>			split_vectors(std::string str);
+		std::vector<std::string>			split_vectors(std::string str, char delimiter);
 		std::pair<std::string, std::string>	split_on_space(std::string str);
 
 		class EmptyFd: public std::exception{
@@ -71,7 +73,7 @@ class ConfigFile{
 		std::string 							_fd_path;
 		std::string 							_config_file_content;
 		std::string								_listen_pre_parsed;
-		std::vector<std::string>				_listen;
+		std::map<std::string, int>				_listen;
 		std::string								_server_name;
 		std::string								_root;
 		std::string								_index;
