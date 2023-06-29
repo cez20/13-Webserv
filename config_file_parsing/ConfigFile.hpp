@@ -42,7 +42,7 @@ class ConfigFile{
 		void 								extract_config_file();
 		std::string							parse_found_line(std::string charset, std::string found_line);
 		std::string							parse_found_location(std::string charset, std::string found_line);
-		std::vector<std::string>			split_methods(std::string str);
+		std::vector<std::string>			split_vectors(std::string str);
 		std::pair<std::string, std::string>	split_on_space(std::string str);
 
 		class EmptyFd: public std::exception{

@@ -45,8 +45,6 @@ std::string	ConfigFile::parse_found_location(std::string charset, std::string fo
 		while (std::isspace(found_line[i]))
 			++i;
 		size_t end = found_line.find('{', i);
-		// if (end == std::string::npos)
-		// 	end = found_line.find('\n', i);
 		if (end != std::string::npos) 
 			ret = found_line.substr(i, end - i);
 		else
@@ -78,35 +76,7 @@ std::pair<std::string, std::string>	ConfigFile::split_on_space(std::string str){
 	return (std::make_pair(ret[0], ret[1]));
 }
 
-// std::vector<std::string>	ConfigFile::split_methods(std::string str){
-// 	std::string 				ret[3];
-// 	std::vector<std::string>	vector_ret;
-// 	size_t i = 0;
-
-// 	i = str.find_first_not_of(" \t\n");
-// 	while(str[i] != ' ' && str[i] != '\t'){
-// 		ret[0] += str[i];
-// 		i++;
-// 	}
-// 	vector_ret.push_back(ret[0]);
-// 	while (str[i] == ' ' || str[i] == '\t')
-// 		i++;
-// 	while (str[i] && str[i] != ' ' && str[i] != '\t'){
-// 		ret[1] += str[i];
-// 		i++;
-// 	}
-// 	vector_ret.push_back(ret[1]);
-// 	while (str[i] == ' ' || str[i] == '\t')
-// 		i++;
-// 	while (str[i] && str[i] != ' ' && str[i] != '\t'){
-// 		ret[2] += str[i];
-// 		i++;
-// 	}
-// 	vector_ret.push_back(ret[2]);
-
-// 	return (vector_ret);
-// }
-std::vector<std::string>	ConfigFile::split_methods(std::string str){
+std::vector<std::string>	ConfigFile::split_vectors(std::string str){
 	std::vector<std::string>	ret;
 	std::istringstream iss(str);
 	std::string token;
@@ -172,7 +142,7 @@ void	ConfigFile::extract_config_file(){
 					}
 					else if (std::regex_search(buffer, matches, methods)){
 						temp = parse_found_line(matches.str(), buffer);
-						temp_methods = split_methods(temp);
+						temp_methods = split_vectors(temp);
 						for(size_t i = 0; i < temp_methods.size(); i++)
 							_location[location_temp]._loc_methods.push_back(temp_methods[i]);
 					}				
@@ -196,7 +166,7 @@ void	ConfigFile::extract_config_file(){
 				_access_log = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, methods)){
 				temp = parse_found_line(matches.str(), buffer);
-				temp_methods = split_methods(temp);
+				temp_methods = split_vectors(temp);
 				for(size_t i = 0; i < temp_methods.size(); i++)
 					_methods.push_back(temp_methods[i]);
 			}				
