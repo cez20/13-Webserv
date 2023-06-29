@@ -1,7 +1,9 @@
 #include "webserv.hpp"
 
-//parse and analyse the resquest on the client socket. After send the appropriate response to the client.
-
+/* 
+	Function that receives request (recv) and send (send()) appropriate based
+	on the client's request.
+ */
 void handleClient(int clientSocket, const ServerConfiguration& config) {
     char buffer[8192];
     std::string request;
@@ -30,6 +32,10 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
     close(clientSocket);
 }
 
+/* 
+	Function that take new client socket created and add its into our vector of socketfds
+	so that we can start monitoring it. 
+*/
 void addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket)
 {
 	pollfd newClientFd;
@@ -39,17 +45,10 @@ void addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket)
 	socketFds->push_back(newClientFd);
 }
 
-void	launchSocketMonitoring(std::vector <pollfd> *socketFds, int serverSocket)
-{
-	int nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
-	if (nbrOfSocketsReady == -1) {
-		std::cerr << "Error while trying to call the poll fucntion." << std::endl;
-		close(serverSocket);
-		exit(EXIT_FAILURE);
-	}
-	std::cout << "Started monitoring sockets with poll()" << std::endl;
-}
-
+/* 
+	Server receives incoming connection that are put on a queue. Once socket is ready to receive
+	request, he "accepts" it to allow client/server communication. 
+*/
 int	createNewClientSocket(int serverSocket)
 {
 	sockaddr_storage clientAddress = {};				// Fills structure with 0s
@@ -65,12 +64,33 @@ int	createNewClientSocket(int serverSocket)
 	return (clientSocket);
 }
 
+/* 
+	We call the poll() function which essentially returns the number of client's socket that have the POLLIN
+	action (ready to recv)
+ */
+void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int serverSocket)
+{
+	int nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
+	if (nbrOfSocketsReady == -1) {
+		std::cerr << "Error while trying to call the poll fucntion." << std::endl;
+		close(serverSocket);
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "Started monitoring sockets with poll()" << std::endl;
+}
+
+/* 
+	This function is the infinite loop, that listen for incoming connections. Function start
+	by calling the launchSocketMonitoring to see which sockets are ready to receive content (POLLIN) 
+	or to send content(POLLOUT).Once done, new client socket is created, and the dynamic of receiving 
+	and sending information between client and server is started 
+ */
 int monitorServer(int serverSocket, ServerConfiguration config)
 {
 	std::vector<pollfd> socketFds(1);
     socketFds[0].fd = serverSocket;
     socketFds[0].events = POLLIN;
-	
+
 	while (true)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
