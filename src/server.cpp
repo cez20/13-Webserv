@@ -16,8 +16,9 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
                 std::cout << "\rConnection was closed by client.\n" << std::endl;
             return;
         }
+		std::cout << "The number of bytes read is: " << bytesRead << std::endl;
         request.append(buffer, bytesRead);
-        // check is the reques header is complete
+        // check is the request header is complete
         if (request.find("\r\n\r\n") != std::string::npos) {
             break;
         }
@@ -193,43 +194,3 @@ int launchServer(const ServerConfiguration& config)
 	close (serverSocket);
 	return (0);
 }
-
-// std::vector<pollfd> pollFds(1);
-//     pollFds[0].fd = serverSocket;
-//     pollFds[0].events = POLLIN;
-
-// 	   while (true) {
-//         int ready = poll(pollFds.data(), pollFds.size(), -1);
-//         if (ready == -1) {
-//             std::cerr << "Error while trying to call the poll fucntion." << std::endl;
-//             close(serverSocket);
-//             return 1;
-//         }
-//         for (size_t i = 0; i < pollFds.size(); ++i) {
-//             if (pollFds[i].revents & POLLIN) {
-//                 if (pollFds[i].fd == serverSocket) {
-//                     sockaddr_in clientAddress = {};
-//                     socklen_t clientAddressLength = sizeof(clientAddress);
-//                     int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddressLength);
-//                     if (clientSocket == -1) {
-//                         std::cerr << RED_CL << "Error while receiving connection " << DEFAULT_CL << std::endl;
-//                         close(serverSocket);
-//                         return 1;
-//                     }
-//                     std::cout << "New connection accepted." << std::endl;
-//                     pollfd newClientFd;
-//                     newClientFd.fd = clientSocket;
-//                     newClientFd.events = POLLIN;
-//                     pollFds.push_back(newClientFd);
-//                 }
-//                 else {
-//                     handleClient(pollFds[i].fd, config);
-//                     std::cout << "Closing the connection" << std::endl;
-//                     close(pollFds[i].fd); 
-//                     pollFds.erase(pollFds.begin() + i);
-//                     --i;
-//                 }
-//             }
-//         }
-//     }
-// 	close (serverSocket);
