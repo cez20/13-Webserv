@@ -29,7 +29,8 @@
 #define GREEN_CL "\033[0;32m"
 #define DEFAULT_CL "\033[0m"
 
-int launchServer(const ServerConfiguration& config);
+int launchServer();
+int monitorServer(int serverSocket, ServerConfiguration config);
 std::string extractFileContent(const std::string& path);
 bool endsWith(const std::string& str, const std::string& suffix);
 

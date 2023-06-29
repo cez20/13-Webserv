@@ -12,8 +12,8 @@ int main (int argc, char **argv){
         config.printConfig();
         //
         //Launch the serveur
-        launchServer(config);
-        
+        int serverSocket = launchServer();
+		monitorServer(serverSocket, config);
     }
     return 0;
 }
