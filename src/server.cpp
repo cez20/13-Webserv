@@ -148,9 +148,19 @@ void addSocketToArray(std::vector<pollfd> *socketFds, int newClientSocket)
 	socketFds->push_back(newClientFd);
 }
 
+void	launchSocketMonitoring(std::vector <pollfd> *socketFds, int serverSocket)
+{
+	int nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
+	if (nbrOfSocketsReady == -1) {
+		std::cerr << "Error while trying to call the poll fucntion." << std::endl;
+		close(serverSocket);
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "Started monitoring sockets with poll()" << std::endl;
+}
+
 int launchServer(const ServerConfiguration& config) 
 {
-	(void)config;
 	struct addrinfo *ipAddressList;
 
 	ipAddressList = getNetworkInfo();
@@ -163,12 +173,7 @@ int launchServer(const ServerConfiguration& config)
 
 	while (true)
 	{
-		int nbrOfSocketsReady = poll(socketFds.data(), socketFds.size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
-		if (nbrOfSocketsReady == -1) {
-			std::cerr << "Error while trying to call the poll fucntion." << std::endl;
-			close(serverSocket);
-			return 1;
-		}
+		launchSocketMonitoring(&socketFds, serverSocket);
 		for (size_t i = 0; i < socketFds.size(); ++i) {
              if (socketFds[i].revents & POLLIN) {						 // If one socket is ready to read. 
                 if (socketFds[i].fd == serverSocket){					 // If the socket is the server socket and is ready to read (connection is pending), create a new socket.
