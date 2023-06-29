@@ -96,11 +96,13 @@ int monitorServer(int serverSocket, ServerConfiguration config)
 		launchSocketMonitoring(&socketFds, serverSocket);
 		for (size_t i = 0; i < socketFds.size(); ++i) {
 			if (socketFds[i].revents & POLLIN) {						 
-				if (socketFds[i].fd == serverSocket){					 
+				if (socketFds[i].fd == serverSocket){		
+					std::cout << "Server is ready to read" << std::endl;			 
 					int newSocket = createNewClientSocket(serverSocket);
 					addSocketToVector(&socketFds, newSocket);			
 				}
 				else {
+					std::cout << "Client " << i << " is ready to read";
 					handleClient(socketFds[i].fd, config);
 					std::cout << "Closing the connection" << std::endl;
 					close(socketFds[i].fd); 
