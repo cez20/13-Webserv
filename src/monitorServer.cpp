@@ -30,7 +30,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
     close(clientSocket);
 }
 
-void addSocketToArray(std::vector<pollfd> *socketFds, int newClientSocket)
+void addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket)
 {
 	pollfd newClientFd;
 
@@ -75,10 +75,10 @@ int monitorServer(int serverSocket, ServerConfiguration config)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
 		for (size_t i = 0; i < socketFds.size(); ++i) {
-			if (socketFds[i].revents & POLLIN) {						 // If one socket is ready to read. 
-				if (socketFds[i].fd == serverSocket){					 // If the socket is the server socket and is ready to read (connection is pending), create a new socket.
+			if (socketFds[i].revents & POLLIN) {						 
+				if (socketFds[i].fd == serverSocket){					 
 					int newSocket = createNewClientSocket(serverSocket);
-					addSocketToArray(&socketFds, newSocket);			
+					addSocketToVector(&socketFds, newSocket);			
 				}
 				else {
 					handleClient(socketFds[i].fd, config);

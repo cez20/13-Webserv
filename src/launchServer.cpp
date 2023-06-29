@@ -1,7 +1,5 @@
 #include "webserv.hpp"
 
-#define MAX_PENDING_CONNECTIONS	5
-
 /* 
 	This function prints out all the information inside the struct addrinfo. Essentially,
 	IP address type(Ipv4, Ipv6), socket type (stream or datagram), protocol (TCP, UDP,etc)

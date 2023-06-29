@@ -29,6 +29,8 @@
 #define GREEN_CL "\033[0;32m"
 #define DEFAULT_CL "\033[0m"
 
+#define MAX_PENDING_CONNECTIONS	5
+
 int launchServer();
 int monitorServer(int serverSocket, ServerConfiguration config);
 std::string extractFileContent(const std::string& path);
