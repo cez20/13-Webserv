@@ -30,6 +30,7 @@ class ConfigFile{
 		std::string get_listen_pre_parsed(){return (_listen_pre_parsed);};
 		std::string get_server_name(){return (_server_name);};
 		std::string get_root(){return (_root);};
+		std::string* get_methods(){return (_methods);};
 		std::string get_access_log(){return (_access_log);};
 		std::map<std::string, std::string>& get_error_log(){return (_error_log);};
 		std::string get_include_types(){return (_include_types);};
@@ -58,6 +59,7 @@ class ConfigFile{
 			std::string							_loc_access_log;
 			std::string							_loc_include_types;
 			std::string							_loc_index;
+			std::string							_loc_methods[3];
 		};
 		std::map<std::string, location>			_location; 
 
@@ -69,6 +71,7 @@ class ConfigFile{
 		std::string								_server_name;
 		std::string								_root;
 		std::string								_index;
+		std::string								_methods[3];
 		std::string								_access_log;
 		std::string								_include_types;
 

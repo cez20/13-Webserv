@@ -8,6 +8,9 @@ int main(){
 		std::cout << test.get_server_name() << std::endl;
 		std::cout << test.get_root() << std::endl;
 		std::cout << test.get_access_log() << std::endl;
+		std::cout << test.get_methods()[0] << std::endl;
+		std::cout << test.get_methods()[1] << std::endl;
+		std::cout << test.get_methods()[2] << std::endl;
 		std::map<std::string, std::string>::const_iterator iter;
 		for (iter = test._error_log.begin(); iter != test._error_log.end(); ++iter) {
        		std::cout << "Key: " << iter->first << ", Value: " << iter->second << std::endl;

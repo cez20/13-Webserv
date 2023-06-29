@@ -102,6 +102,7 @@ void	ConfigFile::extract_config_file(){
 	std::regex	include("include");
 	std::regex	location("location");
 	std::regex	close("\\s*\\}");
+	std::regex	methods("methods");
 	//std::regex 
 
 	if (infile.is_open()){
@@ -146,6 +147,14 @@ void	ConfigFile::extract_config_file(){
 				_index = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, access_log))				
 				_access_log = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, methods)){
+				temp = parse_found_line(matches.str(), buffer);
+				temp_tab = split_on_space(temp);
+				_methods[0] = temp_tab.first;
+				temp_tab = split_on_space(temp_tab.second);
+				_methods[1] = temp_tab.first;
+				_methods[2] = temp_tab.second;
+			}				
 			else if (std::regex_search(buffer, matches, error_log)){
 				temp = parse_found_line(matches.str(), buffer);
 				temp_tab = split_on_space(temp);
