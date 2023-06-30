@@ -59,20 +59,20 @@ void HttpRequest::checkDownload(const ServerConfiguration& config){
     std::string test = config.getCgiRoot();
 
  }
-void HttpRequest::cleanPath(const ServerConfiguration& config){
-    for (int i = 0; i < loc.size(); ++i){
-        if (loc[i].name.find(this->path))
-            this->location = loc[i];
-    }
-    //verifier le repertoire par default "/, mias je pense que cva va se faire tout seul"
-    if (!location->root.empty())
-        this->path.replace(0, this->location->name.size(), this->location->root);
-    this->index = location->index;
-    if (!location->limit_except.empty())
-        this->limit_except = location->limit_except;
-    if (!location->return.empty())
-        this->redirection = location.return;
-        //je vais devoir prend la map dans la struct po
-}
+// void HttpRequest::cleanPath(const ServerConfiguration& config){
+//     for (int i = 0; i < loc.size(); ++i){
+//         if (loc[i].name.find(this->path))
+//             this->location = loc[i];
+//     }
+//     //verifier le repertoire par default "/, mias je pense que cva va se faire tout seul"
+//     if (!location->root.empty())
+//         this->path.replace(0, this->location->name.size(), this->location->root);
+//     this->index = location->index;
+//     if (!location->limit_except.empty())
+//         this->limit_except = location->limit_except;
+//     if (!location->return.empty())
+//         this->redirection = location.return;
+//         //je vais devoir prend la map dans la struct po
+// }
 // Default destructor
 HttpRequest::~HttpRequest() { return; }

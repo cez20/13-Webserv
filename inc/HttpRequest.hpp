@@ -23,7 +23,6 @@ class HttpRequest {
         // Constructor
         HttpRequest(std::string rawRequest, const ServerConfiguration& config): config(config){
             parseRequest(rawRequest, config);
-            cleanPath(config);
             checkCgi(config);
             checkDownload(config);
         }
@@ -33,6 +32,6 @@ class HttpRequest {
         void parseRequest(std::string rawRequest, const ServerConfiguration& config);
         void validityCheck();
         void checkCgi(const ServerConfiguration& config);
-        void cleanPath(const ServerConfiguration& config);
+       // void cleanPath(const ServerConfiguration& config);
         void checkDownload(const ServerConfiguration& config);   
 };
