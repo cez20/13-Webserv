@@ -1,7 +1,7 @@
 
 #include "HttpRequest.hpp"
 
-void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration& config) {
+void HttpRequest::parseRequest(std::string rawRequest, const ConfigFile& config) {
     std::string method, path, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
@@ -38,28 +38,28 @@ void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration
     }
     this->headers = headers;
     this->method = method;
-    this->path = config.getDocumentRoot() + path;
+    this->path = config.get_root() + path;
 }
 
 void HttpRequest::validityCheck(){
 }
-void HttpRequest::checkCgi(const ServerConfiguration& config){
-    if(this->path == config.getCgiRoot() + "/test.php"){
+void HttpRequest::checkCgi(const ConfigFile& config){
+    if(this->path == config.get_root() + "/test.php"){
         this->isCgi = true;
     }
      else
         this->isCgi = false;
  }
-void HttpRequest::checkDownload(const ServerConfiguration& config){
+void HttpRequest::checkDownload(const ConfigFile& config){
     if(endsWith(this->path, ".pdf")){
         this->toBeDownloaded = true;
     }
      else
         this->toBeDownloaded = false;
-    std::string test = config.getCgiRoot();
+    std::string test = config.get_root();
 
  }
-// void HttpRequest::cleanPath(const ServerConfiguration& config){
+// void HttpRequest::cleanPath(const ConfigFile& config){
 //     for (int i = 0; i < loc.size(); ++i){
 //         if (loc[i].name.find(this->path))
 //             this->location = loc[i];

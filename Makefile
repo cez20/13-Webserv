@@ -4,8 +4,8 @@ SRC_DIR     = src
 OBJ_DIR     = obj
 INC_DIR     = inc
 
-SRC  		= server.cpp ServerConfiguration.cpp main.cpp HttpRequest.cpp HttpResponse.cpp utils.cpp
-INC_FILES   = webserv.hpp ServerConfiguration.hpp HttpRequest.hpp HttpResponse.hpp
+SRC  		= server.cpp main.cpp HttpRequest.cpp HttpResponse.cpp utils.cpp ConfigFile.cpp
+INC_FILES   = webserv.hpp HttpRequest.hpp HttpResponse.hpp ConfigFile.hpp
 
 OBJ         = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(SRC)))
 INCS        = $(addprefix $(INC_DIR)/,$(INC_FILES))

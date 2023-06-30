@@ -2,7 +2,7 @@
 
 //parse and analyse the resquest on the client socket. After send the appropriate response to the client.
 
-void handleClient(int clientSocket, const ServerConfiguration& config) {
+void handleClient(int clientSocket, const ConfigFile& config) {
     char buffer[8192];
     std::string request;
     while (true) {
@@ -29,7 +29,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
 
 
 //main function. creating the server socket: using a poll to track if we can read the sockets
-int server(const ServerConfiguration& config) {
+int server(const ConfigFile& config) {
 
 //SETTING UP THE SERVER
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -43,7 +43,7 @@ int server(const ServerConfiguration& config) {
  
     sockaddr_in serverAddress = {};
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(config.getPort()); 
+    serverAddress.sin_port = htons(8080); // IL VA FALLOIR ARRANGER LE POUR LISTEN SUR PLUSIEURS PORT, en attendant 8080
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {

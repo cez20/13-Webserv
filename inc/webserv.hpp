@@ -18,7 +18,7 @@
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
-#include "ServerConfiguration.hpp"
+#include "ConfigFile.hpp"
 
 #define BLUE_CL "\033[1;36m"
 #define WHITE_CL "\033[0;37m"
@@ -28,7 +28,7 @@
 #define GREEN_CL "\033[0;32m"
 #define DEFAULT_CL "\033[0m"
 
-int server(const ServerConfiguration& config);
+int server(const ConfigFile& config);
 std::string extractFileContent(const std::string& path);
 bool endsWith(const std::string& str, const std::string& suffix);
 

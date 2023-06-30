@@ -42,7 +42,7 @@ class ConfigFile{
 		};
 
 		std::string 						get_server_name(){return (_server_name);};
-		std::string 						get_root(){return (_root);};
+		std::string 						get_root()const {return (_root);};
 		std::string 						get_access_log(){return (_access_log);};
 		std::string 						get_include_types(){return (_include_types);};
 		std::vector<std::string>&			get_methods(){return (_methods);};

@@ -10,13 +10,13 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (clientRequest.method != "POST" && clientRequest.method != "GET" && clientRequest.method != "DELETE"){
         this->statusCode = "501";
         this->headers["contentType"] = " text/html";
-        this->body=extractFileContent(clientRequest.config.getDocumentRoot() + "/501.html");      
+        this->body=extractFileContent(clientRequest.config.get_root() + "/501.html");      
         return (1);
     }
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
         this->statusCode = "404 Not Found";
-        this->body=extractFileContent(clientRequest.config.getDocumentRoot() + "/404.html");
+        this->body=extractFileContent(clientRequest.config.get_root() + "/404.html");
         this->headers["contentType"] = "text/html";
         return (1);
     }

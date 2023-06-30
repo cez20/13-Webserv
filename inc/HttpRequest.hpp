@@ -1,7 +1,7 @@
 #pragma once
 //to do : vars private, getter & setter
 #include "webserv.hpp"
-class ServerConfiguration;
+class ConfigFile;
 //struct location;
 class HttpRequest {
     public:
@@ -14,14 +14,14 @@ class HttpRequest {
         bool toBeDownloaded;
         bool isCgi;
         //const location*  locationRequest; 
-        const ServerConfiguration& config;
+        const ConfigFile& config;
         void showRequest()const {
             std::cout << method << "  " << path << "  " <<  std::endl << body << std::endl;
         }
         // Add any other necessary members or methods
         
         // Constructor
-        HttpRequest(std::string rawRequest, const ServerConfiguration& config): config(config){
+        HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
             parseRequest(rawRequest, config);
             checkCgi(config);
             checkDownload(config);
@@ -29,9 +29,9 @@ class HttpRequest {
         // Destructor
         ~HttpRequest();
     private:
-        void parseRequest(std::string rawRequest, const ServerConfiguration& config);
+        void parseRequest(std::string rawRequest, const ConfigFile& config);
         void validityCheck();
-        void checkCgi(const ServerConfiguration& config);
-       // void cleanPath(const ServerConfiguration& config);
-        void checkDownload(const ServerConfiguration& config);   
+        void checkCgi(const ConfigFile& config);
+       // void cleanPath(const ConfigFile& config);
+        void checkDownload(const ConfigFile& config);   
 };
