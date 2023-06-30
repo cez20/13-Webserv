@@ -4,7 +4,6 @@ int main(){
 	std::string testfile = "./config3.conf";
 	try{
 		ConfigFile test(testfile);
-		std::cout << test.get_listen_pre_parsed() << std::endl;
 		std::map<std::string, int>::const_iterator iter2;
 		std::map<std::string, int> temp_listen = test.get_listen();
 		for (iter2 = temp_listen.begin(); iter2 != temp_listen.end(); ++iter2) {
@@ -17,13 +16,19 @@ int main(){
 		std::cout << test.get_methods()[1] << std::endl;
 		std::cout << test.get_methods()[2] << std::endl;
 		std::map<std::string, std::string>::const_iterator iter;
-		for (iter = test._error_log.begin(); iter != test._error_log.end(); ++iter) {
+		std::map<std::string, std::string> temp_error_log = test.get_error_log();
+		for (iter = temp_error_log.begin(); iter != temp_error_log.end(); ++iter) {
        		std::cout << "Key: " << iter->first << ", Value: " << iter->second << std::endl;
     	}
 		std::vector<ConfigFile::location>::const_iterator it;
-		for (it = test._location.begin(); it != test._location.end(); ++it) {
-		    std::cout << "Key: " << it->_loc_location << std::endl;
-		    std::cout << "  Listen: " << it->_loc_listen << std::endl;
+		std::vector<ConfigFile::location> temp_location = test.get_location();
+		for (it = temp_location.begin(); it != temp_location.end(); ++it) {
+		    std::cout << "Location: " << it->_loc_location << std::endl;
+			std::map<std::string, int>::const_iterator iter;
+			std::map<std::string, int> temp_listen = it->_loc_listen;
+			for (iter = temp_listen.begin(); iter != temp_listen.end(); ++iter) {
+       			std::cout << "  Listen: " << iter->first << ", Value: " << iter->second << std::endl;
+    		}
 		    std::cout << "  Server Name: " << it->_loc_server_name << std::endl;
 		    std::cout << "  Root: " << it->_loc_root << std::endl;
 		    std::cout << "  Access Log: " << it->_loc_access_log << std::endl;

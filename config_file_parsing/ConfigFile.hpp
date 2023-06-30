@@ -28,21 +28,31 @@ class ConfigFile{
 	public:
 	ConfigFile(std::string configPath);
 	~ConfigFile();
+		//LOCATION STRUCTURE
+		struct location{
+			std::string							_loc_location;
+			std::map<std::string, std::string>	_loc_error_log;
+			std::map<std::string, int>			_loc_listen;
+			std::string							_loc_server_name;
+			std::string							_loc_root;
+			std::string							_loc_access_log;
+			std::string							_loc_include_types;
+			std::string							_loc_index;
+			std::vector<std::string>			_loc_methods;
+		};
 
-		// std::string get_listen(){return (_listen);};
-		std::string 						get_listen_pre_parsed(){return (_listen_pre_parsed);};
-		std::map<std::string, int>& 		get_listen(){return (_listen);};
 		std::string 						get_server_name(){return (_server_name);};
 		std::string 						get_root(){return (_root);};
-		std::vector<std::string>&			get_methods(){return (_methods);};
 		std::string 						get_access_log(){return (_access_log);};
-		std::map<std::string, std::string>&	get_error_log(){return (_error_log);};
 		std::string 						get_include_types(){return (_include_types);};
-		std::string 						get_config_file_content(){return (_config_file_content);};
-		// std::string get_(){return (_);};
+		std::vector<std::string>&			get_methods(){return (_methods);};
+		std::map<std::string, int>& 		get_listen(){return (_listen);};
+		std::map<std::string, std::string>&	get_error_log(){return (_error_log);};
+		std::vector<ConfigFile::location>&				get_location(){return (_location);};
 
 		void 								extract_config_file();
 		void								parse_listen(std::string str);
+		std::map<std::string, int>			parse_location_listen(std::string str);
 		std::string							parse_found_line(std::string charset, std::string found_line);
 		std::string							parse_found_location(std::string charset, std::string found_line);
 		std::vector<std::string>			split_vectors(std::string str, char delimiter);
@@ -57,32 +67,23 @@ class ConfigFile{
 				const char* what() const throw(){return ("Formating error, check your configuration file");};
 		};
 
-		std::map<std::string, std::string>		_error_log;
-		struct location{
-			std::string							_loc_location;
-			std::map<std::string, std::string>	_loc_error_log;
-			std::string							_loc_listen;
-			std::string							_loc_server_name;
-			std::string							_loc_root;
-			std::string							_loc_access_log;
-			std::string							_loc_include_types;
-			std::string							_loc_index;
-			std::vector<std::string>			_loc_methods;
-		};
-		std::vector<location>					_location; 
+
+
 
 	private:
-		std::string 							_fd_path;
-		std::string 							_config_file_content;
-		std::string								_listen_pre_parsed;
+		//CONFIG FILE VARIABLES
+		std::vector<location>					_location;
+		std::map<std::string, std::string>		_error_log;
 		std::map<std::string, int>				_listen;
+		std::vector<std::string>				_methods;
 		std::string								_server_name;
 		std::string								_root;
 		std::string								_index;
-		std::vector<std::string>				_methods;
 		std::string								_access_log;
 		std::string								_include_types;
 
+		//PATH TO THE CONFIG FILE
+		std::string 							_fd_path;
 };
 
 #endif

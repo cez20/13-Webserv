@@ -16,8 +16,6 @@ ConfigFile::ConfigFile(std::string configPath): _fd_path(configPath){
 
 ConfigFile::~ConfigFile(){}
 
-//const char* ConfigFile::EmptyFd::what() const throw() {return ("Empty or missing fd");}
-
 std::string	ConfigFile::parse_found_line(std::string charset, std::string found_line){
 	std::string ret;
 
@@ -111,6 +109,31 @@ void	ConfigFile::parse_listen(std::string str){
 	}
 }
 
+std::map<std::string, int>	ConfigFile::parse_location_listen(std::string str){
+	std::map<std::string, int> temp_map;
+	if (!str.empty() && str.back() == ';')
+		str.pop_back();
+	std::vector<std::string> values;
+	std::vector<std::string> temp;
+	values = split_vectors(str, ' ');
+	for (size_t i = 0; i < values.size(); i++){
+		size_t j = values[i].find_first_of(":");
+		if (j == std::string::npos){
+			try{
+				temp_map[values[i]] = std::atoi(values[i].c_str());
+			}
+			catch(const std::exception& e){
+				throw BadFormat();
+			}
+		}
+		else{
+			temp = split_vectors(str, ':');
+			temp_map[temp[0]] = std::atoi(temp[1].c_str());
+		}
+	}
+	return(temp_map);
+}
+
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
 	if (!infile){
@@ -137,7 +160,6 @@ void	ConfigFile::extract_config_file(){
 	std::regex	location("location");
 	std::regex	close("\\s*\\}");
 	std::regex	methods("methods");
-	//std::regex 
 
 	if (infile.is_open()){
 		while(getline(infile, buffer)){
@@ -148,11 +170,12 @@ void	ConfigFile::extract_config_file(){
 				if (std::regex_search(buffer, matches, close)){
 					location_flag = false;
 					_location.push_back(temp_struct);
+					temp_struct = ConfigFile::location();
 				}
 				else{
 					if (std::regex_search(buffer, matches, listen)){
 
-						temp_struct._loc_listen = parse_found_line(matches.str(), buffer);
+						temp_struct._loc_listen = parse_location_listen(parse_found_line(matches.str(), buffer));
 					}			
 					else if (std::regex_search(buffer, matches, server_name))				
 						temp_struct._loc_server_name = parse_found_line(matches.str(), buffer);
