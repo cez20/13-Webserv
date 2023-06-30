@@ -95,10 +95,10 @@ void	ConfigFile::parse_listen(std::string str){
 	std::vector<std::string> temp;
 	values = split_vectors(str, ' ');
 	for (size_t i = 0; i < values.size(); i++){
-		size_t j = value[i].find_first_of(":");
-		if (j == std::string:npos){
+		size_t j = values[i].find_first_of(":");
+		if (j == std::string::npos){
 			try{
-				_listen[value[i]] = atoi(value[i]);
+				_listen[values[i]] = std::atoi(values[i].c_str());
 			}
 			catch(const std::exception& e){
 				throw BadFormat();
@@ -106,7 +106,7 @@ void	ConfigFile::parse_listen(std::string str){
 		}
 		else{
 			temp = split_vectors(str, ':');
-			_listen[temp[0]] = atoi(temp[1]);
+			_listen[temp[0]] = std::atoi(temp[1].c_str());
 		}
 	}
 }
@@ -120,9 +120,9 @@ void	ConfigFile::extract_config_file(){
 	std::string 						buffer;
 	std::string 						temp;
 	std::vector<std::string> 			temp_methods;
-	std::string 						location_temp;
 	std::pair<std::string, std::string> temp_tab;
-
+	ConfigFile::location				temp_struct;
+ 
 	size_t		non_blank;
 	bool		location_flag = false;
 
@@ -145,37 +145,40 @@ void	ConfigFile::extract_config_file(){
 			if(buffer[non_blank] == '#')
 				continue ;
 			else if (location_flag == true){
-				if (std::regex_search(buffer, matches, close))
+				if (std::regex_search(buffer, matches, close)){
 					location_flag = false;
+					_location.push_back(temp_struct);
+				}
 				else{
 					if (std::regex_search(buffer, matches, listen)){
 
-						_location[location_temp]._loc_listen = parse_found_line(matches.str(), buffer);
+						temp_struct._loc_listen = parse_found_line(matches.str(), buffer);
 					}			
 					else if (std::regex_search(buffer, matches, server_name))				
-						_location[location_temp]._loc_server_name = parse_found_line(matches.str(), buffer);
+						temp_struct._loc_server_name = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, root))				
-						_location[location_temp]._loc_root = parse_found_line(matches.str(), buffer);
+						temp_struct._loc_root = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, access_log))				
-						_location[location_temp]._loc_access_log = parse_found_line(matches.str(), buffer);
+						temp_struct._loc_access_log = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, index))				
-						_location[location_temp]._loc_index = parse_found_line(matches.str(), buffer);
+						temp_struct._loc_index = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, error_log)){
 						temp = parse_found_line(matches.str(), buffer);
 						temp_tab = split_on_space(temp);
-						_location[location_temp]._loc_error_log[temp_tab.first] = temp_tab.second;
+						temp_struct._loc_error_log[temp_tab.first] = temp_tab.second;
 					}
 					else if (std::regex_search(buffer, matches, methods)){
 						temp = parse_found_line(matches.str(), buffer);
 						temp_methods = split_vectors(temp, ' ');
 						for(size_t i = 0; i < temp_methods.size(); i++)
-							_location[location_temp]._loc_methods.push_back(temp_methods[i]);
+							temp_struct._loc_methods.push_back(temp_methods[i]);
 					}				
 				}
 			}
 			else if (std::regex_search(buffer, matches, location)){
 				location_flag = true;
-				location_temp = parse_found_location(matches.str(), buffer);
+				temp = parse_found_location(matches.str(), buffer);
+				temp_struct._loc_location = temp;
 			}
 			else if (std::regex_search(buffer, matches, include))			
 				_include_types = parse_found_line(matches.str(), buffer);
@@ -210,9 +213,10 @@ void	ConfigFile::extract_config_file(){
 }
 
 bool is_string_digit(const std::string& str){
-	for (char c : str){
-		if (!isdigit(c))
-			return (false);
-	}
-	return (true);
+	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+        if (!std::isdigit(*it)) {
+            return false;
+        }
+    }
+    return true;
 }

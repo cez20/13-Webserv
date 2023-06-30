@@ -31,6 +31,7 @@ class ConfigFile{
 
 		// std::string get_listen(){return (_listen);};
 		std::string 						get_listen_pre_parsed(){return (_listen_pre_parsed);};
+		std::map<std::string, int>& 		get_listen(){return (_listen);};
 		std::string 						get_server_name(){return (_server_name);};
 		std::string 						get_root(){return (_root);};
 		std::vector<std::string>&			get_methods(){return (_methods);};
@@ -58,6 +59,7 @@ class ConfigFile{
 
 		std::map<std::string, std::string>		_error_log;
 		struct location{
+			std::string							_loc_location;
 			std::map<std::string, std::string>	_loc_error_log;
 			std::string							_loc_listen;
 			std::string							_loc_server_name;
@@ -67,7 +69,7 @@ class ConfigFile{
 			std::string							_loc_index;
 			std::vector<std::string>			_loc_methods;
 		};
-		std::map<std::string, location>			_location; 
+		std::vector<location>					_location; 
 
 	private:
 		std::string 							_fd_path;
