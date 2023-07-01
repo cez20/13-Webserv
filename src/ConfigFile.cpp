@@ -134,6 +134,17 @@ std::map<std::string, int>	ConfigFile::parse_location_listen(std::string str){
 	return(temp_map);
 }
 
+void	set_struct_empty(ConfigFile::location& value){
+	value._loc_access_log = "";
+	value._loc_auto_index = "";
+	value._loc_include_types = "";
+	value._loc_index = "";
+	value._loc_return = "";
+	value._loc_location = "";
+	value._loc_root = "";
+	value._loc_server_name = "";
+}
+
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
 	if (!infile){
@@ -160,6 +171,8 @@ void	ConfigFile::extract_config_file(){
 	std::regex	location("location");
 	std::regex	close("\\s*\\}");
 	std::regex	methods("methods");
+	std::regex	autoindex("autoindex");
+	std::regex	ret("return");
 
 	if (infile.is_open()){
 		while(getline(infile, buffer)){
@@ -183,6 +196,10 @@ void	ConfigFile::extract_config_file(){
 						temp_struct._loc_root = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, access_log))				
 						temp_struct._loc_access_log = parse_found_line(matches.str(), buffer);
+					else if (std::regex_search(buffer, matches, ret))				
+						temp_struct._loc_return = parse_found_line(matches.str(), buffer);
+					else if (std::regex_search(buffer, matches, autoindex))				
+						temp_struct._loc_auto_index = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, index))				
 						temp_struct._loc_index = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, error_log)){
@@ -201,6 +218,7 @@ void	ConfigFile::extract_config_file(){
 			else if (std::regex_search(buffer, matches, location)){
 				location_flag = true;
 				temp = parse_found_location(matches.str(), buffer);
+				set_struct_empty(temp_struct);
 				temp_struct._loc_location = temp;
 			}
 			else if (std::regex_search(buffer, matches, include))			
