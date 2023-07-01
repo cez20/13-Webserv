@@ -47,11 +47,19 @@ void	printNetworkInfo(struct addrinfo *res)
 */
 int serverSocketSetup(struct addrinfo *res)
 {
+	int yes= 1;
+
 	int serverSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (serverSocket == -1) {
 		std::cerr << "Error while creating the server socket." << std::endl;
 		return 1;
 	}
+
+	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
+		std::cerr << "Error with setsockopt: " << strerror(errno) << std::endl;
+		return (1);
+	}
+	
 	if (bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
 		std::cerr << "Error while trying to bind the socket." << std::endl;
 		close(serverSocket);
