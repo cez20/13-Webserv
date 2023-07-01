@@ -7,11 +7,15 @@ int main (int argc, char **argv){
     }
     else {
         // to be replaced with real parsing (Tristan)
-        ServerConfiguration config(argv[1]);
-        config.printConfig();
-        //
+        try{
+           ConfigFile config(argv[1]);
+            server(config);
+        }
+        catch(const std::exception& e){
+		std::cerr << e.what() << '\n';
+	}
         //Launch the serveur
-        server(config);
+        
         
     }
     return 0;

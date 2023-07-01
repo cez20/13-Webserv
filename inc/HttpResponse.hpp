@@ -10,6 +10,9 @@ class HttpResponse {
     public:
         HttpResponse(const HttpRequest& clientRequest);
         int writeOnSocket(const int& clientSocket);
+        void showResponse()const {
+            std::cout << this->statusCode<< "  " << body << "  " << std::endl;
+        }
     
         //~HttpResponse();
 
@@ -21,8 +24,11 @@ class HttpResponse {
 
         int analyseRequest(const HttpRequest& clientRequest);
         bool fileExist(const std::string& filename);
-        std::string executeCgi(const HttpRequest& clientRequest);
+        std::string executeCgiGet(const HttpRequest& clientRequest);
+        std::string executeCgiPost(const HttpRequest& clientRequest);
         void analyseCgiOutput(const std::string& output);
+        int responseForStatic(const HttpRequest& clientRequest);
+        int deleteMethod(const HttpRequest& clientRequest);
 
 };
 
