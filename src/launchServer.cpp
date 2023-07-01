@@ -52,23 +52,23 @@ int serverSocketSetup(struct addrinfo *res)
 	int serverSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (serverSocket == -1) {
 		std::cerr << "Error while creating the server socket." << std::endl;
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 
 	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
 		std::cerr << "Error with setsockopt: " << strerror(errno) << std::endl;
-		return (1);
+		exit(EXIT_FAILURE);
 	}
-	
+
 	if (bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
 		std::cerr << "Error while trying to bind the socket." << std::endl;
 		close(serverSocket);
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 	if (listen(serverSocket, MAX_PENDING_CONNECTIONS) == -1) {
 		std::cerr << "Error while trying to listen" << std::endl;
 		close(serverSocket);
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 	std::cout << "SERVERSOCKET IS SETUP AND IS LISTENING TO INCOMING CONNECTIONS!" << std::endl;
 	return (serverSocket);
