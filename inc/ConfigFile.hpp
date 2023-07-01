@@ -38,9 +38,9 @@ class ConfigFile{
 			std::string							_loc_access_log;
 			std::string							_loc_include_types;
 			std::string							_loc_index;
+			std::string							_loc_auto_index;
+			std::string							_loc_return;
 			std::vector<std::string>			_loc_methods;
-			// std::string							_loc_redir;
-			// std::string							_loc_auto_index;
 		};
 
 		std::string 						get_server_name()const {return (_server_name);};
