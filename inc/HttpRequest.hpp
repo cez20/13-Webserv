@@ -16,6 +16,8 @@ class HttpRequest {
         bool toBeDownloaded;
         bool isCgi;
         ConfigFile::location locationRequest;
+        std::string							index;
+		std::vector<std::string>			autorizedMethods;
         const ConfigFile& config;
         void showRequest()const {
             std::cout << method << "  " << path << "  " <<  std::endl << body << std::endl;

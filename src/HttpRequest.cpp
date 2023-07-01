@@ -60,12 +60,22 @@ void HttpRequest::checkDownload(const ConfigFile& config){
 
  }
 void HttpRequest::cleanPath(const ConfigFile& config){
+    //checking the if there if a specific locaton for the resquest path
     for (size_t i = 0; i < config.get_location().size(); ++i){
         if (config.get_location()[i]._loc_location.find(this->path))
             this->locationRequest = config.get_location()[i];
     }
-     std::cout<< "LE PATH " << this->path << std::endl;
-    std::cout<< "POULETE BOUETTE EHGFGF " << this->locationRequest._loc_location << std::endl;
+    //change the resquest path with the new location
+    std::string to_replace = this->locationRequest._loc_location; 
+    size_t pos = this->path.find(to_replace);
+    if (pos != std::string::npos)
+        this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
+    this->index = this->locationRequest._loc_index;
+    this->autorizedMethods = this->locationRequest._loc_methods;
+
+
+
+    
     //verifier le repertoire par default "/, mias je pense que cva va se faire tout seul"
     // if (!location->root.empty())
     //     this->path.replace(0, this->location->name.size(), this->location->root);
