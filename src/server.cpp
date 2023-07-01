@@ -2,19 +2,19 @@
 
 //parse and analyse the resquest on the client socket. After send the appropriate response to the client.
 
-void handleClient(int clientSocket, const ServerConfiguration& config) {
+void handleClient(int clientSocket, const ConfigFile& config) {
     char buffer[8192];
     std::string request;
     while (true) {
         int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (bytesRead <= 0) {
-            // Erreur de lecture ou fin de la connexion
             close(clientSocket);
             if (bytesRead == 0)
                 std::cout << "\rConnection was closed by client.\n" << std::endl;
             return;
         }
         request.append(buffer, bytesRead);
+        std::cout<< request <<std::endl;
         // check is the reques header is complete
         if (request.find("\r\n\r\n") != std::string::npos) {
             break;
@@ -22,8 +22,6 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
         //I will have to check if the body is not fragmented too.  Will do later, I will havwe to use conent-length in the header
     }
     HttpRequest clientRequest(request, config);
-    //clientRequest.showRequest();
-    //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
     response.writeOnSocket(clientSocket);
     close(clientSocket);
@@ -31,7 +29,7 @@ void handleClient(int clientSocket, const ServerConfiguration& config) {
 
 
 //main function. creating the server socket: using a poll to track if we can read the sockets
-int server(const ServerConfiguration& config) {
+int server(const ConfigFile& config) {
 
 //SETTING UP THE SERVER
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -45,7 +43,7 @@ int server(const ServerConfiguration& config) {
  
     sockaddr_in serverAddress = {};
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(config.getPort()); 
+    serverAddress.sin_port = htons(8080); // IL VA FALLOIR ARRANGER LE POUR LISTEN SUR PLUSIEURS PORT, en attendant 8080
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {

@@ -1,58 +1,90 @@
 
 #include "HttpRequest.hpp"
 
-void HttpRequest::parseRequest(std::string rawRequest, const ServerConfiguration& config){
-    std::string method, path, body, line;
+void HttpRequest::parseRequest(std::string rawRequest, const ConfigFile& config) {
+    std::string method, path, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
+    // Parse the request line to get the method and path
     request >> method >> path;
-    if (method == "GET"){
-        size_t quePos = path.find("?");  
-        if (quePos != std::string::npos){
-                this->querryString =path.substr(quePos +1);
-                path = path.substr(0, quePos);
+    if (method == "GET") {
+        size_t quePos = path.find("?");
+        if (quePos != std::string::npos) {
+            this->queryString = path.substr(quePos + 1);
+            path = path.substr(0, quePos);
         }
     }
-    while(std::getline(request, line) && !line.empty()){
+    //Je vais devoir rajouter une fonction pour modifier le path en en vertu des locations que je recois. Et consquemment, en fonction de la configuration specifique de cette location, modifier les variables de ma resquest.
+    // Parse the headers
+    while (std::getline(request, line) && !line.empty()) {
         std::string headerName, headerValue;
         size_t colonPos = line.find(":");
-        if(colonPos != std::string::npos){
+        if (colonPos != std::string::npos) {
             headerName = line.substr(0, colonPos);
             headerValue = line.substr(colonPos + 1);
-            //the following line delete whitespaces at the begining of the string headerValue and at the end
-            headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), ""); 
-            headers[headerName] = headerValue; 
+            headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
+            headers[headerName] = headerValue;
         }
+    }
+    //find the end of the headers and throw the rest into the ody varariable
+    size_t separatorPos = rawRequest.find("\r\n\r\n");
+    if (separatorPos != std::string::npos) {
+        this->body = rawRequest.substr(separatorPos + 4);
+    } else {
+        this->body = "";
     }
     if (path.empty() || path == "/") {
         path = "/index.html";
     }
-    //extract the reminder of the rsequest into the variable body
-    body = request.str();
-    this->method = method;
-    //we will get the info via the configutation file
-    this->path = config.getDocumentRoot() + path;
-    this->body = body;
     this->headers = headers;
-    this->showRequest();
+    this->method = method;
+    this->path = config.get_root() + path;
 }
+
 void HttpRequest::validityCheck(){
 }
-void HttpRequest::checkCgi(const ServerConfiguration& config){
-    if(this->path == config.getCgiRoot() + "/test.php"){
+void HttpRequest::checkCgi(const ConfigFile& config){
+    if(this->path == config.get_root() + "/test.php"){
         this->isCgi = true;
     }
      else
         this->isCgi = false;
  }
- void HttpRequest::checkDownload(const ServerConfiguration& config){
+void HttpRequest::checkDownload(const ConfigFile& config){
     if(endsWith(this->path, ".pdf")){
         this->toBeDownloaded = true;
     }
      else
         this->toBeDownloaded = false;
-    std::string test = config.getCgiRoot();
+    std::string test = config.get_root();
 
  }
-// Default destructor
+void HttpRequest::cleanPath(const ConfigFile& config){
+    //checking the if there if a specific locaton for the resquest path
+    for (size_t i = 0; i < config.get_location().size(); ++i){
+        if (config.get_location()[i]._loc_location.find(this->path))
+            this->locationRequest = config.get_location()[i];
+    }
+    //change the resquest path with the new location
+    //std::string to_replace = this->locationRequest._loc_location; 
+    // size_t pos = this->path.find(to_replace);
+    // if (pos != std::string::npos)
+    //     this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
+    // this->index = this->locationRequest._loc_index;
+    // this->autorizedMethods = this->locationRequest._loc_methods;
+    // this->redir = this->locationRequest._loc_redir;
+    // if (this->locationRequest._loc_auto_index == "on")
+    //     this->autoIndex = true;
+    // else
+    //     this->autoIndex = false;
+  
+
+
+    // if (!location->limit_except.empty())
+    //     this->limit_except = location->limit_except;
+    // if (!location->return.empty())
+    //     this->redirection = location.return;
+    //     //je vais devoir prend la map dans la struct po
+}
+
 HttpRequest::~HttpRequest() { return; }

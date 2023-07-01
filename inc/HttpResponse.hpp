@@ -24,10 +24,10 @@ class HttpResponse {
 
         int analyseRequest(const HttpRequest& clientRequest);
         bool fileExist(const std::string& filename);
-        std::string executeCgi(const HttpRequest& clientRequest);
+        std::string executeCgiGet(const HttpRequest& clientRequest);
+        std::string executeCgiPost(const HttpRequest& clientRequest);
         void analyseCgiOutput(const std::string& output);
-        int getMethod(const HttpRequest& clientRequest);
-        int postMethod(const HttpRequest& clientRequest);
+        int responseForStatic(const HttpRequest& clientRequest);
         int deleteMethod(const HttpRequest& clientRequest);
 
 };

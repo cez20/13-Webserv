@@ -7,28 +7,37 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
 
 //Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
-    //check if the te path exist, if not, fill the HttpResponse with the error 404
+    if (clientRequest.method != "POST" && clientRequest.method != "GET" && clientRequest.method != "DELETE"){
+        this->statusCode = "501";
+        this->headers["contentType"] = " text/html";
+        this->body=extractFileContent(clientRequest.config.get_root() + "/501.html");      
+        return (1);
+    }
+    //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
         this->statusCode = "404 Not Found";
-        this->body=extractFileContent(clientRequest.config.getDocumentRoot() + "/404.html");
+        this->body=extractFileContent(clientRequest.config.get_root() + "/404.html");
         this->headers["contentType"] = "text/html";
         return (1);
     }
-    else if ( clientRequest.method == "GET"){
-        return(getMethod(clientRequest));
-    }
-    
-    else if (clientRequest.method == "POST"){
-         return(postMethod(clientRequest));
+    if (clientRequest.isCgi){
+        std::string output;
+        if(clientRequest.method == "GET"){
+            output = executeCgiGet(clientRequest);
+        }
+        else{
+            output = executeCgiPost(clientRequest);
+        }
+        analyseCgiOutput(output);
+        this->statusCode = "200 OK";
+        return (0);
+
     }
     else if (clientRequest.method == "DELETE"){
-        return(deleteMethod(clientRequest));  
-    }
+        return(deleteMethod(clientRequest));
+    }  
     else{
-        this->statusCode = "501";
-        this->headers["contentType"] = " text/html";
-        this->body=extractFileContent(clientRequest.config.getDocumentRoot() + "/501.html");      
-        return (1);
+        return(responseForStatic(clientRequest));
     }
     return (0);
 }
@@ -42,7 +51,6 @@ int HttpResponse::writeOnSocket(const int& clientSocket){
         }
         response += "\r\n" + body;
     }
-    std::cout << response << std::endl;
     size_t totalBytesSent =0;
     size_t bytesRemaining = response.length();
     
@@ -64,7 +72,7 @@ bool HttpResponse::fileExist(const std::string& filename) {
     return file.good();
 }
 
-std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
+std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
     std::string output;
     int pipefd[2];
     if (pipe(pipefd) == -1) {
@@ -80,12 +88,12 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
         close(pipefd[0]);
         close(pipefd[1]);
         //separate variable from URL
-        std::string arguments = clientRequest.querryString;
+        std::string arguments = clientRequest.queryString;
         std::stringstream ss(arguments);
-        std::string argument;
+        std::string environVariables;
         std::vector<std::string> argumentList;
-        while (std::getline(ss, argument, '&')) {
-            argumentList.push_back(argument);
+        while (std::getline(ss, environVariables, '&')) {
+            argumentList.push_back(environVariables);
         }
         //set args for execve
         std::vector<char*> argvList;
@@ -126,6 +134,68 @@ std::string HttpResponse::executeCgi(const HttpRequest& clientRequest) {
 
      return output;
 }
+std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
+    std::string output;
+    int pipefd[2];
+    if (pipe(pipefd) == -1) {
+        throw std::runtime_error("Error when creating pipe");
+    }
+
+    pid_t pid = fork();
+    if (pid == -1) {
+        throw std::runtime_error("Error wheile forking");
+    }
+    else if (pid == 0) {
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[0]);
+        close(pipefd[1]);
+        //separate variable from URL
+        std::string arguments = clientRequest.body;
+        std::stringstream ss(arguments);
+        std::string environVariables;
+        std::vector<std::string> argumentList;
+        while (std::getline(ss, environVariables, '&')) {
+            argumentList.push_back(environVariables);
+        }
+        //set args for execve
+        std::vector<char*> argvList;
+        argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
+        argvList.push_back(const_cast<char*>("/Users/slord/Desktop/13-WEBSERVER/html/test.php"));
+        argvList.push_back(nullptr);
+        //set envp for execve
+        std::vector<char*> envpList;      
+        for (size_t i = 0; i < argumentList.size(); ++i) {
+            envpList.push_back(const_cast<char*>(argumentList[i].c_str()));
+        }
+        envpList.push_back(nullptr);
+        char* const* argv = argvList.data();
+        char* const* envp = envpList.data();
+        if (execve("/usr/bin/php", argv, envp) == -1) {
+            std::cerr << "Error with execve" << std::endl;
+        }
+    }
+    else {
+        // Processus parent
+        close(pipefd[1]);
+
+        int status;
+        waitpid(pid, &status, 0);
+
+        char buffer[5000];
+        ssize_t bytesRead;
+        while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
+            output += std::string(buffer, bytesRead);
+        }
+        close(pipefd[0]);
+
+         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+             throw std::runtime_error("Script returned an error");
+         }
+        return output;
+    }
+
+     return output;
+}
 
 void HttpResponse::analyseCgiOutput(const std::string& output){
         this->body = (output);
@@ -134,14 +204,8 @@ void HttpResponse::analyseCgiOutput(const std::string& output){
         return;
     }
 
-int HttpResponse::getMethod(const HttpRequest& clientRequest){
-    if (clientRequest.isCgi) {
-            std::string output  = executeCgi(clientRequest);
-            analyseCgiOutput(output);
-            this->statusCode = "200 OK";
-            return(0);
-    }
-    else if (clientRequest.toBeDownloaded) {
+int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
+   if (clientRequest.toBeDownloaded) {
         std::string filePath = clientRequest.path;  // Chemin du fichier à télécharger
         std::ifstream fileStream(filePath, std::ios::binary);
         std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
@@ -171,30 +235,10 @@ int HttpResponse::getMethod(const HttpRequest& clientRequest){
 
 }
 
-int HttpResponse::postMethod(const HttpRequest& clientRequest){
-    // We might have to make a new fucntion for CGI with post
-    if (clientRequest.isCgi) {
-            std::string output  = executeCgi(clientRequest);
-            analyseCgiOutput(output);
-            return(0);
-   }
-   else{
-        if (clientRequest.body.empty()){
-            this->statusCode = "204 No Content";
-            return(0);
-        }
-
-        std::string dataToProcess = clientRequest.body;
-        this->statusCode = "200 OK";
-        //this->headers["contentType"] = "text/html";
-        //this->body = "POST request handled successfully.";
-        return(0);
-    }
-}
 
 int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
     if (clientRequest.isCgi) {
-            std::string output  = executeCgi(clientRequest);
+            std::string output  = executeCgiGet(clientRequest);
             analyseCgiOutput(output);
             return(0);
     }

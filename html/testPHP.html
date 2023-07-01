@@ -11,5 +11,31 @@
         <input type="number" name="AGE" id="AGE" required><br><br>
         <input type="submit" value="Envoyer">
     </form>
+
+    <script>
+        function generatePostLink() {
+            var form = document.createElement('form');
+            form.action = 'test.php';
+            form.method = 'POST';
+
+            var nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = 'NAME';
+            nameInput.value = document.getElementById('NAME').value;
+            form.appendChild(nameInput);
+
+            var ageInput = document.createElement('input');
+            ageInput.type = 'number';
+            ageInput.name = 'AGE';
+            ageInput.value = document.getElementById('AGE').value;
+            form.appendChild(ageInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+
+    <button onclick="generatePostLink()">Submit POST</button>
 </body>
 </html>
+

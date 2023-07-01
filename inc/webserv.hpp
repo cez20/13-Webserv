@@ -18,7 +18,7 @@
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
-#include "ServerConfiguration.hpp"
+#include "ConfigFile.hpp"
 
 #define BLUE_CL "\033[1;36m"
 #define WHITE_CL "\033[0;37m"
@@ -28,7 +28,7 @@
 #define GREEN_CL "\033[0;32m"
 #define DEFAULT_CL "\033[0m"
 
-int server(const ServerConfiguration& config);
+int server(const ConfigFile& config);
 std::string extractFileContent(const std::string& path);
 bool endsWith(const std::string& str, const std::string& suffix);
 
@@ -38,5 +38,15 @@ void printMap(const std::map<Key, Value>& mapContainer) {
     for (MapIterator it = mapContainer.begin(); it != mapContainer.end(); ++it) {
         std::cout << it->first << ": " << it->second << std::endl;
     }
+}
+template<typename T>
+void printStructure(const T& structure) {
+    typedef typename T::value_type ValueType;  // Type des éléments de la structure
+
+    for (typename T::const_iterator it = structure.begin(); it != structure.end(); ++it) {
+        const ValueType& element = *it;
+        std::cout << element << " ";
+    }
+    std::cout << std::endl;
 }
 
