@@ -29,7 +29,8 @@ class HttpRequest {
         // Constructor
         HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
             parseRequest(rawRequest, config);
-            cleanPath(config);
+            if(!config.get_location().empty())
+                cleanPath(config);
             checkCgi(config);
             checkDownload(config);
         }

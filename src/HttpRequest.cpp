@@ -66,20 +66,29 @@ void HttpRequest::cleanPath(const ConfigFile& config){
             this->locationRequest = config.get_location()[i];
     }
     //change the resquest path with the new location
-    //std::string to_replace = this->locationRequest._loc_location; 
-    // size_t pos = this->path.find(to_replace);
-    // if (pos != std::string::npos)
-    //     this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
-    // this->index = this->locationRequest._loc_index;
-    // this->autorizedMethods = this->locationRequest._loc_methods;
-    // this->redir = this->locationRequest._loc_redir;
-    // if (this->locationRequest._loc_auto_index == "on")
-    //     this->autoIndex = true;
-    // else
-    //     this->autoIndex = false;
-  
+    if (this->locationRequest._loc_location == "/"  && !this->locationRequest._loc_root.empty())
+    {
+        std::string newRoot = locationRequest._loc_root + "/";
+        std::size_t last_slash = this->path.find_last_of('/');
+        if (last_slash != std::string::npos)
+            this->path.replace(last_slash, 1, newRoot);
+    }
+    else if (!this->locationRequest._loc_root.empty()){
+        std::string to_replace = this->locationRequest._loc_location; 
+        size_t pos = this->path.find(to_replace);
+        if (pos != std::string::npos)
+            this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
+    }
+    this->index = this->locationRequest._loc_index;
+    this->autorizedMethods = this->locationRequest._loc_methods;
+    this->redir = this->locationRequest._loc_return;
+    if (this->locationRequest._loc_auto_index == "on")
+        this->autoIndex = true;
+    else
+        this->autoIndex = false;
+   
 
-
+    std::cout << "LE NOUVEAU PATH" <<this->path<< std::endl;
     // if (!location->limit_except.empty())
     //     this->limit_except = location->limit_except;
     // if (!location->return.empty())
