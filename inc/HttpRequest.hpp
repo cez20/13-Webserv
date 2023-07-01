@@ -18,6 +18,8 @@ class HttpRequest {
         ConfigFile::location locationRequest;
         std::string							index;
 		std::vector<std::string>			autorizedMethods;
+        std::string     redir;
+        bool autoIndex;
         const ConfigFile& config;
         void showRequest()const {
             std::cout << method << "  " << path << "  " <<  std::endl << body << std::endl;

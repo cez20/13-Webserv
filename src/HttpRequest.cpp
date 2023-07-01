@@ -66,20 +66,20 @@ void HttpRequest::cleanPath(const ConfigFile& config){
             this->locationRequest = config.get_location()[i];
     }
     //change the resquest path with the new location
-    std::string to_replace = this->locationRequest._loc_location; 
-    size_t pos = this->path.find(to_replace);
-    if (pos != std::string::npos)
-        this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
-    this->index = this->locationRequest._loc_index;
-    this->autorizedMethods = this->locationRequest._loc_methods;
+    //std::string to_replace = this->locationRequest._loc_location; 
+    // size_t pos = this->path.find(to_replace);
+    // if (pos != std::string::npos)
+    //     this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
+    // this->index = this->locationRequest._loc_index;
+    // this->autorizedMethods = this->locationRequest._loc_methods;
+    // this->redir = this->locationRequest._loc_redir;
+    // if (this->locationRequest._loc_auto_index == "on")
+    //     this->autoIndex = true;
+    // else
+    //     this->autoIndex = false;
+  
 
 
-
-    
-    //verifier le repertoire par default "/, mias je pense que cva va se faire tout seul"
-    // if (!location->root.empty())
-    //     this->path.replace(0, this->location->name.size(), this->location->root);
-    // this->index = location->index;
     // if (!location->limit_except.empty())
     //     this->limit_except = location->limit_except;
     // if (!location->return.empty())
