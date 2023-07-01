@@ -41,14 +41,14 @@ class ConfigFile{
 			std::vector<std::string>			_loc_methods;
 		};
 
-		std::string 						get_server_name(){return (_server_name);};
+		std::string 						get_server_name()const {return (_server_name);};
 		std::string 						get_root()const {return (_root);};
-		std::string 						get_access_log(){return (_access_log);};
-		std::string 						get_include_types(){return (_include_types);};
+		std::string 						get_access_log()const {return (_access_log);};
+		std::string 						get_include_types()const {return (_include_types);};
 		std::vector<std::string>&			get_methods(){return (_methods);};
 		std::map<std::string, int>& 		get_listen(){return (_listen);};
 		std::map<std::string, std::string>&	get_error_log(){return (_error_log);};
-		std::vector<ConfigFile::location>&				get_location(){return (_location);};
+		const std::vector<ConfigFile::location>&				get_location()const{return (_location);};
 
 		void 								extract_config_file();
 		void								parse_listen(std::string str);

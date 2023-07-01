@@ -1,7 +1,9 @@
 #pragma once
 //to do : vars private, getter & setter
 #include "webserv.hpp"
+#include "ConfigFile.hpp"
 class ConfigFile;
+
 //struct location;
 class HttpRequest {
     public:
@@ -13,7 +15,7 @@ class HttpRequest {
         bool isValid;
         bool toBeDownloaded;
         bool isCgi;
-        //const location*  locationRequest; 
+        ConfigFile::location locationRequest;
         const ConfigFile& config;
         void showRequest()const {
             std::cout << method << "  " << path << "  " <<  std::endl << body << std::endl;
@@ -23,6 +25,7 @@ class HttpRequest {
         // Constructor
         HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
             parseRequest(rawRequest, config);
+            cleanPath(config);
             checkCgi(config);
             checkDownload(config);
         }
@@ -32,6 +35,6 @@ class HttpRequest {
         void parseRequest(std::string rawRequest, const ConfigFile& config);
         void validityCheck();
         void checkCgi(const ConfigFile& config);
-       // void cleanPath(const ConfigFile& config);
+        void cleanPath(const ConfigFile& config);
         void checkDownload(const ConfigFile& config);   
 };

@@ -59,20 +59,22 @@ void HttpRequest::checkDownload(const ConfigFile& config){
     std::string test = config.get_root();
 
  }
-// void HttpRequest::cleanPath(const ConfigFile& config){
-//     for (int i = 0; i < loc.size(); ++i){
-//         if (loc[i].name.find(this->path))
-//             this->location = loc[i];
-//     }
-//     //verifier le repertoire par default "/, mias je pense que cva va se faire tout seul"
-//     if (!location->root.empty())
-//         this->path.replace(0, this->location->name.size(), this->location->root);
-//     this->index = location->index;
-//     if (!location->limit_except.empty())
-//         this->limit_except = location->limit_except;
-//     if (!location->return.empty())
-//         this->redirection = location.return;
-//         //je vais devoir prend la map dans la struct po
-// }
-// Default destructor
+void HttpRequest::cleanPath(const ConfigFile& config){
+    for (size_t i = 0; i < config.get_location().size(); ++i){
+        if (config.get_location()[i]._loc_location.find(this->path))
+            this->locationRequest = config.get_location()[i];
+    }
+     std::cout<< "LE PATH " << this->path << std::endl;
+    std::cout<< "POULETE BOUETTE EHGFGF " << this->locationRequest._loc_location << std::endl;
+    //verifier le repertoire par default "/, mias je pense que cva va se faire tout seul"
+    // if (!location->root.empty())
+    //     this->path.replace(0, this->location->name.size(), this->location->root);
+    // this->index = location->index;
+    // if (!location->limit_except.empty())
+    //     this->limit_except = location->limit_except;
+    // if (!location->return.empty())
+    //     this->redirection = location.return;
+    //     //je vais devoir prend la map dans la struct po
+}
+
 HttpRequest::~HttpRequest() { return; }

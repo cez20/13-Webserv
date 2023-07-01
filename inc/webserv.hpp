@@ -39,4 +39,14 @@ void printMap(const std::map<Key, Value>& mapContainer) {
         std::cout << it->first << ": " << it->second << std::endl;
     }
 }
+template<typename T>
+void printStructure(const T& structure) {
+    typedef typename T::value_type ValueType;  // Type des éléments de la structure
+
+    for (typename T::const_iterator it = structure.begin(); it != structure.end(); ++it) {
+        const ValueType& element = *it;
+        std::cout << element << " ";
+    }
+    std::cout << std::endl;
+}
 
