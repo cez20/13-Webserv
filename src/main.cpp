@@ -1,5 +1,6 @@
 
 #include "webserv.hpp"
+
 int main (int argc, char **argv){
     if(argc != 2){
         std::cerr << "The servers takes 1 argument, which is the path to a configuration file" << std::endl;
@@ -8,15 +9,15 @@ int main (int argc, char **argv){
     else {
         // to be replaced with real parsing (Tristan)
         try{
-           ConfigFile config(argv[1]);
-            server(config);
+            ConfigFile config(argv[1]);
+            int serverSocket = launchServer();
+		    monitorServer(serverSocket, config);
         }
         catch(const std::exception& e){
 		std::cerr << e.what() << '\n';
 	}
         //Launch the serveur
-        
-        
+       
     }
     return 0;
 }
