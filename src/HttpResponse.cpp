@@ -54,6 +54,7 @@ int HttpResponse::writeOnSocket(const int& clientSocket){
     size_t totalBytesSent =0;
     size_t bytesRemaining = response.length();
     
+    std::cout << bytesRemaining << std::endl;    //to be deleted
     while(totalBytesSent < response.length()){
       int bytesSent=send(clientSocket, response.c_str(), response.length(), 0);
        if (bytesSent == -1) {

@@ -1,7 +1,7 @@
 
 #include "HttpRequest.hpp"
-
-void HttpRequest::parseRequest(std::string rawRequest, const ConfigFile& config) {
+//This funtion get the method, the headers and the body from the resquest.
+void HttpRequest::parseRequest(std::string rawRequest) {
     std::string method, path, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
@@ -38,18 +38,20 @@ void HttpRequest::parseRequest(std::string rawRequest, const ConfigFile& config)
     }
     this->headers = headers;
     this->method = method;
-    this->path = config.get_root() + path;
+    this->path = path;
 }
 
-void HttpRequest::validityCheck(){
-}
-void HttpRequest::checkCgi(const ConfigFile& config){
-    if(this->path == config.get_root() + "/test.php"){
+
+
+//Check if the path is the CGI
+void HttpRequest::checkCgi() {
+    std::ifstream file(this->path);
+    if (file.good() && this->path.size() >= 8 && this->path.substr(this->path.size() - 8) == "test.php") {
         this->isCgi = true;
-    }
-     else
+    } else {
         this->isCgi = false;
- }
+    }
+}
 void HttpRequest::checkDownload(const ConfigFile& config){
     if(endsWith(this->path, ".pdf")){
         this->toBeDownloaded = true;
@@ -59,7 +61,8 @@ void HttpRequest::checkDownload(const ConfigFile& config){
     std::string test = config.get_root();
 
  }
-void HttpRequest::cleanPath(const ConfigFile& config){
+ //Check if the resquest correspond to  location path from de config file and set the variables to reflect those specific configurations
+void HttpRequest::checkLocation(const ConfigFile& config){
     //checking the if there if a specific locaton for the resquest path
     for (size_t i = 0; i < config.get_location().size(); ++i){
         if (config.get_location()[i]._loc_location.find(this->path))
@@ -86,14 +89,24 @@ void HttpRequest::cleanPath(const ConfigFile& config){
         this->autoIndex = true;
     else
         this->autoIndex = false;
-   
-
-    std::cout << "LE NOUVEAU PATH" <<this->path<< std::endl;
+    
+    if (!this->redir.empty())
+        this->reponseStatus = "301";
+    
+    std::cout << "LE NOUVEAU PATH" <<this-> path << std::endl;
     // if (!location->limit_except.empty())
     //     this->limit_except = location->limit_except;
     // if (!location->return.empty())
     //     this->redirection = location.return;
     //     //je vais devoir prend la map dans la struct po
 }
+//Check the config file for global parameters et set the variables accordingly 
+void HttpRequest::checkGlobal(const ConfigFile& config){
+    this->path = config.get_root() + this->path;
 
+}
+
+
+void HttpRequest::validityCheck(){
+}
 HttpRequest::~HttpRequest() { return; }

@@ -71,7 +71,7 @@ class ConfigFile{
 
 
 
-
+	
 	private:
 		//CONFIG FILE VARIABLES
 		std::vector<location>					_location;
