@@ -2,7 +2,11 @@
 #include "HttpResponse.hpp"
 // constructor
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
-    analyseRequest(clientRequest);
+    if(clientRequest.reponseStatus != "")
+        this->statusCode = clientRequest.statusResponse;
+    else
+        analyseRequest(clientRequest);
+    checkForError();
 }
 
 //Check what kind of HttpResquest tob build the appropriate response
@@ -13,6 +17,20 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         this->body=extractFileContent(clientRequest.config.get_root() + "/501.html");      
         return (1);
     }
+    if(!clientRequest.autorizedMethods.empty()){
+        std::vector<std::string>::iterator it = std::find(clientRequest.autorizedMethods.begin(), clientRequest.autorizedMethods.end(), clientRequest.method);
+        if (it == strings.end()) {
+        }
+            for (size_t i = 0; i < clientRequest.autorizedMethods.size(); i++){
+                if (clientRequest.method != clientRequest.autorizedMethods[i]){
+                    this->statusCode = "401";
+                    this->headers["contentType"] = " text/html";
+                    this->body=extractFileContent(clientRequest.config.get_root() + "/html/501.html");      
+                    return (1);
+                }
+        }
+    }
+
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
         this->statusCode = "404 Not Found";
@@ -250,6 +268,15 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
     return(0);
 
 }
+void HttpResponse::checkForError(){
+    if(this->statusCode != 200){
+       if(!checkForCustomErrorFiles())
+            generateDefaultError();
+    }
+    
+}
+
+
 
     
 

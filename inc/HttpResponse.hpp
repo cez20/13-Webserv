@@ -29,6 +29,7 @@ class HttpResponse {
         void analyseCgiOutput(const std::string& output);
         int responseForStatic(const HttpRequest& clientRequest);
         int deleteMethod(const HttpRequest& clientRequest);
+        void HttpResponse::checkForError();
 
 };
 

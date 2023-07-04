@@ -46,7 +46,7 @@ void HttpRequest::parseRequest(std::string rawRequest) {
 //Check if the path is the CGI
 void HttpRequest::checkCgi() {
     std::ifstream file(this->path);
-    if (file.good() && this->path.size() >= 8 && this->path.substr(this->path.size() - 8) == "test.php") {
+    if (file.good() && endsWith(this->path, "/test.php")) {
         this->isCgi = true;
     } else {
         this->isCgi = false;
@@ -82,27 +82,27 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         if (pos != std::string::npos)
             this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
     }
-    this->index = this->locationRequest._loc_index;
-    this->autorizedMethods = this->locationRequest._loc_methods;
-    this->redir = this->locationRequest._loc_return;
+    if (!this->locationRequest._loc_index.empty())
+        this->index = this->locationRequest._loc_index;
+    if (!this->locationRequest._loc_methods.empty())  
+        this->autorizedMethods = this->locationRequest._loc_methods;
+    if (!this->locationRequest._loc_return.empty())
+        this->redir = this->locationRequest._loc_return;
     if (this->locationRequest._loc_auto_index == "on")
         this->autoIndex = true;
     else
-        this->autoIndex = false;
-    
+        this->autoIndex = false;  
     if (!this->redir.empty())
         this->reponseStatus = "301";
     
-    std::cout << "LE NOUVEAU PATH" <<this-> path << std::endl;
+    std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
     // if (!location->limit_except.empty())
     //     this->limit_except = location->limit_except;
-    // if (!location->return.empty())
-    //     this->redirection = location.return;
-    //     //je vais devoir prend la map dans la struct po
 }
 //Check the config file for global parameters et set the variables accordingly 
 void HttpRequest::checkGlobal(const ConfigFile& config){
     this->path = config.get_root() + this->path;
+    this->autorizedMethods = config.get_methods();
 
 }
 
