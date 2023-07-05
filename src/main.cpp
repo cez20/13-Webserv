@@ -10,7 +10,7 @@ int main (int argc, char **argv){
         // to be replaced with real parsing (Tristan)
         try{
             ConfigFile config(argv[1]);
-            int serverSocket = launchServer(config);
+            int *serverSocket = launchServer(config);
 		    monitorServer(serverSocket, config);
         }
         catch(const std::exception& e){

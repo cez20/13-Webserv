@@ -68,12 +68,18 @@ int	createNewClientSocket(int serverSocket)
 	We call the poll() function which essentially returns the number of client's socket that have the POLLIN
 	action (ready to recv)
  */
-void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int serverSocket)
+void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 {
-	int nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
+	int nbrOfSocketsReady = 0;
+
+	for (int i = 0; i < 3; i++)
+	{
+		nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
+	}
 	if (nbrOfSocketsReady == -1) {
 		std::cerr << "Error while trying to call the poll fucntion." << std::endl;
-		close(serverSocket);
+		for (int i = 0; i < 3; i++)
+			close(serverSocket[i]);
 		exit(EXIT_FAILURE);
 	}
 	std::cout << "Started monitoring sockets with poll()" << std::endl;
@@ -85,20 +91,25 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int serverSocket)
 	or to send content(POLLOUT).Once done, new client socket is created, and the dynamic of receiving 
 	and sending information between client and server is started 
  */
-int monitorServer(int serverSocket, ConfigFile config)
+int monitorServer(int *serverSocket, ConfigFile config)
 {
-	std::vector<pollfd> socketFds(1);
-    socketFds[0].fd = serverSocket;
-    socketFds[0].events = POLLIN;
+	std::vector<pollfd> socketFds(3);  // Indicate number of elements necessary
+    (void)config;
+	// This loop creates all server sockets 
+	for (int i = 0; i < 3; i++)
+	{
+		socketFds[i].fd = serverSocket[i];
+    	socketFds[i].events = POLLIN;
+	}
 
 	while (true)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
 		for (size_t i = 0; i < socketFds.size(); ++i) {
 			if (socketFds[i].revents & POLLIN) {						 
-				if (socketFds[i].fd == serverSocket){		
+				if (socketFds[i].fd == serverSocket[i]){		
 					std::cout << "Server is ready to read" << std::endl;			 
-					int newSocket = createNewClientSocket(serverSocket);
+					int newSocket = createNewClientSocket(serverSocket[i]);
 					addSocketToVector(&socketFds, newSocket);			
 				}
 				else {
@@ -112,6 +123,9 @@ int monitorServer(int serverSocket, ConfigFile config)
 			}
 		}
 	}
-	close (serverSocket);
+	for (int i = 0; i < 3; i++)
+	{
+		close (serverSocket[i]);
+	}
 	return (0);
 }

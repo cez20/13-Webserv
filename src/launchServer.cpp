@@ -106,13 +106,13 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 	must first get the network information and then binds the IPaddress and PORT together, so
 	that we can start listening to incoming request. 
  */
-int launchServer(ConfigFile config)
+int *launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
-	int serverSocket;
 	(void)config;
 
-	int array[3] = {8080, 8081, 8082};
+	int array[3] = {8080, 8081, 8082}; // This is temporary
+	int *socketFds =  new int[3];
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -120,8 +120,8 @@ int launchServer(ConfigFile config)
 		const char* charPtr = str.c_str();
 
 		ipAddressList = getNetworkInfo(charPtr);
-		serverSocket = serverSocketSetup(ipAddressList);
+		socketFds[i] = serverSocketSetup(ipAddressList);
 		freeaddrinfo(ipAddressList);
 	}
-	return (serverSocket);
+	return (socketFds);
 }
