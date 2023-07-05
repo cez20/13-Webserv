@@ -109,19 +109,19 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 int *launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
-	(void)config;
-
-	int array[3] = {8080, 8081, 8082}; // This is temporary
 	int *socketFds =  new int[3];
+	int i = 0;
 
-	for (int i = 0; i < 3; i++)
-	{
-		std::string str = std::to_string(array[i]);
+	std::map<std::string, int>::const_iterator iter2;  // creer un iterateur pour circuler dans la map 
+	std::map<std::string, int> temp_listen = config.get_listen();
+	
+	for (iter2 = temp_listen.begin(); iter2 != temp_listen.end(); ++iter2) {
+		std::string str = std::to_string(iter2->second);
 		const char* charPtr = str.c_str();
-
 		ipAddressList = getNetworkInfo(charPtr);
-		socketFds[i] = serverSocketSetup(ipAddressList);
+		socketFds[i++] = serverSocketSetup(ipAddressList);
 		freeaddrinfo(ipAddressList);
 	}
+
 	return (socketFds);
 }

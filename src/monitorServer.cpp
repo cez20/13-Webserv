@@ -94,7 +94,6 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 int monitorServer(int *serverSocket, ConfigFile config)
 {
 	std::vector<pollfd> socketFds(3);  // Indicate number of elements necessary
-    (void)config;
 	// This loop creates all server sockets 
 	for (int i = 0; i < 3; i++)
 	{
