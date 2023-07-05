@@ -21,6 +21,7 @@ class HttpResponse {
         std::map<std::string, std::string> headers;
         std::map<std::string, std::string> httpStatusMap;
         std::string body;
+        std::string path;
 
         //bool isValid;
 

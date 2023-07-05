@@ -3,6 +3,7 @@
 // constructor
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
+    this->path = clientRequest.path;
     if(clientRequest.reponseStatus != "")
         this->statusCode = clientRequest.reponseStatus;
     else{
@@ -158,6 +159,13 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
 }
 std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
     std::string output;
+    char currentDir[PATH_MAX];
+    std::string scriptPath(currentDir);
+
+    if (getcwd(currentDir, sizeof(currentDir)) == nullptr) {
+        std::cerr << "Failed to get current working directory" << std::endl;
+    }
+
     int pipefd[2];
     if (pipe(pipefd) == -1) {
         throw std::runtime_error("Error when creating pipe");
@@ -165,7 +173,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
 
     pid_t pid = fork();
     if (pid == -1) {
-        throw std::runtime_error("Error wheile forking");
+        throw std::runtime_error("Error while forking");
     }
     else if (pid == 0) {
         dup2(pipefd[1], STDOUT_FILENO);
@@ -181,8 +189,8 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         }
         //set args for execve
         std::vector<char*> argvList;
-        argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
-        argvList.push_back(const_cast<char*>("html/test.php"));
+        argvList.push_back(const_cast<char*>("php"));  // Utilisez le chemin correct vers l'interpréteur PHP
+        argvList.push_back(const_cast<char*>(this->path.c_str()));
         argvList.push_back(nullptr);
         //set envp for execve
         std::vector<char*> envpList;      
@@ -192,8 +200,13 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        if (execve("/usr/bin/php", argv, envp) == -1) {
+        int result = chdir("/usr/bin"); //change
+        if (result != 0) {
+            std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
+        }
+        if (execve("php", argv, envp) == -1) {
             std::cerr << "Error with execve" << std::endl;
+            throw std::runtime_error("Script returned an error");
         }
     }
     else {
@@ -213,9 +226,11 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
          if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
              throw std::runtime_error("Script returned an error");
          }
-        return output;
     }
-
+    int result = chdir(currentDir);
+        if (result != 0) {
+            std::cerr << "Failed to change directory to " << "/usr/bin/php" << std::endl;
+        }
      return output;
 }
 
