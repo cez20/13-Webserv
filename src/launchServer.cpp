@@ -112,8 +112,8 @@ int *launchServer(ConfigFile config)
 	int *socketFds =  new int[3];
 	int i = 0;
 
-	std::map<std::string, int>::const_iterator iter2;  // creer un iterateur pour circuler dans la map 
-	std::map<std::string, int> temp_listen = config.get_listen();
+	std::map<std::string, int>::const_iterator iter2;  // Create an iterator to ciruclate inside map 
+	std::map<std::string, int> temp_listen = config.get_listen(); //Tmp copy of ports. 
 	
 	for (iter2 = temp_listen.begin(); iter2 != temp_listen.end(); ++iter2) {
 		std::string str = std::to_string(iter2->second);
@@ -122,6 +122,5 @@ int *launchServer(ConfigFile config)
 		socketFds[i++] = serverSocketSetup(ipAddressList);
 		freeaddrinfo(ipAddressList);
 	}
-
 	return (socketFds);
 }
