@@ -31,17 +31,24 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
-        this->statusCode = "404 Not Found";
+        this->statusCode = "404";
         return (1);
     }
     if (clientRequest.isCgi){
         std::string output;
-        if(clientRequest.method == "GET"){
-            output = executeCgiGet(clientRequest);
+        try{
+            if(clientRequest.method == "GET"){
+                output = executeCgiGet(clientRequest);
+            }
+            else{
+                output = executeCgiPost(clientRequest);
+            }
         }
-        else{
-            output = executeCgiPost(clientRequest);
-        }
+        catch(const std::exception& e){
+		std::cerr << e.what() << '\n';
+        this->statusCode = "500";
+        return (1);
+	}
         analyseCgiOutput(output);
         this->statusCode = "200 OK";
         return (0);
@@ -294,14 +301,16 @@ void HttpResponse::generateStatusMap(){
     httpStatusMap["402"] = "Payment Required";
     httpStatusMap["403"] = "Forbidden";
     httpStatusMap["404"] = "Not Found";
+    httpStatusMap["500"] = "Internal Server Error";
+    httpStatusMap["501"] = "Not Implemented";
 }
 void HttpResponse::generateDefaultError(){
 
     std::string errorPage;
 
 
-        errorPage += "<html><head><title>Error " + statusCode + httpStatusMap[statusCode] + "</title></head>";
-        errorPage += "<body><h1>Error " + statusCode  + httpStatusMap[statusCode] + "</h1>";
+        errorPage += "<html><head><title>Error " + statusCode + " : " + httpStatusMap[statusCode] + "</title></head>";
+        errorPage += "<body><h1>Error " + statusCode  + " : " + httpStatusMap[statusCode] + "</h1>";
         errorPage += "<p>Sorry, the requested page could not be found.</p>";
         errorPage += "</body></html>";
 
