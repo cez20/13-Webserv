@@ -2,40 +2,36 @@
 #include "HttpResponse.hpp"
 // constructor
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
+    generateStatusMap();
     if(clientRequest.reponseStatus != "")
-        this->statusCode = clientRequest.statusResponse;
-    else
+        this->statusCode = clientRequest.reponseStatus;
+    else{
         analyseRequest(clientRequest);
-    checkForError();
+        checkForError();
+    }
 }
 
 //Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (clientRequest.method != "POST" && clientRequest.method != "GET" && clientRequest.method != "DELETE"){
-        this->statusCode = "501";
-        this->headers["contentType"] = " text/html";
-        this->body=extractFileContent(clientRequest.config.get_root() + "/501.html");      
+        this->statusCode = "501";    
         return (1);
     }
-    if(!clientRequest.autorizedMethods.empty()){
-        std::vector<std::string>::iterator it = std::find(clientRequest.autorizedMethods.begin(), clientRequest.autorizedMethods.end(), clientRequest.method);
-        if (it == strings.end()) {
-        }
-            for (size_t i = 0; i < clientRequest.autorizedMethods.size(); i++){
-                if (clientRequest.method != clientRequest.autorizedMethods[i]){
-                    this->statusCode = "401";
-                    this->headers["contentType"] = " text/html";
-                    this->body=extractFileContent(clientRequest.config.get_root() + "/html/501.html");      
-                    return (1);
-                }
-        }
+    if (!clientRequest.autorizedMethods.empty()) {
+        std::vector<std::string>::const_iterator it = std::find(
+            clientRequest.autorizedMethods.cbegin(), clientRequest.autorizedMethods.cend(), clientRequest.method);
+
+        if (it == clientRequest.autorizedMethods.cend()) {
+            // The method is not authorized
+            this->statusCode = "401";
+            return 1;
+        } 
     }
+
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
         this->statusCode = "404 Not Found";
-        this->body=extractFileContent(clientRequest.config.get_root() + "/404.html");
-        this->headers["contentType"] = "text/html";
         return (1);
     }
     if (clientRequest.isCgi){
@@ -117,7 +113,7 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         //set args for execve
         std::vector<char*> argvList;
         argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
-        argvList.push_back(const_cast<char*>("/Users/slord/Desktop/13-WEBSERVER/html/test.php"));
+        argvList.push_back(const_cast<char*>("html/test.php"));
         argvList.push_back(nullptr);
         //set envp for execve
         std::vector<char*> envpList;      
@@ -179,7 +175,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         //set args for execve
         std::vector<char*> argvList;
         argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
-        argvList.push_back(const_cast<char*>("/Users/slord/Desktop/13-WEBSERVER/html/test.php"));
+        argvList.push_back(const_cast<char*>("html/test.php"));
         argvList.push_back(nullptr);
         //set envp for execve
         std::vector<char*> envpList;      
@@ -242,6 +238,7 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
 
         // Définir la longueur du contenu
         this->headers["contentLength"] = std::to_string(this->body.length());
+         this->statusCode = "200 OK";
         return 0;
     }
     else{
@@ -269,9 +266,8 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 
 }
 void HttpResponse::checkForError(){
-    if(this->statusCode != "200"){
-        generateStatusMap();
-       if(!checkForCustomErrorFiles())
+    if(this->statusCode != "200 OK"){
+       //if(!checkForCustomErrorFiles())
             generateDefaultError();
     }
     
@@ -304,11 +300,13 @@ void HttpResponse::generateDefaultError(){
     std::string errorPage;
 
 
-        errorPage += "<html><head><title>Error " + statusCode + ": " + httpStatusMap[statusCode] + "</title></head>";
-        errorPage += "<body><h1>Error " + statusCode + ": " + httpStatusMap[statusCode] + "</h1>";
+        errorPage += "<html><head><title>Error " + statusCode + httpStatusMap[statusCode] + "</title></head>";
+        errorPage += "<body><h1>Error " + statusCode  + httpStatusMap[statusCode] + "</h1>";
         errorPage += "<p>Sorry, the requested page could not be found.</p>";
         errorPage += "</body></html>";
-        
+
+
+        this->headers["contentType"] = " text/html";
         this->body = errorPage;
 }
 

@@ -33,7 +33,7 @@ class HttpResponse {
         int deleteMethod(const HttpRequest& clientRequest);
         void checkForError();
         void generateStatusMap();
-        void HttpResponse::generateDefaultError();
+        void generateDefaultError();
 
 };
 
