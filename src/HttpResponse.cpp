@@ -269,11 +269,47 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 
 }
 void HttpResponse::checkForError(){
-    if(this->statusCode != 200){
+    if(this->statusCode != "200"){
+        generateStatusMap();
        if(!checkForCustomErrorFiles())
             generateDefaultError();
     }
     
+}
+void HttpResponse::generateStatusMap(){
+    httpStatusMap["100"] = "Continue";
+    httpStatusMap["101"] = "Switching Protocols";
+    httpStatusMap["200"] = "OK";
+    httpStatusMap["201"] = "Created";
+    httpStatusMap["202"] = "Accepted";
+    httpStatusMap["203"] = "Non-Authoritative Information";
+    httpStatusMap["204"] = "No Content";
+    httpStatusMap["205"] = "Reset Content";
+    httpStatusMap["206"] = "Partial Content";
+    httpStatusMap["300"] = "Multiple Choices";
+    httpStatusMap["301"] = "Moved Permanently";
+    httpStatusMap["302"] = "Found";
+    httpStatusMap["303"] = "See Other";
+    httpStatusMap["304"] = "Not Modified";
+    httpStatusMap["305"] = "Use Proxy";
+    httpStatusMap["307"] = "Temporary Redirect";
+    httpStatusMap["400"] = "Bad Request";
+    httpStatusMap["401"] = "Unauthorized";
+    httpStatusMap["402"] = "Payment Required";
+    httpStatusMap["403"] = "Forbidden";
+    httpStatusMap["404"] = "Not Found";
+}
+void HttpResponse::generateDefaultError(){
+
+    std::string errorPage;
+
+
+        errorPage += "<html><head><title>Error " + statusCode + ": " + httpStatusMap[statusCode] + "</title></head>";
+        errorPage += "<body><h1>Error " + statusCode + ": " + httpStatusMap[statusCode] + "</h1>";
+        errorPage += "<p>Sorry, the requested page could not be found.</p>";
+        errorPage += "</body></html>";
+        
+        this->body = errorPage;
 }
 
 
