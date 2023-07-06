@@ -28,35 +28,37 @@ class ConfigFile{
 	~ConfigFile();
 		//LOCATION STRUCTURE
 		struct location{
-			std::string							_loc_location;
-			std::map<std::string, std::string>	_loc_error_log;
-			std::map<std::string, int>			_loc_listen;
-			std::string							_loc_server_name;
-			std::string							_loc_root;
-			std::string							_loc_access_log;
-			std::string							_loc_include_types;
-			std::string							_loc_index;
-			std::string							_loc_auto_index;
-			std::string							_loc_return;
-			std::vector<std::string>			_loc_methods;
+			std::string								_loc_location;
+			std::map<std::string, std::string>		_loc_error_page;
+			std::vector<std::string>				_loc_listen;
+			std::string								_loc_server_name;
+			std::string								_loc_root;
+			std::string								_loc_access_log;
+			std::string								_loc_include_types;
+			std::string								_loc_index;
+			std::string								_loc_auto_index;
+			std::string								_loc_return;
+			std::string								_loc_cgi_pass;
+			std::string								_loc_cgi_pass2;
+			std::vector<std::string>				_loc_methods;
 		};
 
-		std::string 						get_server_name()const {return (_server_name);};
-		std::string 						get_root()const {return (_root);};
-		std::string 						get_access_log()const {return (_access_log);};
-		std::string 						get_include_types()const {return (_include_types);};
-		std::vector<std::string>&			get_methods(){return (_methods);};
-		std::map<std::string, int>& 		get_listen(){return (_listen);};
-		std::map<std::string, std::string>&	get_error_log(){return (_error_log);};
-		const std::vector<ConfigFile::location>&				get_location()const{return (_location);};
+		std::string 								get_server_name()const {return (_server_name);};
+		std::string 								get_root()const {return (_root);};
+		std::string 								get_access_log()const {return (_access_log);};
+		std::string 								get_include_types()const {return (_include_types);};
+		std::vector<std::string>&					get_methods(){return (_methods);};
+		std::vector<std::string>& 					get_listen(){return (_listen);};
+		std::map<std::string, std::string>&			get_error_page(){return (_error_page);};
+		const std::vector<ConfigFile::location>&	get_location()const{return (_location);};
 
-		void 								extract_config_file();
-		void								parse_listen(std::string str);
-		std::map<std::string, int>			parse_location_listen(std::string str);
-		std::string							parse_found_line(std::string charset, std::string found_line);
-		std::string							parse_found_location(std::string charset, std::string found_line);
-		std::vector<std::string>			split_vectors(std::string str, char delimiter);
-		std::pair<std::string, std::string>	split_on_space(std::string str);
+		void 										extract_config_file();
+		void										parse_listen(std::string str);
+		std::vector<std::string>					parse_location_listen(std::string str);
+		std::string									parse_found_line(std::string charset, std::string found_line);
+		std::string									parse_found_location(std::string charset, std::string found_line);
+		std::vector<std::string>					split_vectors(std::string str, char delimiter);
+		std::pair<std::string, std::string>			split_on_space(std::string str);
 
 		class EmptyFd: public std::exception{
 			public:
@@ -73,8 +75,8 @@ class ConfigFile{
 	private:
 		//CONFIG FILE VARIABLES
 		std::vector<location>					_location;
-		std::map<std::string, std::string>		_error_log;
-		std::map<std::string, int>				_listen;
+		std::map<std::string, std::string>		_error_page;
+		std::vector<std::string>				_listen;
 		std::vector<std::string>				_methods;
 		std::string								_server_name;
 		std::string								_root;
