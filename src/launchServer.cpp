@@ -109,7 +109,8 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 int *launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
-	int *socketFds =  new int[3];
+	unsigned long size = config.get_listen().size();
+	int *socketFds =  new int[size];
 	int i = 0;
 
 	std::map<std::string, int>::const_iterator iter2;  // Create an iterator to ciruclate inside map 

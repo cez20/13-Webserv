@@ -93,14 +93,14 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
  */
 int monitorServer(int *serverSocket, ConfigFile config)
 {
-	std::vector<pollfd> socketFds(3);  // Indicate number of elements necessary
+	unsigned long size = config.get_listen().size();
+	std::vector<pollfd> socketFds(size);
 	// This loop creates all server sockets 
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < size; i++)
 	{
 		socketFds[i].fd = serverSocket[i];
     	socketFds[i].events = POLLIN;
 	}
-
 	while (true)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
@@ -122,7 +122,7 @@ int monitorServer(int *serverSocket, ConfigFile config)
 			}
 		}
 	}
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < size; i++)
 	{
 		close (serverSocket[i]);
 	}
