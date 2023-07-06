@@ -1,33 +1,28 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <filesystem>
+#include "../inc/webserv.hpp"
+// #include "../inc/HttpResponse.hpp"
+// #include "../inc/HttpRequest.hpp"
+// #include "../inc/ConfigFile.hpp"
+// #include "../inc/color.h"
 
-int ft_strlen(char *str)
-{
-    int i;
 
-   if (!str)
-        return (0);
-    i = 0;
-    while (str[i])
-        i++;
-        
-    return (i);
+
+TEST(GetNetworkInfoTest, ReturnsNonNullPointer) {
+    // Call the getNetworkInfo function
+    struct addrinfo* result = getNetworkInfo();
+
+    // Assert that the result is not null
+    ASSERT_NE(result, nullptr);
+
+    // Clean up any allocated memory if necessary
+    // ...
+
+    // Add more assertions or tests as needed
 }
 
-// Series of unit tests, to tests ft_strlen function 
 
-TEST(MyTestSuite, Test1) {
-  char *str = nullptr;
-  EXPECT_EQ(ft_strlen(str), 0);
-}
-
-TEST(MyTestSuite, Test2) {
-  char str[4] = "Cle";
-  EXPECT_EQ(ft_strlen(str), 3) << "Length of strings differ";
-}
-
-// Google test main, that allows to run all tests 
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);

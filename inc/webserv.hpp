@@ -33,6 +33,7 @@
 
 int launchServer();
 int monitorServer(int serverSocket, ConfigFile config);
+struct addrinfo 	*getNetworkInfo();
 std::string extractFileContent(const std::string& path);
 bool endsWith(const std::string& str, const std::string& suffix);
 
