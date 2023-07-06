@@ -47,28 +47,28 @@ void	printNetworkInfo(struct addrinfo *res)
 */
 int serverSocketSetup(struct addrinfo *res)
 {
-	int yes= 1;
-
 	int serverSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (serverSocket == -1) {
-		std::cerr << "Error while creating the server socket." << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << "Socket creation error: " << strerror(errno) << std::endl;
+		return (-1);
 	}
 
+	int yes= 1;
 	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
-		std::cerr << "Error with setsockopt: " << strerror(errno) << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << "Set socket option error: " << strerror(errno) << std::endl;
+		return (-1);
 	}
 
-	if (bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
-		std::cerr << "Error while trying to bind the socket." << std::endl;
+	if ( bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
+		std::cerr << "Bind error: " << strerror(errno) << std::endl;
 		close(serverSocket);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
+
 	if (listen(serverSocket, MAX_PENDING_CONNECTIONS) == -1) {
-		std::cerr << "Error while trying to listen" << std::endl;
+		std::cerr << "Listen error: " << strerror(errno) << std::endl;
 		close(serverSocket);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	std::cout << "SERVERSOCKET IS SETUP AND IS LISTENING TO INCOMING CONNECTIONS!" << std::endl;
 	return (serverSocket);
@@ -93,7 +93,7 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 	hints.ai_flags 		= AI_PASSIVE;		// Flag to assign the address of my localhost (127.0.0.1) to the socket structure.  
 	hints.ai_protocol 	= IPPROTO_TCP;		
 
-	if ((status = getaddrinfo(NULL, port, &hints, &res)) != 0) {
+	if ((status = getaddrinfo("localhost", port, &hints, &res)) != 0) {
 		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
 		exit(EXIT_FAILURE);							
 	}
@@ -110,6 +110,7 @@ int *launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
 	unsigned long size = config.get_listen().size();
+	std::cout << "The size of size is: " << size << std::endl;
 	int *socketFds =  new int[size];
 	int i = 0;
 
