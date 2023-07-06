@@ -2,6 +2,8 @@
 #include <string>
 #include <cstdlib>
 #include <cstdio>
+#include <unistd.h>
+
 
 // Define the URL of your server
 const std::string serverUrl = "http://localhost:8080"; // Replace with your server's URL or IP address

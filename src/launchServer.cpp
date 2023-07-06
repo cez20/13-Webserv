@@ -47,28 +47,28 @@ void	printNetworkInfo(struct addrinfo *res)
 */
 int serverSocketSetup(struct addrinfo *res)
 {
-	int yes= 1;
-
 	int serverSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (serverSocket == -1) {
-		std::cerr << "Error while creating the server socket." << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << "Socket creation error: " << strerror(errno) << std::endl;
+		return (-1);
 	}
 
+	int yes= 1;
 	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
-		std::cerr << "Error with setsockopt: " << strerror(errno) << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << "Set socket option error: " << strerror(errno) << std::endl;
+		return (-1);
 	}
 
-	if (bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
-		std::cerr << "Error while trying to bind the socket." << std::endl;
+	if ( bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
+		std::cerr << "Bind error: " << strerror(errno) << std::endl;
 		close(serverSocket);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
+
 	if (listen(serverSocket, MAX_PENDING_CONNECTIONS) == -1) {
-		std::cerr << "Error while trying to listen" << std::endl;
+		std::cerr << "Listen error: " << strerror(errno) << std::endl;
 		close(serverSocket);
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	std::cout << "SERVERSOCKET IS SETUP AND IS LISTENING TO INCOMING CONNECTIONS!" << std::endl;
 	return (serverSocket);
@@ -81,7 +81,7 @@ int serverSocketSetup(struct addrinfo *res)
 	the TCP/IP protocol, etc. When successful, getaddrinfo() returns a pointer to a linked list of struct addrinfo
 	which each contain an IP address and PORT that can be used for the creation of sockets. 
  */
-struct addrinfo 	*getNetworkInfo()
+struct addrinfo 	*getNetworkInfo(const char *port)
 {
 	struct addrinfo hints;
 	struct addrinfo *res;
@@ -93,7 +93,7 @@ struct addrinfo 	*getNetworkInfo()
 	hints.ai_flags 		= AI_PASSIVE;		// Flag to assign the address of my localhost (127.0.0.1) to the socket structure.  
 	hints.ai_protocol 	= IPPROTO_TCP;		
 
-	if ((status = getaddrinfo(NULL, "8080", &hints, &res)) != 0) {
+	if ((status = getaddrinfo("localhost", port, &hints, &res)) != 0) {
 		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
 		exit(EXIT_FAILURE);							
 	}
@@ -106,13 +106,18 @@ struct addrinfo 	*getNetworkInfo()
 	must first get the network information and then binds the IPaddress and PORT together, so
 	that we can start listening to incoming request. 
  */
-int launchServer() 
+int *launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
+	std::vector<std::string> ArrayPorts = config.get_listen();
+	//int size = ArrayPorts.size();
 
-	ipAddressList = getNetworkInfo();
-	int serverSocket = serverSocketSetup(ipAddressList);
-	freeaddrinfo(ipAddressList);
-
-	return (serverSocket);
+	int *socketFds =  new int[ArrayPorts.size()];
+	for (size_t i = 0; i < ArrayPorts.size(); i++) {
+		const char* charPtr = ArrayPorts[i].c_str();
+		ipAddressList = getNetworkInfo(charPtr);
+		socketFds[i] = serverSocketSetup(ipAddressList);
+		freeaddrinfo(ipAddressList);
+	}
+	return (socketFds);
 }

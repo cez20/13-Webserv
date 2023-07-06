@@ -99,7 +99,7 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         //set args for execve
         std::vector<char*> argvList;
         argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
-        argvList.push_back(const_cast<char*>("/Users/slord/Desktop/13-WEBSERVER/html/test.php"));
+        argvList.push_back(const_cast<char*>("html/test.php"));
         argvList.push_back(nullptr);
         //set envp for execve
         std::vector<char*> envpList;      
@@ -161,7 +161,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         //set args for execve
         std::vector<char*> argvList;
         argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
-        argvList.push_back(const_cast<char*>("/Users/slord/Desktop/13-WEBSERVER/html/test.php"));
+        argvList.push_back(const_cast<char*>("html/test.php"));
         argvList.push_back(nullptr);
         //set envp for execve
         std::vector<char*> envpList;      

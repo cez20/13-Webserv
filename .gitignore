@@ -43,6 +43,7 @@ config
 #César
 webserv
 build
+connectionLoop
 
 server.exe
 

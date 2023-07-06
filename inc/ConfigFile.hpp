@@ -8,7 +8,6 @@
 //#*     YP      YP       `"Ybbd8"'  8Y"Ybbd8"'   `"YbbdP"'   `"Ybbd8"'  88              "8"     *# 
 //#*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*#
 
-
 #ifndef CONFIGFILE_HPP
 #define CONFIGFILE_HPP
 
@@ -22,7 +21,6 @@
 #include<sstream>
 #include<utility>
 #include"color.h"
-
 
 class ConfigFile{
 	public:
