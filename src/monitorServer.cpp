@@ -86,6 +86,23 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 }
 
 /* 
+	This function creates a vector of type pollfd necessary for the poll() function. 
+	It contains the file descriptor of each socket. 
+*/
+std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config)
+{
+	int nbrServerSockets = config.get_listen().size();
+	std::vector<pollfd> socketFds(nbrServerSockets);
+
+	for (int i = 0; i < nbrServerSockets; i++)
+	{
+		socketFds[i].fd = serverSocket[i];
+		socketFds[i].events = POLLIN;
+	}
+	return (socketFds);
+}
+
+/* 
 	This function is the infinite loop, that listen for incoming connections. Function start
 	by calling the launchSocketMonitoring to see which sockets are ready to receive content (POLLIN) 
 	or to send content(POLLOUT).Once done, new client socket is created, and the dynamic of receiving 
@@ -93,14 +110,7 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
  */
 int monitorServer(int *serverSocket, ConfigFile config)
 {
-	int size = config.get_listen().size();
-	std::vector<pollfd> socketFds(size);
-	// This loop creates all server sockets 
-	for (int i = 0; i < size; i++)
-	{
-		socketFds[i].fd = serverSocket[i];
-    	socketFds[i].events = POLLIN;
-	}
+	std::vector <pollfd> socketFds = createSocketVector(serverSocket, config);
 	while (true)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
@@ -122,9 +132,7 @@ int monitorServer(int *serverSocket, ConfigFile config)
 			}
 		}
 	}
-	for (int i = 0; i < size; i++)
-	{
+	for (int i = 0; i < socketFds.size(); i++)
 		close (serverSocket[i]);
-	}
 	return (0);
 }
