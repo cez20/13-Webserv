@@ -65,7 +65,6 @@
 # include(GoogleTest)
 # gtest_discover_tests(webservTests)
 
-
 cmake_minimum_required(VERSION 3.12)
 project(webserv)
 

@@ -31,4 +31,11 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+cmake:
+	mkdir -p build
+	cd build && cmake .. && make
+
+test:
+	./webservTests
+
+.PHONY: all clean fclean re cmake
