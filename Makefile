@@ -31,6 +31,7 @@ clean:
 fclean: clean
 	rm -rf $(NAME)
 	rm -rf connectionLoop
+	rm -rf webservTests
 
 re: fclean all
 
