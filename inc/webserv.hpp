@@ -35,12 +35,24 @@
 
 #define MAX_PENDING_CONNECTIONS	5
 
-int *launchServer(ConfigFile config);
-int monitorServer(int *serverSocket, ConfigFile config);
+
+//*** LAUNCHSERVER.CPP  ***
+void				printNetworkInfo(struct addrinfo *res)
+int					serverSocketSetup(struct addrinfo *res);
 struct addrinfo 	*getNetworkInfo(const char *port);
-int serverSocketSetup(struct addrinfo *res);
-std::string extractFileContent(const std::string& path);
-bool endsWith(const std::string& str, const std::string& suffix);
+int 				*launchServer(ConfigFile config);
+
+//*** MONITORSERVER.CPP ***
+void				handleClient(int clientSocket, const ConfigFile& config) {
+void				addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket)
+int					createNewClientSocket(int serverSocket)
+void				launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
+std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config);
+int 				monitorServer(int *serverSocket, ConfigFile config);
+
+//*** UTILS.CPP ***
+std::string 		extractFileContent(const std::string& path);
+bool 				endsWith(const std::string& str, const std::string& suffix);
 
 template <typename Key, typename Value>
 void printMap(const std::map<Key, Value>& mapContainer) {
