@@ -7,15 +7,10 @@ int main (int argc, char **argv){
         exit(EXIT_FAILURE);
     }
     else {
-        // to be replaced with real parsing (Tristan)
-        try{
             ConfigFile config(argv[1]);
             int *serverSocket = launchServer(config);
 		    monitorServer(serverSocket, config);
-        }
-        catch(const std::exception& e){
-		std::cerr << e.what() << '\n';
-	}
+        
         //Launch the serveur
        
     }

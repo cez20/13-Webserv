@@ -2,32 +2,60 @@
 #include "HttpResponse.hpp"
 // constructor
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
-    analyseRequest(clientRequest);
+    generateStatusMap();
+    this->path = clientRequest.path;
+    if(clientRequest.reponseStatus != "")
+        this->statusCode = clientRequest.reponseStatus;
+    else{
+        analyseRequest(clientRequest);
+        checkForError();
+    }
 }
 
 //Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (clientRequest.method != "POST" && clientRequest.method != "GET" && clientRequest.method != "DELETE"){
-        this->statusCode = "501";
-        this->headers["contentType"] = " text/html";
-        this->body=extractFileContent(clientRequest.config.get_root() + "/501.html");      
+        this->statusCode = "501";    
         return (1);
     }
+    if (!clientRequest.autorizedMethods.empty()) {
+        std::vector<std::string>::const_iterator it = std::find(
+            clientRequest.autorizedMethods.cbegin(), clientRequest.autorizedMethods.cend(), clientRequest.method);
+
+        if (it == clientRequest.autorizedMethods.cend()) {
+            // The method is not authorized
+            this->statusCode = "401";
+            return 1;
+        } 
+    }
+    std::cout << "isDirectory result: " << isDirectory(path) << std::endl;
+    if(isDirectory(path) && clientRequest.autoIndex){
+        std::cout << clientRequest.autoIndex<< std::endl;
+            autoListing();
+            return(0);
+    }
+   
+
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
-        this->statusCode = "404 Not Found";
-        this->body=extractFileContent(clientRequest.config.get_root() + "/404.html");
-        this->headers["contentType"] = "text/html";
+        this->statusCode = "404";
         return (1);
     }
     if (clientRequest.isCgi){
         std::string output;
-        if(clientRequest.method == "GET"){
-            output = executeCgiGet(clientRequest);
+        try{
+            if(clientRequest.method == "GET"){
+                output = executeCgiGet(clientRequest);
+            }
+            else{
+                output = executeCgiPost(clientRequest);
+            }
         }
-        else{
-            output = executeCgiPost(clientRequest);
-        }
+        catch(const std::exception& e){
+		std::cerr << e.what() << '\n';
+        this->statusCode = "500";
+        return (1);
+	}
         analyseCgiOutput(output);
         this->statusCode = "200 OK";
         return (0);
@@ -137,6 +165,13 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
 }
 std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
     std::string output;
+    char currentDir[PATH_MAX];
+    std::string scriptPath(currentDir);
+
+    if (getcwd(currentDir, sizeof(currentDir)) == nullptr) {
+        std::cerr << "Failed to get current working directory" << std::endl;
+    }
+
     int pipefd[2];
     if (pipe(pipefd) == -1) {
         throw std::runtime_error("Error when creating pipe");
@@ -144,7 +179,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
 
     pid_t pid = fork();
     if (pid == -1) {
-        throw std::runtime_error("Error wheile forking");
+        throw std::runtime_error("Error while forking");
     }
     else if (pid == 0) {
         dup2(pipefd[1], STDOUT_FILENO);
@@ -160,8 +195,8 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         }
         //set args for execve
         std::vector<char*> argvList;
-        argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
-        argvList.push_back(const_cast<char*>("html/test.php"));
+        argvList.push_back(const_cast<char*>("php"));  // Utilisez le chemin correct vers l'interpréteur PHP
+        argvList.push_back(const_cast<char*>(path.c_str()));
         argvList.push_back(nullptr);
         //set envp for execve
         std::vector<char*> envpList;      
@@ -171,8 +206,13 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        if (execve("/usr/bin/php", argv, envp) == -1) {
+        int result = chdir("/usr/bin"); //change
+        if (result != 0) {
+            std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
+        }
+        if (execve("php", argv, envp) == -1) {
             std::cerr << "Error with execve" << std::endl;
+            throw std::runtime_error("Script returned an error");
         }
     }
     else {
@@ -192,9 +232,11 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
          if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
              throw std::runtime_error("Script returned an error");
          }
-        return output;
     }
-
+    int result = chdir(currentDir);
+        if (result != 0) {
+            std::cerr << "Failed to change directory to " << "/usr/bin/php" << std::endl;
+        }
      return output;
 }
 
@@ -224,6 +266,7 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
 
         // Définir la longueur du contenu
         this->headers["contentLength"] = std::to_string(this->body.length());
+         this->statusCode = "200 OK";
         return 0;
     }
     else{
@@ -250,6 +293,89 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
     return(0);
 
 }
+void HttpResponse::checkForError(){
+    if(this->statusCode != "200 OK"){
+       //if(!checkForCustomErrorFiles())
+            generateDefaultError();
+    }
+    
+}
+void HttpResponse::generateStatusMap(){
+    httpStatusMap["100"] = "Continue";
+    httpStatusMap["101"] = "Switching Protocols";
+    httpStatusMap["200"] = "OK";
+    httpStatusMap["201"] = "Created";
+    httpStatusMap["202"] = "Accepted";
+    httpStatusMap["203"] = "Non-Authoritative Information";
+    httpStatusMap["204"] = "No Content";
+    httpStatusMap["205"] = "Reset Content";
+    httpStatusMap["206"] = "Partial Content";
+    httpStatusMap["300"] = "Multiple Choices";
+    httpStatusMap["301"] = "Moved Permanently";
+    httpStatusMap["302"] = "Found";
+    httpStatusMap["303"] = "See Other";
+    httpStatusMap["304"] = "Not Modified";
+    httpStatusMap["305"] = "Use Proxy";
+    httpStatusMap["307"] = "Temporary Redirect";
+    httpStatusMap["400"] = "Bad Request";
+    httpStatusMap["401"] = "Unauthorized";
+    httpStatusMap["402"] = "Payment Required";
+    httpStatusMap["403"] = "Forbidden";
+    httpStatusMap["404"] = "Not Found";
+    httpStatusMap["500"] = "Internal Server Error";
+    httpStatusMap["501"] = "Not Implemented";
+}
+void HttpResponse::generateDefaultError(){
+
+    std::string errorPage;
+
+
+        errorPage += "<html><head><title>Error " + statusCode + " : " + httpStatusMap[statusCode] + "</title></head>";
+        errorPage += "<body><h1>Error " + statusCode  + " : " + httpStatusMap[statusCode] + "</h1>";
+        errorPage += "<p>Sorry, the requested page could not be found.</p>";
+        errorPage += "</body></html>";
+
+
+        this->headers["contentType"] = " text/html";
+        this->body = errorPage;
+}
+
+void HttpResponse::generateDirListing(std::vector<std::string> vecList){
+    std::string html;
+
+    html += "<html><body><ul>";
+
+    for (std::vector<std::string>::const_iterator it = vecList.begin(); it != vecList.end(); ++it) {
+        html += "<li><a href=\"";
+        html += *it;
+        html += "\">";
+        html += *it;
+        html += "</a></li>";
+    }
+
+    html += "</ul></body></html>";
+    this->body= html;
+    this->statusCode = "200 OK";
+    this->headers["contentType"] = "text/html";
+    this->headers["contentLength"] = std::to_string(this->body.length());
+        
+    }
+void HttpResponse::autoListing(){
+    std::vector<std::string> vecList;
+
+    DIR* dir = opendir(path.c_str());
+    if (dir != NULL) {
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) {
+            std::string name = entry->d_name;
+            vecList.push_back(name);
+        }
+        closedir(dir);
+    }
+    generateDirListing(vecList);
+}
+
+
 
     
 
