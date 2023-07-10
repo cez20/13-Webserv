@@ -47,5 +47,3 @@ jobs:
 
           # Mark the job as failed to prevent the pull request from merging
           exit 1
-
-name: Run Google Test
