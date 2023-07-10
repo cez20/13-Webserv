@@ -1,7 +1,7 @@
 
 #include "HttpRequest.hpp"
-
-void HttpRequest::parseRequest(std::string rawRequest, const ConfigFile& config) {
+//This funtion get the method, the headers and the body from the resquest.
+void HttpRequest::parseRequest(std::string rawRequest) {
     std::string method, path, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
@@ -38,18 +38,20 @@ void HttpRequest::parseRequest(std::string rawRequest, const ConfigFile& config)
     }
     this->headers = headers;
     this->method = method;
-    this->path = config.get_root() + path;
+    this->path = path;
 }
 
-void HttpRequest::validityCheck(){
-}
-void HttpRequest::checkCgi(const ConfigFile& config){
-    if(this->path == config.get_root() + "/test.php"){
+
+
+//Check if the path is the CGI
+void HttpRequest::checkCgi() {
+    std::ifstream file(this->path);
+    if (file.good() && endsWith(this->path, "/test.php")) {
         this->isCgi = true;
-    }
-     else
+    } else {
         this->isCgi = false;
- }
+    }
+}
 void HttpRequest::checkDownload(const ConfigFile& config){
     if(endsWith(this->path, ".pdf")){
         this->toBeDownloaded = true;
@@ -59,32 +61,52 @@ void HttpRequest::checkDownload(const ConfigFile& config){
     std::string test = config.get_root();
 
  }
-void HttpRequest::cleanPath(const ConfigFile& config){
+ //Check if the resquest correspond to  location path from de config file and set the variables to reflect those specific configurations
+void HttpRequest::checkLocation(const ConfigFile& config){
     //checking the if there if a specific locaton for the resquest path
     for (size_t i = 0; i < config.get_location().size(); ++i){
         if (config.get_location()[i]._loc_location.find(this->path))
             this->locationRequest = config.get_location()[i];
     }
     //change the resquest path with the new location
-    //std::string to_replace = this->locationRequest._loc_location; 
-    // size_t pos = this->path.find(to_replace);
-    // if (pos != std::string::npos)
-    //     this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
-    // this->index = this->locationRequest._loc_index;
-    // this->autorizedMethods = this->locationRequest._loc_methods;
-    // this->redir = this->locationRequest._loc_redir;
-    // if (this->locationRequest._loc_auto_index == "on")
-    //     this->autoIndex = true;
-    // else
-    //     this->autoIndex = false;
-  
-
-
+    if (this->locationRequest._loc_location == "/"  && !this->locationRequest._loc_root.empty())
+    {
+        std::string newRoot = locationRequest._loc_root + "/";
+        std::size_t last_slash = this->path.find_last_of('/');
+        if (last_slash != std::string::npos)
+            this->path.replace(last_slash, 1, newRoot);
+    }
+    else if (!this->locationRequest._loc_root.empty()){
+        std::string to_replace = this->locationRequest._loc_location; 
+        size_t pos = this->path.find(to_replace);
+        if (pos != std::string::npos)
+            this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
+    }
+    if (!this->locationRequest._loc_index.empty())
+        this->index = this->locationRequest._loc_index;
+    if (!this->locationRequest._loc_methods.empty())  
+        this->autorizedMethods = this->locationRequest._loc_methods;
+    if (!this->locationRequest._loc_return.empty())
+        this->redir = this->locationRequest._loc_return;
+    if (this->locationRequest._loc_auto_index == "on")
+        this->autoIndex = true;
+    else
+        this->autoIndex = false;  
+    if (!this->redir.empty())
+        this->reponseStatus = "301";
+    
+    std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
     // if (!location->limit_except.empty())
     //     this->limit_except = location->limit_except;
-    // if (!location->return.empty())
-    //     this->redirection = location.return;
-    //     //je vais devoir prend la map dans la struct po
+}
+//Check the config file for global parameters et set the variables accordingly 
+void HttpRequest::checkGlobal(const ConfigFile& config){
+    this->path = config.get_root() + this->path;
+    this->autorizedMethods = config.get_methods();
+
 }
 
+
+void HttpRequest::validityCheck(){
+}
 HttpRequest::~HttpRequest() { return; }

@@ -132,7 +132,7 @@ int monitorServer(int *serverSocket, ConfigFile config)
 			}
 		}
 	}
-	for (int i = 0; i < socketFds.size(); i++)
+	for (unsigned long i = 0; i < socketFds.size(); i++)
 		close (serverSocket[i]);
 	return (0);
 }
