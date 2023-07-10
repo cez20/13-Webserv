@@ -31,8 +31,8 @@
 
 #define MAX_PENDING_CONNECTIONS	5
 
-int launchServer();
-int monitorServer(int serverSocket, ConfigFile config);
+int *launchServer(ConfigFile config);
+int monitorServer(int *serverSocket, ConfigFile config);
 std::string extractFileContent(const std::string& path);
 bool endsWith(const std::string& str, const std::string& suffix);
 
