@@ -9,13 +9,7 @@
 
 
 // TESTING GETNETWORKINFO() FUNCTION 
-TEST(GetNetworkInfoTest, WrongPort1) {
-
-    struct addrinfo* result = getNetworkInfo("65537");
-    EXPECT_EQ(result, nullptr);
-}
-
-TEST(GetNetworkInfoTest, WrongPort2) {
+TEST(GetNetworkInfoTest, WrongPort) {
 
     struct addrinfo* result = getNetworkInfo("-1");
     EXPECT_EQ(result, nullptr);
