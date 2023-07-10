@@ -14,7 +14,7 @@ TEST(GetNetworkInfoTest, ReturnsNonNullPointer) {
     struct addrinfo* result = getNetworkInfo("8080");
 
     // Assert that the result is not null
-    ASSERT_NE(result, nullptr);
+    EXPECT_NE(result, nullptr);
 
     // Clean up any allocated memory if necessary
     // ...
@@ -22,6 +22,13 @@ TEST(GetNetworkInfoTest, ReturnsNonNullPointer) {
     // Add more assertions or tests as needed
 }
 
+TEST(SetupServer, Test1) {
+   
+	int result = serverSocketSetup(nullptr);
+
+	EXPECT_EQ(result, -1);
+
+}
 
 
 int main(int argc, char **argv) {
