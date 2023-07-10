@@ -13,7 +13,7 @@ INCS        = $(addprefix $(INC_DIR)/,$(INC_FILES))
 CC          = c++
 CFLAGS      = -Wall -Wextra -Werror -std=c++98 -g
 
-all: $(NAME) test
+all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ)  -o $(NAME)
@@ -34,4 +34,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re cmake
