@@ -3,7 +3,9 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <netdb.h>
+#include <dirent.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
@@ -53,4 +55,5 @@ void printStructure(const T& structure) {
     }
     std::cout << std::endl;
 }
+bool isDirectory(const std::string& path);
 

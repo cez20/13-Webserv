@@ -28,7 +28,13 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
-
+    std::cout << "isDirectory result: " << isDirectory(path) << std::endl;
+    if(isDirectory(path) && clientRequest.autoIndex){
+        std::cout << clientRequest.autoIndex<< std::endl;
+            autoListing();
+            return(0);
+    }
+   
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
@@ -332,6 +338,41 @@ void HttpResponse::generateDefaultError(){
 
         this->headers["contentType"] = " text/html";
         this->body = errorPage;
+}
+
+void HttpResponse::generateDirListing(std::vector<std::string> vecList){
+    std::string html;
+
+    html += "<html><body><ul>";
+
+    for (std::vector<std::string>::const_iterator it = vecList.begin(); it != vecList.end(); ++it) {
+        html += "<li><a href=\"";
+        html += *it;
+        html += "\">";
+        html += *it;
+        html += "</a></li>";
+    }
+
+    html += "</ul></body></html>";
+    this->body= html;
+    this->statusCode = "200 OK";
+    this->headers["contentType"] = "text/html";
+    this->headers["contentLength"] = std::to_string(this->body.length());
+        
+    }
+void HttpResponse::autoListing(){
+    std::vector<std::string> vecList;
+
+    DIR* dir = opendir(path.c_str());
+    if (dir != NULL) {
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) {
+            std::string name = entry->d_name;
+            vecList.push_back(name);
+        }
+        closedir(dir);
+    }
+    generateDirListing(vecList);
 }
 
 

@@ -35,6 +35,8 @@ class HttpResponse {
         void checkForError();
         void generateStatusMap();
         void generateDefaultError();
+        void autoListing();
+        void generateDirListing(std::vector<std::string> vecList);
 
 };
 
