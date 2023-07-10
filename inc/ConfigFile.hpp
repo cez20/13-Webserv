@@ -47,7 +47,7 @@ class ConfigFile{
 		std::string 								get_root()const {return (_root);};
 		std::string 								get_access_log()const {return (_access_log);};
 		std::string 								get_include_types()const {return (_include_types);};
-		std::vector<std::string>&					get_methods(){return (_methods);};
+		const std::vector<std::string>&					get_methods()const {return (_methods);};
 		std::vector<std::string>& 					get_listen(){return (_listen);};
 		std::map<std::string, std::string>&			get_error_page(){return (_error_page);};
 		const std::vector<ConfigFile::location>&	get_location()const{return (_location);};
@@ -77,7 +77,7 @@ class ConfigFile{
 		std::vector<location>					_location;
 		std::map<std::string, std::string>		_error_page;
 		std::vector<std::string>				_listen;
-		std::vector<std::string>				_methods;
+		std::vector<std::string>			_methods;
 		std::string								_server_name;
 		std::string								_root;
 		std::string								_index;
