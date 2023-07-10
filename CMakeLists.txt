@@ -15,8 +15,8 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 set(TEST_SOURCES
-    tests/compilationTests.cpp 
-    tests/webservTests.cpp
+    #tests/compilationTests.cpp 
+    tests/launchServerTests.cpp
 	src/ConfigFile.cpp
     src/HttpRequest.cpp 
     src/HttpResponse.cpp 

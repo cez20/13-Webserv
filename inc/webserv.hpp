@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
