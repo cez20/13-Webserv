@@ -8,4 +8,4 @@ make
 
 
 # Launch the differents tests.
-./webservTests
+../webservTests

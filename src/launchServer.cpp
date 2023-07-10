@@ -47,6 +47,9 @@ void	printNetworkInfo(struct addrinfo *res)
 */
 int serverSocketSetup(struct addrinfo *res)
 {
+	if (!res)
+		return (-1);
+	
 	int serverSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (serverSocket == -1) {
 		std::cerr << "Socket creation error: " << strerror(errno) << std::endl;
@@ -59,7 +62,7 @@ int serverSocketSetup(struct addrinfo *res)
 		return (-1);
 	}
 
-	if ( bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
+	if (bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
 		std::cerr << "Bind error: " << strerror(errno) << std::endl;
 		close(serverSocket);
 		return (-1);
@@ -95,7 +98,7 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 
 	if ((status = getaddrinfo("localhost", port, &hints, &res)) != 0) {
 		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
-		exit(EXIT_FAILURE);							
+		return (NULL);						
 	}
 	//printNetworkInfo(res);
 	return (res);
@@ -110,7 +113,6 @@ int *launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
 	std::vector<std::string> ArrayPorts = config.get_listen();
-	//int size = ArrayPorts.size();
 
 	int *socketFds =  new int[ArrayPorts.size()];
 	for (size_t i = 0; i < ArrayPorts.size(); i++) {
