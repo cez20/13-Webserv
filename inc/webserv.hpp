@@ -16,6 +16,7 @@
 #include <sstream>
 #include <regex>
 #include <cerrno>
+#include <ctime>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -32,6 +33,8 @@
 #define MAX_PENDING_CONNECTIONS	5
 
 int launchServer();
+int	error_logs(std::string msg, ConfigFile& config);
+int	access_logs(std::string msg, ConfigFile& config);
 int monitorServer(int serverSocket, ConfigFile config);
 std::string extractFileContent(const std::string& path);
 bool endsWith(const std::string& str, const std::string& suffix);

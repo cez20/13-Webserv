@@ -27,7 +27,8 @@ bool	check_double(std::vector<std::string> vec, std::string str){
 	return (false);
 }
 
-ConfigFile::ConfigFile(std::string configPath): _fd_path(configPath){
+ConfigFile::ConfigFile(std::string configPath): _server_name(""), _root(""),
+	 _index(""), _access_log(""), _error_log(""), _include_types(""), _fd_path(configPath){
 	extract_config_file();
 }
 
@@ -154,6 +155,7 @@ std::vector<std::string>	ConfigFile::parse_location_listen(std::string str){
 
 void	set_struct_empty(ConfigFile::location& value){
 	value._loc_access_log = "";
+	value._loc_error_log = "";
 	value._loc_auto_index = "";
 	value._loc_include_types = "";
 	value._loc_index = "";
@@ -187,6 +189,7 @@ void	ConfigFile::extract_config_file(){
 	std::regex 	index("index");
 	std::regex 	error_page("error_page");
 	std::regex 	access_log("access_log");
+	std::regex 	error_log("error_log");
 	std::regex	include("include");
 	std::regex	location("location");
 	std::regex	close("\\s*\\}");
@@ -219,6 +222,8 @@ void	ConfigFile::extract_config_file(){
 						temp_struct._loc_root = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, access_log))				
 						temp_struct._loc_access_log = parse_found_line(matches.str(), buffer);
+					else if (std::regex_search(buffer, matches, error_log))				
+						temp_struct._loc_error_log = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, ret))				
 						temp_struct._loc_return = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, autoindex))				
@@ -262,6 +267,8 @@ void	ConfigFile::extract_config_file(){
 				_index = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, access_log))				
 				_access_log = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, error_log))				
+				_error_log = parse_found_line(matches.str(), buffer);
 			else if (std::regex_search(buffer, matches, methods)){
 				temp = parse_found_line(matches.str(), buffer);
 				temp_methods = split_vectors(temp, ' ');

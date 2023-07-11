@@ -15,8 +15,8 @@ int main() {
         std::cout << test.get_methods()[1] << std::endl;
         std::cout << test.get_methods()[2] << std::endl;
         std::map<std::string, std::string>::const_iterator iter;
-        std::map<std::string, std::string> temp_error_log = test.get_error_page();
-        for (iter = temp_error_log.begin(); iter != temp_error_log.end(); ++iter) {
+        std::map<std::string, std::string> temp_error_page = test.get_error_page();
+        for (iter = temp_error_page.begin(); iter != temp_error_page.end(); ++iter) {
             std::cout << "Key: " << iter->first << ", Value: " << iter->second << std::endl;
         }
         std::vector<ConfigFile::location>::const_iterator it;

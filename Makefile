@@ -4,7 +4,7 @@ SRC_DIR     = src
 OBJ_DIR     = obj
 INC_DIR     = inc
 
-SRC  		= monitorServer.cpp launchServer.cpp ConfigFile.cpp main.cpp HttpRequest.cpp HttpResponse.cpp utils.cpp
+SRC  		= monitorServer.cpp launchServer.cpp ConfigFile.cpp main.cpp HttpRequest.cpp HttpResponse.cpp utils.cpp log.cpp
 INC_FILES   = webserv.hpp HttpRequest.hpp HttpResponse.hpp ConfigFile.hpp
 
 OBJ         = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(SRC)))
