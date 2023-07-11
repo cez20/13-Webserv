@@ -22,4 +22,11 @@ bool endsWith(const std::string& str, const std::string& suffix) {
     return false;
 }
 
+bool isDirectory(const std::string& path) {
+    struct stat statbuf;
+    if (stat(path.c_str(), &statbuf) != 0)
+        return false;
+    return S_ISDIR(statbuf.st_mode);
+}
+
 

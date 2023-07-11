@@ -42,7 +42,9 @@ config
 
 #César
 webserv
+webservTests
 build
+connectionLoop
 
 server.exe
 

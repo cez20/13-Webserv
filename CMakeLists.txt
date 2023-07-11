@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.12)
 project(webserv)
 
-# GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -10,22 +9,37 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
 )
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)   #not sure to know what it does. 
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-enable_testing()      #enable testing in CMake. 
+enable_testing()
 
-add_executable(
-  webservTests         			# Name of the executable that will be created
-  tests/compilationTests.cpp    # Srcs files for first series of tests
-  tests/webservTests.cpp        # Srcs files for second series of tests
+set(TEST_SOURCES
+    #tests/compilationTests.cpp 
+    tests/launchServerTests.cpp
+	src/ConfigFile.cpp
+    src/HttpRequest.cpp 
+    src/HttpResponse.cpp 
+    src/launchServer.cpp 
+    #src/main.cpp         Not necessary because Test files already posses its own main 
+    src/monitorServer.cpp 
+    src/utils.cpp
 )
 
-target_link_libraries(
-  webservTests                   
-  GTest::gtest_main
+# # creates an executable called webservTests taking the TEST souces 
+add_executable(webservTests ${TEST_SOURCES})
+
+# Add any required libraries or include directories for tests
+target_include_directories(webservTests PRIVATE inc)
+
+# Set the output directory for the test executable
+set_target_properties(webservTests PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/..
 )
 
+# Link the test executable with the library target
+target_link_libraries(webservTests PRIVATE GTest::gtest_main)
+
+# Discover and run tests using GoogleTest
 include(GoogleTest)
 gtest_discover_tests(webservTests)

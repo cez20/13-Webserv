@@ -19,7 +19,10 @@ class HttpResponse {
     private:
         std::string statusCode;
         std::map<std::string, std::string> headers;
+        std::map<std::string, std::string> httpStatusMap;
         std::string body;
+        std::string path;
+
         //bool isValid;
 
         int analyseRequest(const HttpRequest& clientRequest);
@@ -29,6 +32,11 @@ class HttpResponse {
         void analyseCgiOutput(const std::string& output);
         int responseForStatic(const HttpRequest& clientRequest);
         int deleteMethod(const HttpRequest& clientRequest);
+        void checkForError();
+        void generateStatusMap();
+        void generateDefaultError();
+        void autoListing();
+        void generateDirListing(std::vector<std::string> vecList);
 
 };
 

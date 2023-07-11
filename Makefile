@@ -11,24 +11,28 @@ OBJ         = $(addprefix $(OBJ_DIR)/,$(patsubst %.cpp,%.o,$(SRC)))
 INCS        = $(addprefix $(INC_DIR)/,$(INC_FILES))
 
 CC          = c++
-CFLAGS      = -Wall -Wextra -Werror -std=c++98
+CFLAGS      = -Wall -Wextra -Werror -std=c++98 -g
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ)  -o $(NAME)
 
-
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -Iinc/ -c $< -o $@
+
+test: 
+	$(CC) $(CFLAGS) connectionloop.cpp -o connectionLoop
 
 clean:
 	rm -rf $(OBJ_DIR)
 
 fclean: clean
 	rm -rf $(NAME)
+	rm -rf connectionLoop
+	rm -rf webservTests
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re cmake

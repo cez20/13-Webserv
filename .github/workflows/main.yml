@@ -47,30 +47,3 @@ jobs:
 
           # Mark the job as failed to prevent the pull request from merging
           exit 1
-
-# name: Run Google Test
-
-# on:
-#   push:
-#     branches:
-#       - master  # Modify this according to your branch name
-
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - uses: actions/checkout@v3   # This step checks out your repository code 
-      
-#       # - name: Set up C++ environment
-#       #   uses: actions/setup-cxx@v2
-#       #   with:
-#       #     cpp-version: '98'
-      
-#       - name: Build and run tests
-#         run: |
-#           mkdir build
-#           cd build 
-#           cmake ..
-#           make
-#           ctest --output-on-failure

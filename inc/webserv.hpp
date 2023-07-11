@@ -3,7 +3,11 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 #include <netdb.h>
+#include <dirent.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
@@ -32,12 +36,25 @@
 
 #define MAX_PENDING_CONNECTIONS	5
 
-int launchServer();
+//*** LAUNCHSERVER.CPP  ***
+void				printNetworkInfo(struct addrinfo *res);
+int					serverSocketSetup(struct addrinfo *res);
+struct addrinfo 	*getNetworkInfo(const char *port);
+int 				*launchServer(ConfigFile config);
+
+//*** MONITORSERVER.CPP ***
+void				handleClient(int clientSocket, const ConfigFile& config);
+void				addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket);
+int					createNewClientSocket(int serverSocket);
+void				launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket);
+std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config);
+int 				monitorServer(int *serverSocket, ConfigFile config);
+
+//*** UTILS.CPP ***
 int	error_logs(std::string msg, ConfigFile& config);
 int	access_logs(std::string msg, ConfigFile& config);
-int monitorServer(int serverSocket, ConfigFile config);
-std::string extractFileContent(const std::string& path);
-bool endsWith(const std::string& str, const std::string& suffix);
+std::string 		extractFileContent(const std::string& path);
+bool 				endsWith(const std::string& str, const std::string& suffix);
 
 template <typename Key, typename Value>
 void printMap(const std::map<Key, Value>& mapContainer) {
@@ -56,4 +73,5 @@ void printStructure(const T& structure) {
     }
     std::cout << std::endl;
 }
+bool isDirectory(const std::string& path);
 
