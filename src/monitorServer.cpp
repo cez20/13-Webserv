@@ -72,13 +72,11 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 {
 	int nbrOfSocketsReady = 0;
 
-	for (int i = 0; i < 3; i++)
-	{
-		nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
-	}
+	nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
+	std::cout << "The number of sockets ready is: " << nbrOfSocketsReady <<  std::endl;
 	if (nbrOfSocketsReady == -1) {
-		std::cerr << "Error while trying to call the poll fucntion." << std::endl;
-		for (int i = 0; i < 3; i++)
+		std::cerr << "Error while trying to call the poll function." << std::endl;
+		for (size_t i = 0; i < socketFds->size() ; ++i)
 			close(serverSocket[i]);
 		exit(EXIT_FAILURE);
 	}
@@ -97,7 +95,7 @@ std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config)
 	for (int i = 0; i < nbrServerSockets; i++)
 	{
 		socketFds[i].fd = serverSocket[i];
-		socketFds[i].events = POLLIN;
+ 		socketFds[i].events = POLLIN;
 	}
 	return (socketFds);
 }
@@ -132,7 +130,7 @@ int monitorServer(int *serverSocket, ConfigFile config)
 			}
 		}
 	}
-	for (unsigned long i = 0; i < socketFds.size(); i++)
+	for (size_t i = 0; i < socketFds.size(); i++)
 		close (serverSocket[i]);
 	return (0);
 }
