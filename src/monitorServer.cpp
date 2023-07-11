@@ -13,7 +13,7 @@ void handleClient(int clientSocket, const ConfigFile& config) {
             // Erreur de lecture ou fin de la connexion
             close(clientSocket);
             if (bytesRead == 0)
-                std::cout << "\rConnection was closed by client.\n" << std::endl;
+                std::cout << "\rConnection was closed by client.\n" << std::endl;   // ERROR LOG 
             return;
         }
 		std::cout << "The number of bytes read is: " << bytesRead << std::endl;
@@ -51,12 +51,12 @@ void addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket)
 */
 int	createNewClientSocket(int serverSocket)
 {
-	sockaddr_storage clientAddress = {};				// Fills structure with 0s
+	sockaddr_storage clientAddress = {};	
     socklen_t clientAddressLength = sizeof(clientAddress);
     
-	int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddressLength);
+	int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddressLength);  // ACCESS LOG 
 	if (clientSocket == -1) {
-		std::cerr << RED_CL << "Error while receiving connection " << DEFAULT_CL << std::endl;
+		std::cerr << RED_CL << "Error while receiving connection " << DEFAULT_CL << std::endl;  // ERROR LOG 
 		close(serverSocket);
 		exit(EXIT_FAILURE);
 	}
@@ -72,10 +72,10 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 {
 	int nbrOfSocketsReady = 0;
 
-	nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1);    // -1  Means that the poll "Blocks" indefinitely, until a connection is accepted 
+	nbrOfSocketsReady = poll(socketFds->data(), socketFds->size(), -1); 
 	std::cout << "The number of sockets ready is: " << nbrOfSocketsReady <<  std::endl;
 	if (nbrOfSocketsReady == -1) {
-		std::cerr << "Error while trying to call the poll function." << std::endl;
+		std::cerr << "Error while trying to call the poll function." << std::endl;  // ERROR LOG 
 		for (size_t i = 0; i < socketFds->size() ; ++i)
 			close(serverSocket[i]);
 		exit(EXIT_FAILURE);

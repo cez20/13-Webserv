@@ -52,24 +52,24 @@ int serverSocketSetup(struct addrinfo *res)
 	
 	int serverSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (serverSocket == -1) {
-		std::cerr << "Socket creation error: " << strerror(errno) << std::endl;
+		std::cerr << "Socket creation error: " << strerror(errno) << std::endl;  // ERROR LOG 
 		return (-1);
 	}
 
 	int yes= 1;
 	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1) {
-		std::cerr << "Set socket option error: " << strerror(errno) << std::endl;
+		std::cerr << "Set socket option error: " << strerror(errno) << std::endl;  // ERROR LOG 
 		return (-1);
 	}
 
 	if (bind(serverSocket, res->ai_addr, res->ai_addrlen) == -1) {
-		std::cerr << "Bind error: " << strerror(errno) << std::endl;
+		std::cerr << "Bind error: " << strerror(errno) << std::endl;    // ERROR LOG 
 		close(serverSocket);
 		return (-1);
 	}
 
 	if (listen(serverSocket, MAX_PENDING_CONNECTIONS) == -1) {
-		std::cerr << "Listen error: " << strerror(errno) << std::endl;
+		std::cerr << "Listen error: " << strerror(errno) << std::endl;  // ERROR LOG
 		close(serverSocket);
 		return (-1);
 	}
@@ -93,11 +93,11 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 	memset(&hints, 0, sizeof(hints));		
 	hints.ai_family 	= AF_UNSPEC;			
 	hints.ai_socktype 	= SOCK_STREAM;		
-	hints.ai_flags 		= AI_PASSIVE;		// Flag to assign the address of my localhost (127.0.0.1) to the socket structure.  
+	hints.ai_flags 		= AI_PASSIVE;	
 	hints.ai_protocol 	= IPPROTO_TCP;		
 
 	if ((status = getaddrinfo("localhost", port, &hints, &res)) != 0) {
-		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
+		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;  // ERROR LOG 
 		return (NULL);						
 	}
 	//printNetworkInfo(res);
@@ -129,7 +129,7 @@ int *launchServer(ConfigFile config)
 			invalidSockets++;
 	}
 	if (invalidSockets == ArrayPorts.size()){
-		std::cout << "Closing the program because no valid ports" << std::endl;
+		std::cout << "Closing the program because no valid ports" << std::endl;  // ERROR LOG 
 		exit(EXIT_FAILURE);
 	}
 	return (socketFds);
