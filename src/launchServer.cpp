@@ -104,15 +104,20 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 	return (res);
 }
 
+
+
+
 /* 
 	Launch server essentially is a summary of all actions requires to launch the server. WE
 	must first get the network information and then binds the IPaddress and PORT together, so
-	that we can start listening to incoming request. 
+	that we can start listening to incoming request. Also, if socketFds contains only value -1,
+	I exit the program. 
  */
 int *launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
 	std::vector<std::string> ArrayPorts = config.get_listen();
+	size_t invalidSockets = 0;
 
 	int *socketFds =  new int[ArrayPorts.size()];
 	for (size_t i = 0; i < ArrayPorts.size(); i++) {
@@ -120,6 +125,12 @@ int *launchServer(ConfigFile config)
 		ipAddressList = getNetworkInfo(charPtr);
 		socketFds[i] = serverSocketSetup(ipAddressList);
 		freeaddrinfo(ipAddressList);
+		if (socketFds[i] == -1)
+			invalidSockets++;
+	}
+	if (invalidSockets == ArrayPorts.size()){
+		std::cout << "Closing the program because no valid ports" << std::endl;
+		exit(EXIT_FAILURE);
 	}
 	return (socketFds);
 }
