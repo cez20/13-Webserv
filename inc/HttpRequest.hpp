@@ -21,6 +21,9 @@ class HttpRequest {
         bool                                autoIndex;
         std::string                         reponseStatus;
         const ConfigFile&                   config;
+        bool                                upload;
+        std::string                         boundary;
+        std::map<std::string, std::string>  multiBody;
 
     public:
         
@@ -46,5 +49,7 @@ class HttpRequest {
         void checkCgi();
         void checkGlobal(const ConfigFile& config);
         void checkLocation(const ConfigFile& config);
-        void checkDownload(const ConfigFile& config);   
+        void checkDownload(const ConfigFile& config);  
+        void getBoundary();
+        void parseMultipartFormData();
 };

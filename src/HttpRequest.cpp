@@ -39,6 +39,10 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     this->headers = headers;
     this->method = method;
     this->path = path;
+    this->boundary = "";
+    getBoundary();
+    if (!this->boundary.empty())
+         parseMultipartFormData();
 }
 
 
@@ -105,6 +109,64 @@ void HttpRequest::checkGlobal(const ConfigFile& config){
     this->autorizedMethods = config.get_methods();
 
 }
+void HttpRequest::getBoundary() {
+    std::string boundary;
+
+    std::map<std::string, std::string>::iterator it = headers.find("Content-Type");
+    if (it != headers.end()) {
+        std::string contentType = it->second;
+
+        // Vérifier si le type de contenu est multipart/form-data
+        std::string multipartKeyword = "multipart/form-data";
+        size_t pos = contentType.find(multipartKeyword);
+        if (pos != std::string::npos) {
+            // Extraire le délimiteur (boundary)
+            std::string boundaryKeyword = "boundary=";
+            pos = contentType.find(boundaryKeyword);
+            if (pos != std::string::npos) {
+                boundary = contentType.substr(pos + boundaryKeyword.length());
+            }
+        }
+    }
+
+    this->boundary = boundary;
+}
+
+void HttpRequest::parseMultipartFormData() {
+    std::string delimiter = "--" + this->boundary;
+    std::string endDelimiter = delimiter + "--";
+
+    size_t pos = body.find(delimiter);
+    while (pos != std::string::npos) {
+        size_t startPos = pos + delimiter.length() + 2; // +2 pour sauter les retours à la ligne
+        size_t endPos = body.find(delimiter, startPos);
+        if (endPos == std::string::npos) {
+            break;
+        }
+
+        std::string part = body.substr(startPos, endPos - startPos);
+        size_t filenamePos = part.find("filename=\"");
+        if (filenamePos != std::string::npos) {
+            filenamePos += 10; // "fileName=" = 10
+            size_t filenameEndPos = part.find("\"", filenamePos);
+            if (filenameEndPos != std::string::npos) {
+                std::string filename = part.substr(filenamePos, filenameEndPos - filenamePos);
+
+                
+                size_t contentPos = part.find("\r\n\r\n") + 4; // +4 pour sauter endoffile
+                std::string fileContent = part.substr(contentPos);
+
+                // Stocker le fichier dans la map, pour linstant je vais jsute chercher le filename. Je vais peut etre avoir besoin de autres choses.
+                multiBody[filename] = fileContent;
+            }
+        }
+
+        pos = body.find(delimiter, endPos);
+    }
+}
+
+
+
 
 
 void HttpRequest::validityCheck(){

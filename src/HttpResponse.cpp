@@ -28,6 +28,18 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
+    //rajouter la condition qui autoerise le telecharment
+    if(isDirectory(path) && clientRequest.method == "POST"){
+        if( uploading())
+        {
+             return (0);
+        }
+        else {
+            return 1;
+        }
+
+      
+    }
     std::cout << "isDirectory result: " << isDirectory(path) << std::endl;
     if(isDirectory(path) && clientRequest.autoIndex){
         std::cout << clientRequest.autoIndex<< std::endl;
@@ -373,6 +385,19 @@ void HttpResponse::autoListing(){
         closedir(dir);
     }
     generateDirListing(vecList);
+}
+int HttpResponse::uploading(std::map<std::string, std::string> multiBody){
+
+    std::ofstream file(getFilePath(), std::ios::out | std::ios::binary);
+    if (file) {
+        file << fileContent;
+        file.close();
+        std::cout << "File uploaded and saved: " << filePath << std::endl;
+    } 
+    else{
+        return(0);
+    }
+    
 }
 
 
