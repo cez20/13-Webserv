@@ -20,6 +20,7 @@
 #include <sstream>
 #include <regex>
 #include <cerrno>
+#include <ctime>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -34,7 +35,6 @@
 #define DEFAULT_CL "\033[0m"
 
 #define MAX_PENDING_CONNECTIONS	5
-
 
 //*** LAUNCHSERVER.CPP  ***
 void				printNetworkInfo(struct addrinfo *res);
@@ -51,6 +51,8 @@ std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config);
 int 				monitorServer(int *serverSocket, ConfigFile config);
 
 //*** UTILS.CPP ***
+int	error_logs(std::string msg, ConfigFile& config);
+int	access_logs(std::string msg, ConfigFile& config);
 std::string 		extractFileContent(const std::string& path);
 bool 				endsWith(const std::string& str, const std::string& suffix);
 
