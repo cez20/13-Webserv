@@ -30,10 +30,11 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
     //rajouter la condition qui autoerise le telecharment
     if(isDirectory(path) && clientRequest.method == "POST"){
-        if(uploading(clientRequest.multiBody, clientRequest.path))
-        {   this->statusCode= httpStatusMap["201"] + " Created";
+        if(uploading(clientRequest.multiBody, clientRequest.path)== 0)
+        {   this->statusCode = "200 OK";
             this->headers["contentType"] = "text/html";
             this->body = "File(s) were successfully downloaded";
+            std::cout << "PATH FOR UPLOADING :   " << path << std::endl;
 
              return (0);
         }
@@ -43,7 +44,6 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
 
       
     }
-    std::cout << "isDirectory result: " << isDirectory(path) << std::endl;
     if(isDirectory(path) && clientRequest.autoIndex){
         std::cout << clientRequest.autoIndex<< std::endl;
             autoListing();
@@ -390,14 +390,13 @@ void HttpResponse::autoListing(){
     generateDirListing(vecList);
 }
 int HttpResponse::uploading(std::map<std::string, std::string> multiBody, std::string path){
-
-
+    printMap(multiBody);
     for(std::map<std::string, std::string>::iterator it = multiBody.begin(); it != multiBody.end(); it++){
         std::ofstream file(path + it->first, std::ios::out | std::ios::binary);
         if (file) {
             file << it->second;
             file.close();
-            std::cout << "File uploaded and saved: " << it->first << std::endl;
+           std::cout << "File uploaded and saved: " << it->first << std::endl;
         }
         else
             return 1;

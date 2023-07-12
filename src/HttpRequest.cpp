@@ -41,8 +41,12 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     this->path = path;
     this->boundary = "";
     getBoundary();
-    if (!this->boundary.empty())
-         parseMultipartFormData();
+    if (!this->boundary.empty()){
+        parseMultipartFormData();
+        printMap(multiBody);
+    }
+        std::cout << this->body << std::endl;
+
 }
 
 
@@ -128,8 +132,9 @@ void HttpRequest::getBoundary() {
             }
         }
     }
-
+  
     this->boundary = boundary;
+      std::cout << "testdashdashashduhasidh au%^&*HFGFHJ"<<boundary << std::endl;
 }
 
 void HttpRequest::parseMultipartFormData() {
