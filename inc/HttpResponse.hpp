@@ -37,7 +37,7 @@ class HttpResponse {
         void generateDefaultError();
         void autoListing();
         void generateDirListing(std::vector<std::string> vecList);
-        int uploading(std::map<std::string, std::string> multiBody);
+        int uploading(std::map<std::string, std::string> multiBody, std::string path);
 
 };
 

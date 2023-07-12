@@ -30,8 +30,11 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
     //rajouter la condition qui autoerise le telecharment
     if(isDirectory(path) && clientRequest.method == "POST"){
-        if( uploading())
-        {
+        if(uploading(clientRequest.multiBody, clientRequest.path))
+        {   this->statusCode= httpStatusMap["201"] + " Created";
+            this->headers["contentType"] = "text/html";
+            this->body = "File(s) were successfully downloaded";
+
              return (0);
         }
         else {
@@ -386,18 +389,20 @@ void HttpResponse::autoListing(){
     }
     generateDirListing(vecList);
 }
-int HttpResponse::uploading(std::map<std::string, std::string> multiBody){
+int HttpResponse::uploading(std::map<std::string, std::string> multiBody, std::string path){
 
-    std::ofstream file(getFilePath(), std::ios::out | std::ios::binary);
-    if (file) {
-        file << fileContent;
-        file.close();
-        std::cout << "File uploaded and saved: " << filePath << std::endl;
-    } 
-    else{
-        return(0);
+
+    for(std::map<std::string, std::string>::iterator it = multiBody.begin(); it != multiBody.end(); it++){
+        std::ofstream file(path + it->first, std::ios::out | std::ios::binary);
+        if (file) {
+            file << it->second;
+            file.close();
+            std::cout << "File uploaded and saved: " << it->first << std::endl;
+        }
+        else
+            return 1;
     }
-    
+    return (0);
 }
 
 
