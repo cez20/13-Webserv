@@ -45,7 +45,7 @@ void HttpRequest::parseRequest(std::string rawRequest) {
         parseMultipartFormData();
         printMap(multiBody);
     }
-        std::cout << this->body << std::endl;
+        std::cout << this->boundary << std::endl;
 
 }
 
@@ -134,7 +134,8 @@ void HttpRequest::getBoundary() {
     }
   
     this->boundary = boundary;
-      std::cout << "testdashdashashduhasidh au%^&*HFGFHJ"<<boundary << std::endl;
+      std::cout << "this is the boundary" <<boundary << std::endl;
+      std::cout << "this is the body" <<body << std::endl;
 }
 
 void HttpRequest::parseMultipartFormData() {

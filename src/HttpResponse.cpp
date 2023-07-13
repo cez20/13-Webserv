@@ -390,17 +390,20 @@ void HttpResponse::autoListing(){
     generateDirListing(vecList);
 }
 int HttpResponse::uploading(std::map<std::string, std::string> multiBody, std::string path){
-    printMap(multiBody);
-    for(std::map<std::string, std::string>::iterator it = multiBody.begin(); it != multiBody.end(); it++){
-        std::ofstream file(path + it->first, std::ios::out | std::ios::binary);
-        if (file) {
-            file << it->second;
-            file.close();
-           std::cout << "File uploaded and saved: " << it->first << std::endl;
-        }
-        else
-            return 1;
-    }
+     printMap(multiBody);
+    std::cout << path <<std::endl;
+    // for(std::map<std::string, std::string>::iterator it = multiBody.begin(); it != multiBody.end(); it++){
+    //     std::ofstream file(path + it->first, std::ios::out | std::ios::binary);
+    //     if (file) {
+    //         file << it->second;
+    //         file.close();
+    //        std::cout << "File uploaded and saved: " << it->first << std::endl;
+    //     }
+    //     else
+    //         return 1;
+   
+   
+    // }
     return (0);
 }
 
