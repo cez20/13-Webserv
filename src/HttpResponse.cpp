@@ -11,7 +11,6 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
         checkForError();
     }
 }
-
 //Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (clientRequest.method != "POST" && clientRequest.method != "GET" && clientRequest.method != "DELETE"){

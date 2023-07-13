@@ -5,6 +5,8 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     std::string method, path, line;
     std::map<std::string, std::string> headers;
     std::istringstream request(rawRequest);
+
+    this->boundary = "";
     // Parse the request line to get the method and path
     request >> method >> path;
     if (method == "GET") {
@@ -14,16 +16,26 @@ void HttpRequest::parseRequest(std::string rawRequest) {
             path = path.substr(0, quePos);
         }
     }
-    //Je vais devoir rajouter une fonction pour modifier le path en en vertu des locations que je recois. Et consquemment, en fonction de la configuration specifique de cette location, modifier les variables de ma resquest.
-    // Parse the headers
-    while (std::getline(request, line) && !line.empty()) {
+   
+    while (std::getline(request, line)) {
+       if (line.empty() || line == "--" + this->boundary) {
+        // Ligne vide ou correspond à la boundary, nous avons atteint le corps de la requête
+        break;
+       }
         std::string headerName, headerValue;
         size_t colonPos = line.find(":");
         if (colonPos != std::string::npos) {
             headerName = line.substr(0, colonPos);
             headerValue = line.substr(colonPos + 1);
-            headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
+            //headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
             headers[headerName] = headerValue;
+            if (headerName == "Content-Type" && headerValue.find("multipart") != std::string::npos) {
+            // Extraire la valeur du paramètre boundary
+                size_t boundaryPos = headerValue.find("boundary=");
+                if (boundaryPos != std::string::npos) {
+                    this->boundary = headerValue.substr(boundaryPos + 9);
+                }
+            }
         }
     }
     //find the end of the headers and throw the rest into the ody varariable
@@ -33,19 +45,23 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     } else {
         this->body = "";
     }
-    if (path.empty() || path == "/") {
-        path = "/index.html";
-    }
     this->headers = headers;
     this->method = method;
     this->path = path;
-    this->boundary = "";
-    getBoundary();
+    
+     //getBoundary();
     if (!this->boundary.empty()){
         parseMultipartFormData();
-        printMap(multiBody);
     }
-        std::cout << this->boundary << std::endl;
+      std::cout << "this is the raw request" << rawRequest << std::endl;
+      std::cout << "this is the map of the headers:  " << std::endl;
+      printMap(this->headers);
+      std::cout << "this is the body of the request " <<this->body << std::endl;
+      std::cout << "this is the boundary " << this->boundary << std::endl;
+      std::cout << "this is the multibody "  << std::endl;
+      printMap(multiBody);
+      
+      
 
 }
 
@@ -119,7 +135,6 @@ void HttpRequest::getBoundary() {
     std::map<std::string, std::string>::iterator it = headers.find("Content-Type");
     if (it != headers.end()) {
         std::string contentType = it->second;
-
         // Vérifier si le type de contenu est multipart/form-data
         std::string multipartKeyword = "multipart/form-data";
         size_t pos = contentType.find(multipartKeyword);
@@ -132,10 +147,8 @@ void HttpRequest::getBoundary() {
             }
         }
     }
-  
+     
     this->boundary = boundary;
-      std::cout << "this is the boundary" <<boundary << std::endl;
-      std::cout << "this is the body" <<body << std::endl;
 }
 
 void HttpRequest::parseMultipartFormData() {
@@ -144,7 +157,7 @@ void HttpRequest::parseMultipartFormData() {
 
     size_t pos = body.find(delimiter);
     while (pos != std::string::npos) {
-        size_t startPos = pos + delimiter.length() + 2; // +2 pour sauter les retours à la ligne
+        size_t startPos = pos + delimiter.length() + 2; // +2 to skip newlines
         size_t endPos = body.find(delimiter, startPos);
         if (endPos == std::string::npos) {
             break;
@@ -153,23 +166,21 @@ void HttpRequest::parseMultipartFormData() {
         std::string part = body.substr(startPos, endPos - startPos);
         size_t filenamePos = part.find("filename=\"");
         if (filenamePos != std::string::npos) {
-            filenamePos += 10; // "fileName=" = 10
+            filenamePos += 10; // "filename=" = 10
             size_t filenameEndPos = part.find("\"", filenamePos);
             if (filenameEndPos != std::string::npos) {
                 std::string filename = part.substr(filenamePos, filenameEndPos - filenamePos);
-
-                
-                size_t contentPos = part.find("\r\n\r\n") + 4; // +4 pour sauter endoffile
+                size_t contentPos = part.find("\r\n\r\n") + 4; // +4 to skip the newline characters
                 std::string fileContent = part.substr(contentPos);
-
-                // Stocker le fichier dans la map, pour linstant je vais jsute chercher le filename. Je vais peut etre avoir besoin de autres choses.
+                // Store the file content in the map
                 multiBody[filename] = fileContent;
             }
         }
 
-        pos = body.find(delimiter, endPos);
+        pos = body.find(delimiter, endPos + delimiter.length());
     }
 }
+
 
 
 
