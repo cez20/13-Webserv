@@ -6,10 +6,8 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     this->path = clientRequest.path;
     if(clientRequest.reponseStatus != "")
         this->statusCode = clientRequest.reponseStatus;
-    else{
-        analyseRequest(clientRequest);
-        checkForError();
-    }
+    analyseRequest(clientRequest);
+    checkForError();
 }
 //Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
@@ -27,24 +25,26 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
-    //rajouter la condition qui autoerise le telecharment
-    if(isDirectory(path) && clientRequest.method == "POST"){
-        if(uploading(clientRequest.multiBody, clientRequest.path)== 0)
-        {   this->statusCode = "200 OK";
+    if(clientRequest.redir != "")
+    {
+            this->statusCode = "301 Moved Permanently";
+            this->headers ["Location"] = clientRequest.redir;
+            return (0);
+    }
+    
+     if(isDirectory(path)){
+        if(clientRequest.method == "POST"){
+            if(uploading(clientRequest.multiBody, clientRequest.path)== 0){   
+            this->statusCode = "200 OK";
             this->headers["contentType"] = "text/html";
             this->body = "File(s) were successfully downloaded";
             std::cout << "PATH FOR UPLOADING :   " << path << std::endl;
-
-             return (0);
+            return (0);
         }
-        else {
+        else 
             return 1;
         }
-
-      
-    }
-     if(isDirectory(path)){
-        if(!clientRequest.index.empty())
+        else if(!clientRequest.index.empty())
         {
             this->path += clientRequest.index;
                 return(responseForStatic(clientRequest));
@@ -57,8 +57,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         else {
             this->statusCode = "403";
             return (1);
-        }
-       
+        }   
             
     }
 
@@ -322,7 +321,7 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 
 }
 void HttpResponse::checkForError(){
-    if(this->statusCode != "200 OK"){
+    if(this->statusCode != "200 OK" || this->statusCode != "301 Moved Permanently"){
        //if(!checkForCustomErrorFiles())
             generateDefaultError();
     }
