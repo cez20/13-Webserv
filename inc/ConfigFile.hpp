@@ -26,6 +26,7 @@
 class ConfigFile{
 	public:
 	ConfigFile(std::string configPath);
+	ConfigFile(std::string configPath, int index);
 	~ConfigFile();
 		//LOCATION STRUCTURE
 		struct location{
@@ -56,6 +57,7 @@ class ConfigFile{
 		const std::vector<ConfigFile::location>&	get_location()const{return (_location);};
 		std::string 								get_index()const {return (_index);};
 
+		void										find_nb_of_server();
 		void 										extract_config_file();
 		void										parse_listen(std::string str);
 		std::vector<std::string>					parse_location_listen(std::string str);
@@ -81,7 +83,7 @@ class ConfigFile{
 		std::vector<location>					_location;
 		std::map<std::string, std::string>		_error_page;
 		std::vector<std::string>				_listen;
-		std::vector<std::string>			_methods;
+		std::vector<std::string>				_methods;
 		std::string								_server_name;
 		std::string								_root;
 		std::string								_index;
@@ -91,6 +93,8 @@ class ConfigFile{
 
 		//PATH TO THE CONFIG FILE
 		std::string 							_fd_path;
+		int										_server_nb;
+		int										_max_server_nb;
 };
 
 #endif
