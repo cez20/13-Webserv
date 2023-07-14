@@ -50,10 +50,11 @@ class ConfigFile{
 		std::string 								get_access_log()const {return (_access_log);};
 		std::string 								get_error_log()const {return (_error_log);};
 		std::string 								get_include_types()const {return (_include_types);};
-		const std::vector<std::string>&					get_methods()const {return (_methods);};
+		const std::vector<std::string>&				get_methods()const {return (_methods);};
 		std::vector<std::string>& 					get_listen(){return (_listen);};
 		std::map<std::string, std::string>&			get_error_page(){return (_error_page);};
 		const std::vector<ConfigFile::location>&	get_location()const{return (_location);};
+		std::string 								get_index()const {return (_index);};
 
 		void 										extract_config_file();
 		void										parse_listen(std::string str);

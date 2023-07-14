@@ -4,14 +4,16 @@
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
     this->path = clientRequest.path;
-    if(clientRequest.reponseStatus != "")
+    if(clientRequest.reponseStatus != ""){
         this->statusCode = clientRequest.reponseStatus;
-    else{
-        analyseRequest(clientRequest);
-        checkForError();
     }
+    else
+    {
+       analyseRequest(clientRequest);
+    checkForError(); 
+    }
+    
 }
-
 //Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (clientRequest.method != "POST" && clientRequest.method != "GET" && clientRequest.method != "DELETE"){
@@ -28,12 +30,42 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
-    std::cout << "isDirectory result: " << isDirectory(path) << std::endl;
-    if(isDirectory(path) && clientRequest.autoIndex){
-        std::cout << clientRequest.autoIndex<< std::endl;
+    if(clientRequest.redir != "")
+    {
+            this->statusCode = "301 Moved Permanently";
+            this->headers ["Location"] = clientRequest.redir;
+            return (0);
+    }
+    
+     if(isDirectory(path)){
+        if(clientRequest.method == "POST"){
+            if(uploading(clientRequest.multiBody, clientRequest.path)== 0){   
+            this->statusCode = "200 OK";
+            this->headers["contentType"] = "text/html";
+            this->body = "File(s) were successfully downloaded";
+            std::cout << "PATH FOR UPLOADING :   " << path << std::endl;
+            return (0);
+        }
+        else 
+            return 1;
+        }
+        else if(!clientRequest.index.empty())
+        {
+            this->path += clientRequest.index;
+                return(responseForStatic(clientRequest));
+        }
+        else if (clientRequest.autoIndex){
+            this->statusCode = "200 OK";
             autoListing();
             return(0);
+        }
+        else {
+            this->statusCode = "403";
+            return (1);
+        }   
+            
     }
+
    
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
@@ -249,7 +281,7 @@ void HttpResponse::analyseCgiOutput(const std::string& output){
 
 int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
    if (clientRequest.toBeDownloaded) {
-        std::string filePath = clientRequest.path;  // Chemin du fichier à télécharger
+        std::string filePath = this->path;  // Chemin du fichier à télécharger
         std::ifstream fileStream(filePath, std::ios::binary);
         std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
         std::cout << "to be downloaded!!!" << std::endl;
@@ -272,7 +304,7 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
     else{
         this->statusCode = "200 OK";
         this->headers["contentType"] = "text/html";
-        this->body = extractFileContent(clientRequest.path);
+        this->body = extractFileContent(this->path);
         this->headers["contentLength"] = std::to_string(this->body.length());
     } 
         return (0);
@@ -294,7 +326,7 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 
 }
 void HttpResponse::checkForError(){
-    if(this->statusCode != "200 OK"){
+    if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
        //if(!checkForCustomErrorFiles())
             generateDefaultError();
     }
@@ -374,6 +406,28 @@ void HttpResponse::autoListing(){
     }
     generateDirListing(vecList);
 }
+#include <iostream>
+#include <fstream>
+#include <map>
+
+int HttpResponse::uploading(const std::map<std::string, std::string>& multiBody, const std::string& path) {
+    for (std::map<std::string, std::string>::const_iterator it = multiBody.begin(); it != multiBody.end(); ++it) {
+        const std::string& filename = it->first;
+        const std::string& content = it->second;
+
+        std::ofstream file(path + filename, std::ios::out | std::ios::binary);
+        if (file) {
+            file.write(content.data(), content.size());
+            file.close();
+            std::cout << "File uploaded and saved: " << filename << std::endl;
+        } else {
+            std::cerr << "Error opening file: " << filename << std::endl;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 
 
 
