@@ -17,6 +17,7 @@
 #include<iostream>
 #include<regex>
 #include<map>
+#include<stdexcept>
 #include<vector>
 #include<sstream>
 #include<utility>
@@ -47,19 +48,19 @@ class ConfigFile{
 			std::vector<std::string>				_loc_methods;
 		};
 
-		std::string 								get_server_name()const {return (_server_name);};
-		std::string 								get_root()const {return (_root);};
-		std::string 								get_access_log()const {return (_access_log);};
-		std::string 								get_error_log()const {return (_error_log);};
-		std::string 								get_include_types()const {return (_include_types);};
-		const std::vector<std::string>&				get_methods()const {return (_methods);};
-		std::vector<std::string>& 					get_listen(){return (_listen);};
-		std::map<std::string, std::string>&			get_error_page(){return (_error_page);};
-		const std::vector<ConfigFile::location>&	get_location()const{return (_location);};
-		std::string 								get_index()const {return (_index);};
+		std::string 								get_server_name()const {return (this->_server_name);};
+		std::string 								get_root()const {return (this->_root);};
+		std::string 								get_access_log()const {return (this->_access_log);};
+		std::string 								get_error_log()const {return (this->_error_log);};
+		std::string 								get_include_types()const {return (this->_include_types);};
+		const std::vector<std::string>&				get_methods()const {return (this->_methods);};
+		std::vector<std::string>& 					get_listen(){return (this->_listen);};
+		std::map<std::string, std::string>&			get_error_page(){return (this->_error_page);};
+		const std::vector<ConfigFile::location>&	get_location()const{return (this->_location);};
+		std::string 								get_index()const {return (this->_index);};
 
 		void										set_config(std::string configPath, int nb_of_server);
-		void										find_nb_of_server();
+		int											find_nb_of_server(std::string path);
 		void 										extract_config_file();
 		void										parse_listen(std::string str);
 		std::vector<std::string>					parse_location_listen(std::string str);
