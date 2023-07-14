@@ -106,8 +106,12 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         if (pos != std::string::npos)
             this->path.replace(pos, to_replace.length(), this->locationRequest._loc_root);
     }
-    if (!this->locationRequest._loc_index.empty())
+    if (!this->locationRequest._loc_index.empty()){
         this->index = this->locationRequest._loc_index;
+    }
+    else {
+        this->index = "";
+    }
     if (!this->locationRequest._loc_methods.empty())  
         this->autorizedMethods = this->locationRequest._loc_methods;
     if (!this->locationRequest._loc_return.empty())
@@ -116,8 +120,13 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         this->autoIndex = true;
     else
         this->autoIndex = false;  
-    if (!this->redir.empty())
+    if (!this->locationRequest._loc_return.empty()){
+        this->redir= locationRequest._loc_return;
         this->reponseStatus = "301";
+    }
+   
+    
+        
     
     //std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
     // if (!location->limit_except.empty())
@@ -127,6 +136,7 @@ void HttpRequest::checkLocation(const ConfigFile& config){
 void HttpRequest::checkGlobal(const ConfigFile& config){
     this->path = config.get_root() + this->path;
     this->autorizedMethods = config.get_methods();
+    this->index = config.get_index();
 
 }
 void HttpRequest::getBoundary() {
@@ -149,22 +159,6 @@ void HttpRequest::getBoundary() {
     }
      
     this->boundary = boundary;
-}
-std::string extractFilename(const std::string& line) {
-    std::string filename;
-    std::size_t startPos = line.find("filename=\"");
-    if (startPos != std::string::npos) {
-        startPos += 10; // "filename=\"" length is 10
-        std::size_t endPos = line.find("\"", startPos);
-        if (endPos != std::string::npos) {
-            filename = line.substr(startPos, endPos - startPos);
-        }
-    }
-    return filename;
-}
-bool isFilenamePresent(const std::string& line) {
-    std::size_t found = line.find("filename");
-    return (found != std::string::npos);
 }
 
 

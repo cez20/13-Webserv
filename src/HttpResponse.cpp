@@ -43,11 +43,25 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
 
       
     }
-    if(isDirectory(path) && clientRequest.autoIndex){
-        std::cout << clientRequest.autoIndex<< std::endl;
+     if(isDirectory(path)){
+        if(!clientRequest.index.empty())
+        {
+            this->path += clientRequest.index;
+                return(responseForStatic(clientRequest));
+        }
+        else if (clientRequest.autoIndex){
+            this->statusCode = "200 OK";
             autoListing();
             return(0);
+        }
+        else {
+            this->statusCode = "403";
+            return (1);
+        }
+       
+            
     }
+
    
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
@@ -263,7 +277,7 @@ void HttpResponse::analyseCgiOutput(const std::string& output){
 
 int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
    if (clientRequest.toBeDownloaded) {
-        std::string filePath = clientRequest.path;  // Chemin du fichier à télécharger
+        std::string filePath = this->path;  // Chemin du fichier à télécharger
         std::ifstream fileStream(filePath, std::ios::binary);
         std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
         std::cout << "to be downloaded!!!" << std::endl;
@@ -286,7 +300,7 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
     else{
         this->statusCode = "200 OK";
         this->headers["contentType"] = "text/html";
-        this->body = extractFileContent(clientRequest.path);
+        this->body = extractFileContent(this->path);
         this->headers["contentLength"] = std::to_string(this->body.length());
     } 
         return (0);
