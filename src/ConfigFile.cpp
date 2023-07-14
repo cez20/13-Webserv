@@ -8,7 +8,7 @@
 //#*     YP      YP       `"Ybbd8"'  8Y"Ybbd8"'   `"YbbdP"'   `"Ybbd8"'  88              "8"     *# 
 //#*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*#
 
-#include "ConfigFile.hpp"
+#include "../inc/ConfigFile.hpp"
 
 bool is_string_digit(const std::string& str){
 	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
