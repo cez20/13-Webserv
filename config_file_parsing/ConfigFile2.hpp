@@ -8,6 +8,7 @@
 //#*     YP      YP       `"Ybbd8"'  8Y"Ybbd8"'   `"YbbdP"'   `"Ybbd8"'  88              "8"     *# 
 //#*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*#
 
+
 #ifndef CONFIGFILE_HPP
 #define CONFIGFILE_HPP
 
@@ -20,14 +21,12 @@
 #include<vector>
 #include<sstream>
 #include<utility>
-#include<unistd.h>
 #include"color.h"
+
 
 class ConfigFile{
 	public:
-	ConfigFile();
 	ConfigFile(std::string configPath);
-	ConfigFile(std::string configPath, int index);
 	~ConfigFile();
 		//LOCATION STRUCTURE
 		struct location{
@@ -37,7 +36,6 @@ class ConfigFile{
 			std::string								_loc_server_name;
 			std::string								_loc_root;
 			std::string								_loc_access_log;
-			std::string								_loc_error_log;
 			std::string								_loc_include_types;
 			std::string								_loc_index;
 			std::string								_loc_auto_index;
@@ -50,16 +48,12 @@ class ConfigFile{
 		std::string 								get_server_name()const {return (_server_name);};
 		std::string 								get_root()const {return (_root);};
 		std::string 								get_access_log()const {return (_access_log);};
-		std::string 								get_error_log()const {return (_error_log);};
 		std::string 								get_include_types()const {return (_include_types);};
-		const std::vector<std::string>&				get_methods()const {return (_methods);};
+		std::vector<std::string>&					get_methods(){return (_methods);};
 		std::vector<std::string>& 					get_listen(){return (_listen);};
 		std::map<std::string, std::string>&			get_error_page(){return (_error_page);};
 		const std::vector<ConfigFile::location>&	get_location()const{return (_location);};
-		std::string 								get_index()const {return (_index);};
 
-		void										set_config(std::string configPath, int nb_of_server);
-		void										find_nb_of_server();
 		void 										extract_config_file();
 		void										parse_listen(std::string str);
 		std::vector<std::string>					parse_location_listen(std::string str);
@@ -79,7 +73,7 @@ class ConfigFile{
 
 
 
-	
+
 	private:
 		//CONFIG FILE VARIABLES
 		std::vector<location>					_location;
@@ -90,13 +84,10 @@ class ConfigFile{
 		std::string								_root;
 		std::string								_index;
 		std::string								_access_log;
-		std::string								_error_log;
 		std::string								_include_types;
 
 		//PATH TO THE CONFIG FILE
 		std::string 							_fd_path;
-		int										_server_nb;
-		int										_max_server_nb;
 };
 
 #endif
