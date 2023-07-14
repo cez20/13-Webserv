@@ -60,7 +60,7 @@ class ConfigFile{
 		std::string 								get_index()const {return (this->_index);};
 
 		void										set_config(std::string configPath, int nb_of_server);
-		void										find_nb_of_server();
+		int											find_nb_of_server(std::string path);
 		void 										extract_config_file();
 		void										parse_listen(std::string str);
 		std::vector<std::string>					parse_location_listen(std::string str);

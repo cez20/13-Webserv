@@ -38,7 +38,7 @@ ConfigFile::ConfigFile(std::string configPath): _server_name(""), _root(""),
 ConfigFile::ConfigFile(std::string configPath, int index_of_server): _server_name(""), _root(""),
 	 _index(""), _access_log(""), _error_log(""), _include_types(""),
 	 _fd_path(configPath), _server_nb(index_of_server), _max_server_nb(0){
-	find_nb_of_server();
+	find_nb_of_server(_fd_path);
 	extract_config_file();
 }
 
@@ -52,13 +52,13 @@ void	ConfigFile::set_config(std::string configPath, int nb_of_server){
 	_error_log = "";
 	_include_types = "";
 	_fd_path = configPath;
-	_server_nb = nb_of_server;
+	_server_nb = nb_of_server + 1;
 	_max_server_nb = 0;
 	_location.clear();
 	_error_page.clear();
 	_listen.clear();
 	_methods.clear();
-	find_nb_of_server();
+	find_nb_of_server(_fd_path);
 	extract_config_file();
 }
 
@@ -195,28 +195,29 @@ void	set_struct_empty(ConfigFile::location& value){
 	value._loc_cgi_pass2 = "";
 }
 
-void	ConfigFile::find_nb_of_server(){
-	std::ifstream	infile(_fd_path);
+int	ConfigFile::find_nb_of_server(std::string path){
+	std::ifstream	infile(path);
 	if (!infile){
 		throw EmptyFd();
-		return ;
+		return (1);
 	}
 	std::string buffer;
-	std::regex 	server("server \\s*\\{");
-	int			i = 0;
+	std::regex 	server("server \\{");
+	int			count = 0;
 
 	if (infile.is_open()){
 		while(getline(infile, buffer)){
 			if (std::regex_search(buffer, server))
-				i++;
+				count++;
 		}
 	}
-	if (i <= 0)
+	if (count <= 0)
 		_max_server_nb = -1;
 	else
-		_max_server_nb = i;
+		_max_server_nb = count;
 	if (_server_nb > _max_server_nb)
 		throw std::runtime_error("Trying to create more configuration file object than the number of server block in the file.");
+	return (count);
 }
 
 void	ConfigFile::extract_config_file(){
@@ -250,8 +251,7 @@ void	ConfigFile::extract_config_file(){
 	std::regex	ret("return");
 	std::regex	cgi_pass("cgi_pass");
 	std::regex	cgi_pass2("cgi_pass2");
-	std::regex 	server("server \\s*\\{");
-
+	std::regex 	server("server \\{");
 
 	if (infile.is_open()){
 		int i = 0;
@@ -350,5 +350,7 @@ void	ConfigFile::extract_config_file(){
 		}
 		
 	}
+	else
+		throw std::runtime_error("Something failed");
 }
 
