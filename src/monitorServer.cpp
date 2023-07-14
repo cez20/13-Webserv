@@ -5,25 +5,25 @@
 	on the client's request.
  */
 void handleClient(int clientSocket, const ConfigFile& config) {
-    char buffer[8192];
-    std::string request;
-    while (true) {
-        int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-        if (bytesRead <= 0) {
-            // Erreur de lecture ou fin de la connexion
-            close(clientSocket);
-            if (bytesRead == 0)
-                std::cout << "\rConnection was closed by client.\n" << std::endl;
-            return;
-        }
-		std::cout << "The number of bytes read is: " << bytesRead << std::endl;
-        request.append(buffer, bytesRead);
-        // check is the request header is complete
-        if (request.find("\r\n\r\n") != std::string::npos) {
-            break;
-        }
-        //I will have to check if the body is not fragmented too.  Will do later, I will havwe to use conent-length in the header
+    std::vector<char> buffer(30000000); // Utilisez un std::vector pour un tampon plus sûr et flexible
+std::string request;
+while (true) {
+    int bytesRead = recv(clientSocket, buffer.data(), buffer.size(), 0);
+    if (bytesRead <= 0) {
+        // Erreur de lecture ou fin de la connexion
+        close(clientSocket);
+        if (bytesRead == 0)
+            std::cout << "\rConnection was closed by client.\n" << std::endl;
+        return;
     }
+    std::cout << "The number of bytes read is: " << bytesRead << std::endl;
+    request.append(buffer.data(), bytesRead);
+    // Vérifier si l'en-tête de la requête est complet
+    if (request.find("\r\n\r\n") != std::string::npos) {
+        break;
+    }
+    // Je devrai vérifier si le corps n'est pas fragmenté aussi. Je le ferai plus tard en utilisant Content-Length dans l'en-tête.
+}
     HttpRequest clientRequest(request, config);
     //clientRequest.showRequest();
     //printMap(clientRequest.headers);

@@ -27,7 +27,7 @@ void HttpRequest::parseRequest(std::string rawRequest) {
         if (colonPos != std::string::npos) {
             headerName = line.substr(0, colonPos);
             headerValue = line.substr(colonPos + 1);
-            //headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
+            headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
             headers[headerName] = headerValue;
             if (headerName == "Content-Type" && headerValue.find("multipart") != std::string::npos) {
             // Extraire la valeur du paramètre boundary
@@ -53,13 +53,13 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     if (!this->boundary.empty()){
         parseMultipartFormData();
     }
-      std::cout << "this is the raw request" << rawRequest << std::endl;
-      std::cout << "this is the map of the headers:  " << std::endl;
-      printMap(this->headers);
-      std::cout << "this is the body of the request " <<this->body << std::endl;
-      std::cout << "this is the boundary " << this->boundary << std::endl;
-      std::cout << "this is the multibody "  << std::endl;
-      printMap(multiBody);
+      //std::cout << "this is the raw request" << rawRequest << std::endl;
+      //std::cout << "this is the map of the headers:  " << std::endl;
+      //printMap(this->headers);
+      //std::cout << "this is the body of the request " <<this->body << std::endl;
+      //std::cout << "this is the boundary " << this->boundary << std::endl;
+    // std::cout << "this is the multibody "  << std::endl;
+    // printMap(multiBody);
       
       
 
@@ -119,7 +119,7 @@ void HttpRequest::checkLocation(const ConfigFile& config){
     if (!this->redir.empty())
         this->reponseStatus = "301";
     
-    std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
+    //std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
     // if (!location->limit_except.empty())
     //     this->limit_except = location->limit_except;
 }
@@ -150,39 +150,61 @@ void HttpRequest::getBoundary() {
      
     this->boundary = boundary;
 }
+std::string extractFilename(const std::string& line) {
+    std::string filename;
+    std::size_t startPos = line.find("filename=\"");
+    if (startPos != std::string::npos) {
+        startPos += 10; // "filename=\"" length is 10
+        std::size_t endPos = line.find("\"", startPos);
+        if (endPos != std::string::npos) {
+            filename = line.substr(startPos, endPos - startPos);
+        }
+    }
+    return filename;
+}
+bool isFilenamePresent(const std::string& line) {
+    std::size_t found = line.find("filename");
+    return (found != std::string::npos);
+}
+
 
 void HttpRequest::parseMultipartFormData() {
     std::string delimiter = "--" + this->boundary;
     std::string endDelimiter = delimiter + "--";
 
-    size_t pos = body.find(delimiter);
-    while (pos != std::string::npos) {
-        size_t startPos = pos + delimiter.length() + 2; // +2 to skip newlines
-        size_t endPos = body.find(delimiter, startPos);
-        if (endPos == std::string::npos) {
-            break;
-        }
+    std::size_t startPos = 0;
+    std::size_t endPos = 0;
 
-        std::string part = body.substr(startPos, endPos - startPos);
-        size_t filenamePos = part.find("filename=\"");
-        if (filenamePos != std::string::npos) {
-            filenamePos += 10; // "filename=" = 10
-            size_t filenameEndPos = part.find("\"", filenamePos);
-            if (filenameEndPos != std::string::npos) {
-                std::string filename = part.substr(filenamePos, filenameEndPos - filenamePos);
-                size_t contentPos = part.find("\r\n\r\n") + 4; // +4 to skip the newline characters
-                std::string fileContent = part.substr(contentPos);
-                // Store the file content in the map
-                multiBody[filename] = fileContent;
-            }
-        }
+    while ((startPos = this->body.find(delimiter, endPos)) != std::string::npos) {
+        startPos += delimiter.length();
+        endPos = this->body.find(delimiter, startPos);
+        std::string section = this->body.substr(startPos, endPos - startPos);
 
-        pos = body.find(delimiter, endPos + delimiter.length());
+        std::size_t filenamePos = section.find("filename=\"");
+        if (filenamePos == std::string::npos)
+            continue;
+
+        filenamePos += 10; // Move to the starting position of the filename
+        std::size_t filenameEndPos = section.find("\"", filenamePos);
+        std::string filename = section.substr(filenamePos, filenameEndPos - filenamePos);
+
+        std::size_t contentPos = section.find("\r\n\r\n");
+        if (contentPos == std::string::npos)
+            continue;
+
+        std::string content = section.substr(contentPos + 4);
+
+        this->multiBody[filename] = content;
     }
 }
 
 
 
+
+
+    
+
+ 
 
 
 

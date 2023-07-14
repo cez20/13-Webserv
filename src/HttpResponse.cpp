@@ -388,23 +388,28 @@ void HttpResponse::autoListing(){
     }
     generateDirListing(vecList);
 }
-int HttpResponse::uploading(std::map<std::string, std::string> multiBody, std::string path){
-     printMap(multiBody);
-    std::cout << path <<std::endl;
-    // for(std::map<std::string, std::string>::iterator it = multiBody.begin(); it != multiBody.end(); it++){
-    //     std::ofstream file(path + it->first, std::ios::out | std::ios::binary);
-    //     if (file) {
-    //         file << it->second;
-    //         file.close();
-    //        std::cout << "File uploaded and saved: " << it->first << std::endl;
-    //     }
-    //     else
-    //         return 1;
-   
-   
-    // }
-    return (0);
+#include <iostream>
+#include <fstream>
+#include <map>
+
+int HttpResponse::uploading(const std::map<std::string, std::string>& multiBody, const std::string& path) {
+    for (std::map<std::string, std::string>::const_iterator it = multiBody.begin(); it != multiBody.end(); ++it) {
+        const std::string& filename = it->first;
+        const std::string& content = it->second;
+
+        std::ofstream file(path + filename, std::ios::out | std::ios::binary);
+        if (file) {
+            file.write(content.data(), content.size());
+            file.close();
+            std::cout << "File uploaded and saved: " << filename << std::endl;
+        } else {
+            std::cerr << "Error opening file: " << filename << std::endl;
+            return 1;
+        }
+    }
+    return 0;
 }
+
 
 
 
