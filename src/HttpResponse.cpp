@@ -4,10 +4,15 @@
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
     this->path = clientRequest.path;
-    if(clientRequest.reponseStatus != "")
+    if(clientRequest.reponseStatus != ""){
         this->statusCode = clientRequest.reponseStatus;
-    analyseRequest(clientRequest);
-    checkForError();
+    }
+    else
+    {
+       analyseRequest(clientRequest);
+    checkForError(); 
+    }
+    
 }
 //Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
@@ -321,7 +326,7 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 
 }
 void HttpResponse::checkForError(){
-    if(this->statusCode != "200 OK" || this->statusCode != "301 Moved Permanently"){
+    if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
        //if(!checkForCustomErrorFiles())
             generateDefaultError();
     }
