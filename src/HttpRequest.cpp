@@ -116,6 +116,9 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         this->autorizedMethods = this->locationRequest._loc_methods;
     if (!this->locationRequest._loc_return.empty())
         this->redir = this->locationRequest._loc_return;
+    else {
+        this->redir = "";
+    }
     if (this->locationRequest._loc_auto_index == "on")
         this->autoIndex = true;
     else

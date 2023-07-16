@@ -94,7 +94,12 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
 
     }
     else if (clientRequest.method == "DELETE"){
-        return(deleteMethod(clientRequest));
+        if (clientRequest.delete_allow)
+            return(deleteMethod(clientRequest));
+        else{
+            statusCode= "405";
+            return 1;
+        }
     }  
     else{
         return(responseForStatic(clientRequest));
