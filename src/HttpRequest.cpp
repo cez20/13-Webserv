@@ -89,9 +89,10 @@ void HttpRequest::checkDownload(const ConfigFile& config){
 void HttpRequest::checkLocation(const ConfigFile& config){
     //checking the if there if a specific locaton for the resquest path
     for (size_t i = 0; i < config.get_location().size(); ++i){
-        if (config.get_location()[i]._loc_location.find(this->path))
+        if (this->path.find(config.get_location()[i]._loc_location) != std::string::npos)
             this->locationRequest = config.get_location()[i];
     }
+    std::cout << "voici lla location utilisee :   " << this->locationRequest._loc_location << std::endl;
     //change the resquest path with the new location
     if (this->locationRequest._loc_location == "/"  && !this->locationRequest._loc_root.empty())
     {
