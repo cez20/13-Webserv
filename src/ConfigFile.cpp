@@ -8,7 +8,7 @@
 //#*     YP      YP       `"Ybbd8"'  8Y"Ybbd8"'   `"YbbdP"'   `"Ybbd8"'  88              "8"     *# 
 //#*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*#
 
-#include "ConfigFile.hpp"
+#include "../inc/ConfigFile.hpp"
 
 bool is_string_digit(const std::string& str){
 	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
@@ -27,12 +27,40 @@ bool	check_double(std::vector<std::string> vec, std::string str){
 	return (false);
 }
 
+ConfigFile::ConfigFile(){}
+
 ConfigFile::ConfigFile(std::string configPath): _server_name(""), _root(""),
-	 _index(""), _access_log(""), _error_log(""), _include_types(""), _fd_path(configPath){
+	 _index(""), _access_log(""), _error_log(""), _include_types(""),
+	 _fd_path(configPath), _server_nb(-1), _max_server_nb(0){
+	extract_config_file();
+}
+
+ConfigFile::ConfigFile(std::string configPath, int index_of_server): _server_name(""), _root(""),
+	 _index(""), _access_log(""), _error_log(""), _include_types(""),
+	 _fd_path(configPath), _server_nb(index_of_server), _max_server_nb(0){
+	find_nb_of_server(_fd_path);
 	extract_config_file();
 }
 
 ConfigFile::~ConfigFile(){}
+
+void	ConfigFile::set_config(std::string configPath, int nb_of_server){
+	_server_name = "";
+	_root = "";
+	_index = "";
+	_access_log = "";
+	_error_log = "";
+	_include_types = "";
+	_fd_path = configPath;
+	_server_nb = nb_of_server + 1;
+	_max_server_nb = 0;
+	_location.clear();
+	_error_page.clear();
+	_listen.clear();
+	_methods.clear();
+	find_nb_of_server(_fd_path);
+	extract_config_file();
+}
 
 std::string	ConfigFile::parse_found_line(std::string charset, std::string found_line){
 	std::string ret;
@@ -167,6 +195,31 @@ void	set_struct_empty(ConfigFile::location& value){
 	value._loc_cgi_pass2 = "";
 }
 
+int	ConfigFile::find_nb_of_server(std::string path){
+	std::ifstream	infile(path);
+	if (!infile){
+		throw EmptyFd();
+		return (1);
+	}
+	std::string buffer;
+	std::regex 	server("server \\{");
+	int			count = 0;
+
+	if (infile.is_open()){
+		while(getline(infile, buffer)){
+			if (std::regex_search(buffer, server))
+				count++;
+		}
+	}
+	if (count <= 0)
+		_max_server_nb = -1;
+	else
+		_max_server_nb = count;
+	if (_server_nb > _max_server_nb)
+		throw std::runtime_error("Trying to create more configuration file object than the number of server block in the file.");
+	return (count);
+}
+
 void	ConfigFile::extract_config_file(){
 	std::ifstream infile(_fd_path);
 	if (!infile){
@@ -198,8 +251,18 @@ void	ConfigFile::extract_config_file(){
 	std::regex	ret("return");
 	std::regex	cgi_pass("cgi_pass");
 	std::regex	cgi_pass2("cgi_pass2");
+	std::regex 	server("server \\{");
 
 	if (infile.is_open()){
+		int i = 0;
+		if (_server_nb != -1){
+			while (getline(infile, buffer)){
+				if (std::regex_search(buffer, matches, server))
+					i++;
+				if (i == _server_nb)
+					break;	
+			}
+		}
 		while(getline(infile, buffer)){
 			non_blank = buffer.find_first_not_of(" \t\n");
 			if(buffer[non_blank] == '#')
@@ -282,8 +345,12 @@ void	ConfigFile::extract_config_file(){
 			}
 			else if (std::regex_search(buffer, matches, include))				
 				_include_types = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, server) && _server_nb != -1)
+				break;
 		}
 		
 	}
+	else
+		throw std::runtime_error("Something failed");
 }
 
