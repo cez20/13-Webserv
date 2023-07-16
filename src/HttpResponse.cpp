@@ -39,7 +39,11 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     
      if(isDirectory(path)){
         if(clientRequest.method == "POST"){
-            if(uploading(clientRequest.multiBody, clientRequest.path)== 0){   
+            if(!clientRequest.upload){
+                this->statusCode = "405";
+                return 1;
+            }
+            else if(uploading(clientRequest.multiBody, clientRequest.path)== 0){   
             this->statusCode = "200 OK";
             this->headers["contentType"] = "text/html";
             this->body = "File(s) were successfully downloaded";
@@ -66,7 +70,15 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             
     }
 
-   
+   else if (clientRequest.method == "DELETE"){
+        if (clientRequest.allow_delete){
+            return(deleteMethod(clientRequest));
+        }
+        else{
+            statusCode = "405";
+            return 1;
+        }
+    }
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
@@ -93,14 +105,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         return (0);
 
     }
-    else if (clientRequest.method == "DELETE"){
-        if (clientRequest.allow_delete)
-            return(deleteMethod(clientRequest));
-        else{
-            statusCode = "405";
-            return 1;
-        }
-    }  
+      
     else{
         return(responseForStatic(clientRequest));
     }
@@ -421,15 +426,12 @@ void HttpResponse::autoListing(){
     }
     generateDirListing(vecList);
 }
-#include <iostream>
-#include <fstream>
-#include <map>
 
 int HttpResponse::uploading(const std::map<std::string, std::string>& multiBody, const std::string& path) {
     for (std::map<std::string, std::string>::const_iterator it = multiBody.begin(); it != multiBody.end(); ++it) {
         const std::string& filename = it->first;
         const std::string& content = it->second;
-
+        std::cout << "filename =    " << path + filename <<std::endl;
         std::ofstream file(path + filename, std::ios::out | std::ios::binary);
         if (file) {
             file.write(content.data(), content.size());
@@ -437,6 +439,7 @@ int HttpResponse::uploading(const std::map<std::string, std::string>& multiBody,
             std::cout << "File uploaded and saved: " << filename << std::endl;
         } else {
             std::cerr << "Error opening file: " << filename << std::endl;
+            this->statusCode = "500";
             return 1;
         }
     }
