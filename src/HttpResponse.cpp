@@ -26,7 +26,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
 
         if (it == clientRequest.autorizedMethods.cend()) {
             // The method is not authorized
-            this->statusCode = "401";
+            this->statusCode = "405";
             return 1;
         } 
     }
@@ -94,10 +94,10 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
 
     }
     else if (clientRequest.method == "DELETE"){
-        if (clientRequest.delete_allow)
+        if (clientRequest.allow_delete)
             return(deleteMethod(clientRequest));
         else{
-            statusCode= "405";
+            statusCode = "405";
             return 1;
         }
     }  
@@ -318,17 +318,26 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
 
 
 int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
-    if (clientRequest.isCgi) {
-            std::string output  = executeCgiGet(clientRequest);
-            analyseCgiOutput(output);
-            return(0);
-    }
-    this->statusCode = "200 OK";
-    this->headers["contentType"] = "text/html";
-    this->body = "DELETE request handled successfully.";
-    
-    return(0);
+   const char* file_path = clientRequest.path.c_str();
+   int result = std::remove(file_path);
 
+    if (result != 0) {
+        // La suppression a échoué.
+        std::perror("Erreur lors de la suppression du fichier");
+        this->statusCode = "500";
+        return 1;
+    } else {
+        // La suppression a réussi.
+        std::cout << "Fichier supprimé avec succès !" << std::endl;
+        this->statusCode = "200 OK";
+        this->headers["contentType"] = "text/html";
+        this->body = "DELETE request handled successfully.";
+        return(0);
+
+    }
+    
+    
+  
 }
 void HttpResponse::checkForError(){
     if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
@@ -359,6 +368,7 @@ void HttpResponse::generateStatusMap(){
     httpStatusMap["402"] = "Payment Required";
     httpStatusMap["403"] = "Forbidden";
     httpStatusMap["404"] = "Not Found";
+    httpStatusMap["405"] = "Method Not Allowed";
     httpStatusMap["500"] = "Internal Server Error";
     httpStatusMap["501"] = "Not Implemented";
 }
