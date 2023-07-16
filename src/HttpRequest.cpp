@@ -127,6 +127,8 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         this->redir= locationRequest._loc_return;
         this->reponseStatus = "301";
     }
+    this->allow_delete = this->locationRequest._loc_allow_delete;
+    this->upload = this->locationRequest._loc_upload;
    
     
         
