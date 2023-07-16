@@ -193,6 +193,8 @@ void	set_struct_empty(ConfigFile::location& value){
 	value._loc_server_name = "";
 	value._loc_cgi_pass = "";
 	value._loc_cgi_pass2 = "";
+	value._loc_allow_delete = false;
+	value._loc_upload = false;
 }
 
 int	ConfigFile::find_nb_of_server(std::string path){
@@ -252,6 +254,10 @@ void	ConfigFile::extract_config_file(){
 	std::regex	cgi_pass("cgi_pass");
 	std::regex	cgi_pass2("cgi_pass2");
 	std::regex 	server("server \\{");
+	std::regex 	allow_delete("allow_delete");
+	std::regex 	upload("upload");
+	std::regex 	on("on");
+	std::regex 	off("off");
 
 	if (infile.is_open()){
 		int i = 0;
@@ -297,6 +303,18 @@ void	ConfigFile::extract_config_file(){
 						temp_struct._loc_cgi_pass = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, cgi_pass2))				
 						temp_struct._loc_cgi_pass2 = parse_found_line(matches.str(), buffer);
+					else if (std::regex_search(buffer, matches, upload)){
+						if (std::regex_search(buffer, matches, on))
+							temp_struct._loc_upload = true;
+						else if (std::regex_search(buffer, matches, off))
+							temp_struct._loc_upload = false;
+					}				
+					else if (std::regex_search(buffer, matches, allow_delete)){
+						if (std::regex_search(buffer, matches, on))
+							temp_struct._loc_allow_delete = true;
+						else if (std::regex_search(buffer, matches, off))
+							temp_struct._loc_allow_delete = false;
+					}				
 					else if (std::regex_search(buffer, matches, error_page)){
 						temp = parse_found_line(matches.str(), buffer);
 						temp_tab = split_on_space(temp);

@@ -46,6 +46,8 @@ class ConfigFile{
 			std::string								_loc_cgi_pass;
 			std::string								_loc_cgi_pass2;
 			std::vector<std::string>				_loc_methods;
+			bool									_loc_upload;
+			bool									_loc_allow_delete;
 		};
 
 		std::string 								get_server_name()const {return (this->_server_name);};
