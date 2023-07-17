@@ -66,7 +66,7 @@ int	createNewClientSocket(int serverSocket)
 	We call the poll() function which essentially returns the number of client's socket that have the POLLIN
 	action (ready to recv)
  */
-void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
+void	launchSocketMonitoring(std::vector<pollfd> *socketFds, std::vector <int> serverSocket)
 {
 	int nbrOfSocketsReady = 0;
 
@@ -74,7 +74,7 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 	std::cout << "The number of sockets ready is: " << nbrOfSocketsReady <<  std::endl;
 	if (nbrOfSocketsReady == -1) {
 		std::cerr << "Error while trying to call the poll function." << std::endl;
-		for (size_t i = 0; i < socketFds->size() ; ++i)
+		for (size_t i = 0; i < serverSocket.size() ; ++i)
 			close(serverSocket[i]);
 		exit(EXIT_FAILURE);
 	}
@@ -85,12 +85,11 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 	This function creates a vector of type pollfd necessary for the poll() function. 
 	It contains the file descriptor of each socket. 
 */
-std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config)
+std::vector<pollfd> createSocketVector(std::vector<int> serverSocket)
 {
-	int nbrServerSockets = config.get_listen().size();
-	std::vector<pollfd> socketFds(nbrServerSockets);
+	std::vector<pollfd> socketFds(serverSocket.size());
 
-	for (int i = 0; i < nbrServerSockets; ++i)
+	for (size_t i = 0; i < serverSocket.size(); ++i)
 	{
 		socketFds[i].fd = serverSocket[i];
  		socketFds[i].events = POLLIN;
@@ -104,9 +103,9 @@ std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config)
 	or to send content(POLLOUT).Once done, new client socket is created, and the dynamic of receiving 
 	and sending information between client and server is started 
  */
-int monitorServer(int *serverSocket, ConfigFile config)
+int monitorServer(std::vector<int> serverSocket, ConfigFile config)
 {
-	std::vector <pollfd> socketFds = createSocketVector(serverSocket, config);
+	std::vector <pollfd> socketFds = createSocketVector(serverSocket);
 	while (true)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
@@ -128,7 +127,7 @@ int monitorServer(int *serverSocket, ConfigFile config)
 			}
 		}
 	}
-	for (size_t i = 0; i < socketFds.size(); i++)
-		close (serverSocket[i]);
+	// for (size_t i = 0; i < socketFds.size(); i++)
+	// 	close (serverSocket[i]);
 	return (0);
 }
