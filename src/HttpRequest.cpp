@@ -29,6 +29,9 @@ void HttpRequest::parseRequest(std::string rawRequest) {
             headerValue = line.substr(colonPos + 1);
             headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
             headers[headerName] = headerValue;
+            if(headerName == "Content-Length"){
+                this->contentLength =  std::stoi(headerValue);
+            }
             if (headerName == "Content-Type" && headerValue.find("multipart") != std::string::npos) {
             // Extraire la valeur du paramètre boundary
                 size_t boundaryPos = headerValue.find("boundary=");
@@ -130,6 +133,11 @@ void HttpRequest::checkLocation(const ConfigFile& config){
     }
     this->allow_delete = this->locationRequest._loc_allow_delete;
     this->upload = this->locationRequest._loc_upload;
+    if(this->locationRequest._loc_max_body_size != -1)
+        this->max_body= this->locationRequest._loc_max_body_size;
+    else
+        this->max_body= config.get_max_body_size();
+    
    
     
         

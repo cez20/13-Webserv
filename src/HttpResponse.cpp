@@ -20,7 +20,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         this->statusCode = "501";    
         return (1);
     }
-    if (!clientRequest.autorizedMethods.empty()) {
+    else if (!clientRequest.autorizedMethods.empty()) {
         std::vector<std::string>::const_iterator it = std::find(
             clientRequest.autorizedMethods.cbegin(), clientRequest.autorizedMethods.cend(), clientRequest.method);
 
@@ -30,14 +30,19 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
-    if(clientRequest.redir != "")
+    if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
+        this->statusCode = "413";
+        return(1);
+    }
+
+    else if(clientRequest.redir != "")
     {
             this->statusCode = "301 Moved Permanently";
             this->headers ["Location"] = clientRequest.redir;
             return (0);
     }
     
-     if(isDirectory(path)){
+     else if(isDirectory(path)){
         if(clientRequest.method == "POST"){
             if(!clientRequest.upload){
                 this->statusCode = "405";
@@ -374,8 +379,10 @@ void HttpResponse::generateStatusMap(){
     httpStatusMap["403"] = "Forbidden";
     httpStatusMap["404"] = "Not Found";
     httpStatusMap["405"] = "Method Not Allowed";
+    httpStatusMap["413"] = "Request Entity Too Large";
     httpStatusMap["500"] = "Internal Server Error";
     httpStatusMap["501"] = "Not Implemented";
+    
 }
 void HttpResponse::generateDefaultError(){
 
