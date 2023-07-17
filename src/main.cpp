@@ -8,7 +8,9 @@ int main (int argc, char **argv){
     }
     else {
             ConfigFile config(argv[1]);
-            int *serverSocket = launchServer(config);
+            //int *serverSocket = launchServer(config);
+
+			std::vector<int> serverSocket = launchServer(config);
 		    monitorServer(serverSocket, config);
         
         //Launch the serveur

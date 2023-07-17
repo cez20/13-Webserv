@@ -112,17 +112,17 @@ struct addrinfo 	*getNetworkInfo(ConfigFile config, const char *port)
 	that we can start listening to incoming request. Also, if socketFds contains only value -1,
 	I exit the program. 
  */
-int *launchServer(ConfigFile config)
+std::vector<int> launchServer(ConfigFile config)
 {
 	struct addrinfo *ipAddressList;
 	std::vector<std::string> ArrayPorts = config.get_listen();
 	size_t invalidSockets = 0;
 
-	int *socketFds =  new int[ArrayPorts.size()];
+	std::vector<int> socketFds;
 	for (size_t i = 0; i < ArrayPorts.size(); i++) {
 		const char* charPtr = ArrayPorts[i].c_str();
 		ipAddressList = getNetworkInfo(config, charPtr);
-		socketFds[i] = serverSocketSetup(ipAddressList);
+		socketFds.push_back(serverSocketSetup(ipAddressList));
 		freeaddrinfo(ipAddressList);
 		if (socketFds[i] == -1)
 			invalidSockets++;

@@ -43,15 +43,16 @@
 void				printNetworkInfo(struct addrinfo *res);
 int					serverSocketSetup(struct addrinfo *res);
 struct addrinfo 	*getNetworkInfo(ConfigFile config, const char *port);
-int 				*launchServer(ConfigFile config);
+std::vector<int> 	launchServer(ConfigFile config);
+// int 				*launchServer(ConfigFile config);
 
 //*** MONITORSERVER.CPP ***
 void				handleClient(int clientSocket, const ConfigFile& config);
 void				addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket);
 int					createNewClientSocket(int serverSocket);
-void				launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket);
-std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config);
-int 				monitorServer(int *serverSocket, ConfigFile config);
+void				launchSocketMonitoring(std::vector<pollfd> *socketFds, std::vector <int> serverSocket);
+std::vector<pollfd> createSocketVector(std::vector<int> serverSocket);
+int 				monitorServer(std::vector<int> serverSocket, ConfigFile config);
 
 //*** UTILS.CPP ***
 int	error_logs(std::string msg, ConfigFile& config);

@@ -388,7 +388,7 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 }
 void HttpResponse::checkForError(){
     if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
-       if(!checkForCustomErrorFiles())
+    //    if(!checkForCustomErrorFiles())
             generateDefaultError();
     }
     
