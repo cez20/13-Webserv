@@ -1,6 +1,10 @@
 
 #include "HttpResponse.hpp"
 // constructor
+ volatile sig_atomic_t alarmReceived = 0;
+ void alarmHandler(int) {
+            alarmReceived = 1;
+        }
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
     this->path = clientRequest.path;
@@ -54,7 +58,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             this->body = "File(s) were successfully downloaded";
             std::cout << "PATH FOR UPLOADING :   " << path << std::endl;
             return (0);
-        }
+            }
         else 
             return 1;
         }
@@ -86,11 +90,11 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
-    if (!fileExist(clientRequest.path)){
+    else if (!fileExist(clientRequest.path)){
         this->statusCode = "404";
         return (1);
     }
-    if (clientRequest.isCgi){
+    else if (clientRequest.isCgi){
         std::string output;
         try{
             if(clientRequest.method == "GET"){
@@ -104,13 +108,12 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
 		std::cerr << e.what() << '\n';
         this->statusCode = "500";
         return (1);
-	}
+	    }
         analyseCgiOutput(output);
         this->statusCode = "200 OK";
         return (0);
 
-    }
-      
+    } 
     else{
         return(responseForStatic(clientRequest));
     }
@@ -151,6 +154,15 @@ bool HttpResponse::fileExist(const std::string& filename) {
 std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
     std::string output;
     int pipefd[2];
+    char currentDir[PATH_MAX];
+    std::string scriptPath(currentDir);
+    
+
+
+    if (getcwd(currentDir, sizeof(currentDir)) == nullptr) {
+        std::cerr << "Failed to get current working directory" << std::endl;
+    }
+
     if (pipe(pipefd) == -1) {
         throw std::runtime_error("Error when creating pipe");
     }
@@ -160,6 +172,11 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         throw std::runtime_error("Error wheile forking");
     }
     else if (pid == 0) {
+
+        signal(SIGALRM, alarmHandler);
+
+        // Set the alarm for 4 seconds
+        alarm(4);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
@@ -173,8 +190,8 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         }
         //set args for execve
         std::vector<char*> argvList;
-        argvList.push_back(const_cast<char*>("/usr/bin/php"));  // Utilisez le chemin correct vers l'interpréteur PHP
-        argvList.push_back(const_cast<char*>("html/test.php"));
+        argvList.push_back(const_cast<char*>("php"));  // Utilisez le chemin correct vers l'interpréteur PHP
+        argvList.push_back(const_cast<char*>(path.c_str()));
         argvList.push_back(nullptr);
         //set envp for execve
         std::vector<char*> envpList;      
@@ -184,17 +201,27 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        if (execve("/usr/bin/php", argv, envp) == -1) {
+        int result = chdir("/usr/bin"); //change
+        if (result != 0) {
+            std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
+        }
+
+        if (execve("php", argv, envp) == -1) {
             std::cerr << "Error with execve" << std::endl;
         }
     }
     else {
         // Processus parent
         close(pipefd[1]);
-
+        if (alarmReceived) {
+            kill(pid, SIGTERM);
+            alarmReceived = 0;
+            throw std::runtime_error("Timeout: CGI script took too long to execute.");
+        }
         int status;
         waitpid(pid, &status, 0);
 
+        
         char buffer[5000];
         ssize_t bytesRead;
         while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
@@ -214,6 +241,8 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
     std::string output;
     char currentDir[PATH_MAX];
     std::string scriptPath(currentDir);
+    
+
 
     if (getcwd(currentDir, sizeof(currentDir)) == nullptr) {
         std::cerr << "Failed to get current working directory" << std::endl;
@@ -229,6 +258,8 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         throw std::runtime_error("Error while forking");
     }
     else if (pid == 0) {
+        signal(SIGALRM, alarmHandler);
+        alarm(4);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
@@ -265,10 +296,16 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
     else {
         // Processus parent
         close(pipefd[1]);
+        if (alarmReceived) {
+            kill(pid, SIGTERM);
+            alarmReceived = 0;
+            throw std::runtime_error("Timeout: CGI script took too long to execute.");
+        }
 
         int status;
         waitpid(pid, &status, 0);
-
+        
+        
         char buffer[5000];
         ssize_t bytesRead;
         while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
@@ -351,7 +388,7 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 }
 void HttpResponse::checkForError(){
     if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
-       //if(!checkForCustomErrorFiles())
+       if(!checkForCustomErrorFiles())
             generateDefaultError();
     }
     
