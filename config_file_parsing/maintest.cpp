@@ -4,7 +4,7 @@ int main() {
     std::string testfile = "./config3.conf";
     try {
 		ConfigFile* test = new ConfigFile[2];
-    	test[0].set_config(testfile, 0);
+    	test[0].set_config("./config3.conf", 0);
     	test[1].set_config(testfile, 1);
 
 		

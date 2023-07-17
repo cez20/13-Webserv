@@ -30,3 +30,22 @@ bool isDirectory(const std::string& path) {
 }
 
 
+int	find_nb_of_server(std::string path){
+	std::ifstream	infile(path);
+	if (!infile){
+		throw std::runtime_error("Trying to create more configuration file object than the number of server block in the file.");
+		return (1);
+	}
+	std::string buffer;
+	std::regex 	server("server \\{");
+	int			count = 0;
+
+	if (infile.is_open()){
+		while(getline(infile, buffer)){
+			if (std::regex_search(buffer, server))
+				count++;
+		}
+	}
+
+	return (count);
+}

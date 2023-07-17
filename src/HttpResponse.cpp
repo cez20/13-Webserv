@@ -1,6 +1,6 @@
 
 #include "HttpResponse.hpp"
-// constructor
+
  volatile sig_atomic_t alarmReceived = 0;
  void alarmHandler(int) {
             alarmReceived = 1;
@@ -14,11 +14,10 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     else
     {
        analyseRequest(clientRequest);
-    checkForError(); 
+    checkForError(clientRequest); 
     }
     
 }
-//Check what kind of HttpResquest tob build the appropriate response
 int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if (clientRequest.method != "POST" && clientRequest.method != "GET" && clientRequest.method != "DELETE"){
         this->statusCode = "501";    
@@ -29,7 +28,6 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             clientRequest.autorizedMethods.cbegin(), clientRequest.autorizedMethods.cend(), clientRequest.method);
 
         if (it == clientRequest.autorizedMethods.cend()) {
-            // The method is not authorized
             this->statusCode = "405";
             return 1;
         } 
@@ -132,7 +130,7 @@ int HttpResponse::writeOnSocket(const int& clientSocket){
     size_t totalBytesSent =0;
     size_t bytesRemaining = response.length();
     
-    std::cout << bytesRemaining << std::endl;    //to be deleted
+    std::cout << bytesRemaining << std::endl;   
     while(totalBytesSent < response.length()){
       int bytesSent=send(clientSocket, response.c_str(), response.length(), 0);
        if (bytesSent == -1) {
@@ -196,12 +194,12 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         //set envp for execve
         std::vector<char*> envpList;      
         for (size_t i = 0; i < argumentList.size(); ++i) {
-            envpList.push_back(const_cast<char*>(argumentList[i].c_str()));  // Définit la variable d'environnement NAME avec la valeur "John"
+            envpList.push_back(const_cast<char*>(argumentList[i].c_str()));  // Définit la variable d'environnement
         }
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        int result = chdir("/usr/bin"); //change
+        int result = chdir("/usr/bin"); 
         if (result != 0) {
             std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
         }
@@ -386,12 +384,23 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
     
   
 }
-void HttpResponse::checkForError(){
+void HttpResponse::checkForError(const HttpRequest& clientRequest){
     if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
-       if(!checkForCustomErrorFiles())
+       if(!checkForCustomErrorFiles(clientRequest))
             generateDefaultError();
     }
     
+}
+int HttpResponse::checkForCustomErrorFiles(const HttpRequest& clientRequest){
+    std::map<std::string, std::string>errorMap = clientRequest.config.get_error_page();
+    std::string root= clientRequest.config.get_root();
+    for(std::map<std::string, std::string>::iterator it = errorMap.begin(); it!= errorMap.end(); it++){
+        if (this->statusCode == it->first){
+            this->body = extractFileContent(root + it->second);
+            return (1);
+        }
+    } 
+    return 0;
 }
 void HttpResponse::generateStatusMap(){
     httpStatusMap["100"] = "Continue";
