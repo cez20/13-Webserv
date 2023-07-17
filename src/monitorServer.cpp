@@ -68,7 +68,7 @@ int	createNewClientSocket(int serverSocket, ConfigFile config)
 		close(serverSocket);
 		exit(EXIT_FAILURE);
 	}
-	enter_access_log(clientAddress, config);
+	enterAccessLogs(clientAddress, config);
 	std::cout << "New connection accepted." << std::endl;
 	return (clientSocket);
 }
