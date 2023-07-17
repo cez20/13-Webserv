@@ -206,16 +206,4 @@ void HttpRequest::parseMultipartFormData() {
     }
 }
 
-
-
-
-
-    
-
- 
-
-
-
-void HttpRequest::validityCheck(){
-}
 HttpRequest::~HttpRequest() { return; }

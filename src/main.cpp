@@ -7,9 +7,16 @@ int main (int argc, char **argv){
         exit(EXIT_FAILURE);
     }
     else {
+        try{
             ConfigFile config(argv[1]);
 			std::vector<int> serverSocket = launchServer(config);
 		    monitorServer(serverSocket, config);
+        }
+        catch(const std::exception& e){
+		std::cerr << e.what() << '\n';
+        exit(EXIT_FAILURE);
+        }
+            
         
         //Launch the serveur
        

@@ -32,12 +32,13 @@ class HttpResponse {
         void analyseCgiOutput(const std::string& output);
         int responseForStatic(const HttpRequest& clientRequest);
         int deleteMethod(const HttpRequest& clientRequest);
-        void checkForError();
+        void checkForError(const HttpRequest& clientRequest);
         void generateStatusMap();
         void generateDefaultError();
         void autoListing();
         void generateDirListing(std::vector<std::string> vecList);
         int uploading(const std::map<std::string, std::string> &multiBody, const std::string &path);
+        int checkForCustomErrorFiles(const HttpRequest& clientRequest);
 
 };
 
