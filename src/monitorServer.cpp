@@ -30,6 +30,16 @@ while (true) {
     //close(clientSocket);  // Temporary removed it , because already in infinte loop
 }
 
+void enterAccessLogs(sockaddr_storage clientAddress, ConfigFile config)
+{
+	char ip[INET_ADDRSTRLEN]; 
+	struct sockaddr_in* ipv4 = (struct sockaddr_in*)&clientAddress;
+
+	inet_ntop(AF_INET, &(ipv4->sin_addr), ip, INET_ADDRSTRLEN);
+	std::string msg = "Connection from: " + std::string(ip); 
+	access_logs(msg, config);
+}
+
 /* 
 	Function that take new client socket created and add its into our vector of socketfds
 	so that we can start monitoring it. 
@@ -47,7 +57,7 @@ void addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket)
 	Server receives incoming connection that are put on a queue. Once socket is ready to receive
 	request, he "accepts" it to allow client/server communication. 
 */
-int	createNewClientSocket(int serverSocket)
+int	createNewClientSocket(int serverSocket, ConfigFile config)
 {
 	sockaddr_storage clientAddress = {};				// Fills structure with 0s
     socklen_t clientAddressLength = sizeof(clientAddress);
@@ -58,6 +68,7 @@ int	createNewClientSocket(int serverSocket)
 		close(serverSocket);
 		exit(EXIT_FAILURE);
 	}
+	enterAccessLogs(clientAddress, config);
 	std::cout << "New connection accepted." << std::endl;
 	return (clientSocket);
 }
@@ -113,7 +124,7 @@ int monitorServer(std::vector<int> serverSocket, ConfigFile config)
 			if (socketFds[i].revents & POLLIN) {						 
 				if (socketFds[i].fd == serverSocket[i]){		
 					std::cout << "Server is ready to read" << std::endl;			 
-					int newSocket = createNewClientSocket(serverSocket[i]);
+					int newSocket = createNewClientSocket(serverSocket[i], config);
 					addSocketToVector(&socketFds, newSocket);			
 				}
 				else {

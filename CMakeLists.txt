@@ -24,6 +24,7 @@ set(TEST_SOURCES
     #src/main.cpp         Not necessary because Test files already posses its own main 
     src/monitorServer.cpp 
     src/utils.cpp
+	src/log.cpp
 )
 
 # # creates an executable called webservTests taking the TEST souces 
