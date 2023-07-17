@@ -30,7 +30,7 @@ while (true) {
     //close(clientSocket);  // Temporary removed it , because already in infinte loop
 }
 
-void enter_access_log(sockaddr_storage clientAddress, ConfigFile config)
+void enterAccessLogs(sockaddr_storage clientAddress, ConfigFile config)
 {
 	char ip[INET_ADDRSTRLEN]; 
 	struct sockaddr_in* ipv4 = (struct sockaddr_in*)&clientAddress;
