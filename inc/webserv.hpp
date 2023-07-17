@@ -36,7 +36,7 @@
 
 #define BUFFER_MAX 3000000
 
-#define MAX_PENDING_CONNECTIONS	5
+#define MAX_PENDING_CONNECTIONS	20
 
 //*** LAUNCHSERVER.CPP  ***
 void				printNetworkInfo(struct addrinfo *res);
