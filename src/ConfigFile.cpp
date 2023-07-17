@@ -258,6 +258,7 @@ void	ConfigFile::extract_config_file(){
 	std::regex 	upload("upload");
 	std::regex 	on("on");
 	std::regex 	off("off");
+	std::regex 	max_body_size("max_body_size");
 
 	if (infile.is_open()){
 		int i = 0;
@@ -315,6 +316,13 @@ void	ConfigFile::extract_config_file(){
 						else if (std::regex_search(buffer, matches, off))
 							temp_struct._loc_allow_delete = false;
 					}				
+					else if (std::regex_search(buffer, matches, max_body_size)){
+						temp = parse_found_line(matches.str(), buffer);
+						if (is_string_digit(temp) == true){
+							std::istringstream val(temp);
+							val >> temp_struct._loc_max_body_size;
+							}
+					}				
 					else if (std::regex_search(buffer, matches, error_page)){
 						temp = parse_found_line(matches.str(), buffer);
 						temp_tab = split_on_space(temp);
@@ -363,6 +371,13 @@ void	ConfigFile::extract_config_file(){
 			}
 			else if (std::regex_search(buffer, matches, include))				
 				_include_types = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, max_body_size)){
+						temp = parse_found_line(matches.str(), buffer);
+						if (is_string_digit(temp) == true){
+							std::istringstream val(temp);
+							val >> _max_body_size;
+						}
+			}
 			else if (std::regex_search(buffer, matches, server) && _server_nb != -1)
 				break;
 		}

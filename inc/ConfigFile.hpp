@@ -48,6 +48,7 @@ class ConfigFile{
 			std::vector<std::string>				_loc_methods;
 			bool									_loc_upload;
 			bool									_loc_allow_delete;
+			int										_loc_max_body_size;
 		};
 
 		std::string 								get_server_name()const {return (this->_server_name);};
@@ -95,6 +96,7 @@ class ConfigFile{
 		std::string								_access_log;
 		std::string								_error_log;
 		std::string								_include_types;
+		int										_max_body_size;
 
 		//PATH TO THE CONFIG FILE
 		std::string 							_fd_path;
