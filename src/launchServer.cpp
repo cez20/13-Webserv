@@ -84,7 +84,7 @@ int serverSocketSetup(struct addrinfo *res)
 	the TCP/IP protocol, etc. When successful, getaddrinfo() returns a pointer to a linked list of struct addrinfo
 	which each contain an IP address and PORT that can be used for the creation of sockets. 
  */
-struct addrinfo 	*getNetworkInfo(const char *port)
+struct addrinfo 	*getNetworkInfo(ConfigFile config, const char *port)
 {
 	struct addrinfo hints;
 	struct addrinfo *res;
@@ -96,16 +96,15 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 	hints.ai_flags 		= AI_PASSIVE;		// Flag to assign the address of my localhost (127.0.0.1) to the socket structure.  
 	hints.ai_protocol 	= IPPROTO_TCP;		
 
-	if ((status = getaddrinfo("localhost", port, &hints, &res)) != 0) {
+	std::string server_name = config.get_server_name();
+
+	if ((status = getaddrinfo(server_name.c_str(), port, &hints, &res)) != 0) {
 		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
 		return (NULL);						
 	}
 	//printNetworkInfo(res);
 	return (res);
 }
-
-
-
 
 /* 
 	Launch server essentially is a summary of all actions requires to launch the server. WE
@@ -119,11 +118,10 @@ int *launchServer(ConfigFile config)
 	std::vector<std::string> ArrayPorts = config.get_listen();
 	size_t invalidSockets = 0;
 
-	std::cout << "The server_name is: " << config.get_server_name() << std::endl;
 	int *socketFds =  new int[ArrayPorts.size()];
 	for (size_t i = 0; i < ArrayPorts.size(); i++) {
 		const char* charPtr = ArrayPorts[i].c_str();
-		ipAddressList = getNetworkInfo(charPtr);
+		ipAddressList = getNetworkInfo(config, charPtr);
 		socketFds[i] = serverSocketSetup(ipAddressList);
 		freeaddrinfo(ipAddressList);
 		if (socketFds[i] == -1)

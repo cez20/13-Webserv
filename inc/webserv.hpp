@@ -41,7 +41,7 @@
 //*** LAUNCHSERVER.CPP  ***
 void				printNetworkInfo(struct addrinfo *res);
 int					serverSocketSetup(struct addrinfo *res);
-struct addrinfo 	*getNetworkInfo(const char *port);
+struct addrinfo 	*getNetworkInfo(ConfigFile config, const char *port);
 int 				*launchServer(ConfigFile config);
 
 //*** MONITORSERVER.CPP ***
