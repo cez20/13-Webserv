@@ -30,13 +30,13 @@ bool	check_double(std::vector<std::string> vec, std::string str){
 ConfigFile::ConfigFile(){}
 
 ConfigFile::ConfigFile(std::string configPath): _server_name(""), _root(""),
-	 _index(""), _access_log(""), _error_log(""), _include_types(""),
+	 _index(""), _access_log(""), _error_log(""), _include_types(""), _max_body_size(-1),
 	 _fd_path(configPath), _server_nb(-1), _max_server_nb(0){
 	extract_config_file();
 }
 
 ConfigFile::ConfigFile(std::string configPath, int index_of_server): _server_name(""), _root(""),
-	 _index(""), _access_log(""), _error_log(""), _include_types(""),
+	 _index(""), _access_log(""), _error_log(""), _include_types(""), _max_body_size(-1),
 	 _fd_path(configPath), _server_nb(index_of_server), _max_server_nb(0){
 	find_nb_of_server(_fd_path);
 	extract_config_file();
@@ -195,6 +195,7 @@ void	set_struct_empty(ConfigFile::location& value){
 	value._loc_cgi_pass2 = "";
 	value._loc_allow_delete = false;
 	value._loc_upload = false;
+	value._loc_max_body_size = -1;
 }
 
 int	ConfigFile::find_nb_of_server(std::string path){
