@@ -104,6 +104,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         }
         catch(const std::exception& e){
 		std::cerr << e.what() << '\n';
+        error_logs( e.what(), clientRequest.config);
         this->statusCode = "500";
         return (1);
 	    }
@@ -174,7 +175,7 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         signal(SIGALRM, alarmHandler);
 
         // Set the alarm for 4 seconds
-        alarm(4);
+        alarm(2);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
@@ -257,7 +258,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
     }
     else if (pid == 0) {
         signal(SIGALRM, alarmHandler);
-        alarm(4);
+        alarm(2);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
@@ -368,6 +369,7 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
 
     if (result != 0) {
         // La suppression a échoué.
+        error_logs("Erreur lors de la suppression du fichier", clientRequest.config);
         std::perror("Erreur lors de la suppression du fichier");
         this->statusCode = "500";
         return 1;
@@ -395,7 +397,7 @@ int HttpResponse::checkForCustomErrorFiles(const HttpRequest& clientRequest){
     std::map<std::string, std::string>errorMap = clientRequest.config.get_error_page();
     std::string root= clientRequest.config.get_root();
     for(std::map<std::string, std::string>::iterator it = errorMap.begin(); it!= errorMap.end(); it++){
-        if (this->statusCode == it->first){
+        if (this->statusCode == it->first && !it->second.empty()){
             this->body = extractFileContent(root + it->second);
             return (1);
         }

@@ -29,8 +29,6 @@ class HttpRequest {
         int                                 contentLength;
 
     public:
-        
-        // Constructor
         HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
             parseRequest(rawRequest);
             checkGlobal(config);
@@ -43,12 +41,10 @@ class HttpRequest {
         void showRequest()const {
             std::cout << method << "  " << path << "  " <<  std::endl << body << std::endl;
         }
-        // Destructor
         ~HttpRequest();
 
     private:
         void parseRequest(std::string rawRequest);
-        void validityCheck();
         void checkCgi();
         void checkGlobal(const ConfigFile& config);
         void checkLocation(const ConfigFile& config);
