@@ -50,10 +50,10 @@ std::vector<int> 	launchServer(ConfigFile config);
 void				handleClient(int clientSocket, const ConfigFile& config);
 void				addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket);
 int					createNewClientSocket(int serverSocket);
-void				launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket);
+void				launchSocketMonitoring(std::vector<pollfd> *socketFds, std::vector <int> serverSocket);
+//void				launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket);
 std::vector<pollfd> createSocketVector(std::vector<int> serverSocket);
 int 				monitorServer(std::vector<int>);
-//int 				monitorServer(std::vector<int>, ConfigFile config);
 
 //*** UTILS.CPP ***
 int	error_logs(std::string msg, ConfigFile& config);

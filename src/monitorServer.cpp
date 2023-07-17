@@ -66,7 +66,7 @@ int	createNewClientSocket(int serverSocket)
 	We call the poll() function which essentially returns the number of client's socket that have the POLLIN
 	action (ready to recv)
  */
-void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
+void	launchSocketMonitoring(std::vector<pollfd> *socketFds, std::vector <int> serverSocket)
 {
 	int nbrOfSocketsReady = 0;
 
@@ -74,7 +74,7 @@ void	launchSocketMonitoring(std::vector<pollfd> *socketFds, int *serverSocket)
 	std::cout << "The number of sockets ready is: " << nbrOfSocketsReady <<  std::endl;
 	if (nbrOfSocketsReady == -1) {
 		std::cerr << "Error while trying to call the poll function." << std::endl;
-		for (size_t i = 0; i < socketFds->size() ; ++i)
+		for (size_t i = 0; i < serverSocket.size() ; ++i)
 			close(serverSocket[i]);
 		exit(EXIT_FAILURE);
 	}
@@ -106,9 +106,9 @@ std::vector<pollfd> createSocketVector(std::vector<int> serverSocket)
 int monitorServer(std::vector<int> serverSocket)
 {
 	std::vector <pollfd> socketFds = createSocketVector(serverSocket);
-	// while (true)
-	// {
-	// 	launchSocketMonitoring(&socketFds, serverSocket);
+	while (true)
+	{
+		launchSocketMonitoring(&socketFds, serverSocket);
 		// for (size_t i = 0; i < socketFds.size(); ++i) {
 		// 	if (socketFds[i].revents & POLLIN) {						 
 		// 		if (socketFds[i].fd == serverSocket[i]){		
@@ -126,7 +126,7 @@ int monitorServer(std::vector<int> serverSocket)
 		// 		}
 		// 	}
 		// }
-	// }
+	}
 	// for (size_t i = 0; i < socketFds.size(); i++)
 	// 	close (serverSocket[i]);
 	return (0);
