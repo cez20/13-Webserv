@@ -13,7 +13,7 @@
 
 #include"../inc/webserv.hpp"
 
-int	error_logs(std::string msg, ConfigFile& config){
+int	error_logs(std::string msg, const ConfigFile& config){
 	std::time_t currentTime = std::time(nullptr);
 	std::tm* localTime = std::localtime(&currentTime);
 	std::string timeString = std::asctime(localTime);
@@ -44,7 +44,7 @@ int	error_logs(std::string msg, ConfigFile& config){
 	return (0);
 }
 
-int	access_logs(std::string msg, ConfigFile& config){
+int	access_logs(std::string msg, const ConfigFile& config){
 	std::time_t currentTime = std::time(nullptr);
 	std::tm* localTime = std::localtime(&currentTime);
 	std::string timeString = std::asctime(localTime);

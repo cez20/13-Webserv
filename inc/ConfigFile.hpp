@@ -58,7 +58,7 @@ class ConfigFile{
 		std::string 								get_include_types()const {return (this->_include_types);};
 		const std::vector<std::string>&				get_methods()const {return (this->_methods);};
 		std::vector<std::string>& 					get_listen(){return (this->_listen);};
-		std::map<std::string, std::string>&			get_error_page(){return (this->_error_page);};
+		const std::map<std::string, std::string>&	get_error_page()const{return (this->_error_page);};
 		const std::vector<ConfigFile::location>&	get_location()const{return (this->_location);};
 		std::string 								get_index()const {return (this->_index);};
 		int 										get_max_body_size()const {return (this->_max_body_size);};
