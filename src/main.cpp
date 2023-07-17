@@ -11,7 +11,7 @@ int main (int argc, char **argv){
             //int *serverSocket = launchServer(config);
 
 			std::vector<int> serverSocket = launchServer(config);
-		    //monitorServer(serverSocket, config);
+		    monitorServer(serverSocket);
         
         //Launch the serveur
        
