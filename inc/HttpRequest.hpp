@@ -31,11 +31,11 @@ class HttpRequest {
     public:
         HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
             parseRequest(rawRequest);
-            checkGlobal(config);
+            checkGlobal(this->config);
             if(!config.get_location().empty())
-                checkLocation(config);
+                checkLocation(this->config);
             checkCgi();
-            checkDownload(config);
+            checkDownload(this->config);
         }
 
         void showRequest()const {

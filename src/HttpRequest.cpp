@@ -64,11 +64,9 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     // std::cout << "this is the multibody "  << std::endl;
     // printMap(multiBody);
       
-      
+      //ICI JE VAIS VERIFIER QUEL CONFIGFILE PRENDRE
 
 }
-
-
 
 //Check if the path is the CGI
 void HttpRequest::checkCgi() {
@@ -95,7 +93,7 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         if (this->path.find(config.get_location()[i]._loc_location) != std::string::npos)
             this->locationRequest = config.get_location()[i];
     }
-    std::cout << "voici lla location utilisee :   " << this->locationRequest._loc_location << std::endl;
+    std::cout << "voici la location utilisee :   " << this->locationRequest._loc_location << std::endl;
     //change the resquest path with the new location
     if (this->locationRequest._loc_location == "/"  && !this->locationRequest._loc_root.empty())
     {

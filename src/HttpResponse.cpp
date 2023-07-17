@@ -58,7 +58,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return (0);
             }
         else 
-            return 1;
+            return 0;
         }
         else if(!clientRequest.index.empty())
         {
@@ -242,7 +242,6 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
     std::string scriptPath(currentDir);
     
 
-
     if (getcwd(currentDir, sizeof(currentDir)) == nullptr) {
         std::cerr << "Failed to get current working directory" << std::endl;
     }
@@ -390,6 +389,7 @@ void HttpResponse::checkForError(const HttpRequest& clientRequest){
     if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
        if(!checkForCustomErrorFiles(clientRequest))
             generateDefaultError();
+        error_logs("Error Http : " + this->statusCode, clientRequest.config);
     }
     
 }
