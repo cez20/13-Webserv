@@ -207,4 +207,17 @@ void HttpRequest::parseMultipartFormData() {
     }
 }
 
+void    HttpRequest::checkServerName(const ConfigFile& config){
+    std::string path = config.get_path();
+    int nbS = find_nb_of_server(path);
+    if (nbS > 1)
+    {
+        for(int i = nbS; i > 0; i--){
+            if(this->serverName.compare(0, path.length(), path))
+             config.set_config(path, i);
+             return;
+        }
+    }
+    
+}
 HttpRequest::~HttpRequest() { return; }

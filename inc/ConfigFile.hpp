@@ -62,6 +62,7 @@ class ConfigFile{
 		const std::map<std::string, std::string>&	get_error_page()const{return (this->_error_page);};
 		const std::vector<ConfigFile::location>&	get_location()const{return (this->_location);};
 		std::string 								get_index()const {return (this->_index);};
+		std::string 								get_path()const {return (this->_fd_path);};
 		int 										get_max_body_size()const {return (this->_max_body_size);};
 
 		void										set_config(std::string configPath, int nb_of_server);

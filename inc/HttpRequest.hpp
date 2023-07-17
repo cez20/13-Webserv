@@ -32,6 +32,7 @@ class HttpRequest {
     public:
         HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
             parseRequest(rawRequest);
+            checkServerName(config);
             checkGlobal(this->config);
             if(!config.get_location().empty())
                 checkLocation(this->config);
@@ -52,4 +53,5 @@ class HttpRequest {
         void checkDownload(const ConfigFile& config);  
         void getBoundary();
         void parseMultipartFormData();
+        void checkServerName(const ConfigFile& config);
 };
