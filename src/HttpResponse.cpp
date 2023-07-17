@@ -20,26 +20,35 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         this->statusCode = "501";    
         return (1);
     }
-    if (!clientRequest.autorizedMethods.empty()) {
+    else if (!clientRequest.autorizedMethods.empty()) {
         std::vector<std::string>::const_iterator it = std::find(
             clientRequest.autorizedMethods.cbegin(), clientRequest.autorizedMethods.cend(), clientRequest.method);
 
         if (it == clientRequest.autorizedMethods.cend()) {
             // The method is not authorized
-            this->statusCode = "401";
+            this->statusCode = "405";
             return 1;
         } 
     }
-    if(clientRequest.redir != "")
+    if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
+        this->statusCode = "413";
+        return(1);
+    }
+
+    else if(clientRequest.redir != "")
     {
             this->statusCode = "301 Moved Permanently";
             this->headers ["Location"] = clientRequest.redir;
             return (0);
     }
     
-     if(isDirectory(path)){
+     else if(isDirectory(path)){
         if(clientRequest.method == "POST"){
-            if(uploading(clientRequest.multiBody, clientRequest.path)== 0){   
+            if(!clientRequest.upload){
+                this->statusCode = "405";
+                return 1;
+            }
+            else if(uploading(clientRequest.multiBody, clientRequest.path)== 0){   
             this->statusCode = "200 OK";
             this->headers["contentType"] = "text/html";
             this->body = "File(s) were successfully downloaded";
@@ -66,7 +75,15 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             
     }
 
-   
+   else if (clientRequest.method == "DELETE"){
+        if (clientRequest.allow_delete){
+            return(deleteMethod(clientRequest));
+        }
+        else{
+            statusCode = "405";
+            return 1;
+        }
+    }
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
     if (!fileExist(clientRequest.path)){
@@ -93,9 +110,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         return (0);
 
     }
-    else if (clientRequest.method == "DELETE"){
-        return(deleteMethod(clientRequest));
-    }  
+      
     else{
         return(responseForStatic(clientRequest));
     }
@@ -313,17 +328,26 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
 
 
 int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
-    if (clientRequest.isCgi) {
-            std::string output  = executeCgiGet(clientRequest);
-            analyseCgiOutput(output);
-            return(0);
-    }
-    this->statusCode = "200 OK";
-    this->headers["contentType"] = "text/html";
-    this->body = "DELETE request handled successfully.";
-    
-    return(0);
+   const char* file_path = clientRequest.path.c_str();
+   int result = std::remove(file_path);
 
+    if (result != 0) {
+        // La suppression a échoué.
+        std::perror("Erreur lors de la suppression du fichier");
+        this->statusCode = "500";
+        return 1;
+    } else {
+        // La suppression a réussi.
+        std::cout << "Fichier supprimé avec succès !" << std::endl;
+        this->statusCode = "200 OK";
+        this->headers["contentType"] = "text/html";
+        this->body = "DELETE request handled successfully.";
+        return(0);
+
+    }
+    
+    
+  
 }
 void HttpResponse::checkForError(){
     if(this->statusCode != "200 OK" && this->statusCode != "301 Moved Permanently"){
@@ -354,8 +378,11 @@ void HttpResponse::generateStatusMap(){
     httpStatusMap["402"] = "Payment Required";
     httpStatusMap["403"] = "Forbidden";
     httpStatusMap["404"] = "Not Found";
+    httpStatusMap["405"] = "Method Not Allowed";
+    httpStatusMap["413"] = "Request Entity Too Large";
     httpStatusMap["500"] = "Internal Server Error";
     httpStatusMap["501"] = "Not Implemented";
+    
 }
 void HttpResponse::generateDefaultError(){
 
@@ -406,15 +433,12 @@ void HttpResponse::autoListing(){
     }
     generateDirListing(vecList);
 }
-#include <iostream>
-#include <fstream>
-#include <map>
 
 int HttpResponse::uploading(const std::map<std::string, std::string>& multiBody, const std::string& path) {
     for (std::map<std::string, std::string>::const_iterator it = multiBody.begin(); it != multiBody.end(); ++it) {
         const std::string& filename = it->first;
         const std::string& content = it->second;
-
+        std::cout << "filename =    " << path + filename <<std::endl;
         std::ofstream file(path + filename, std::ios::out | std::ios::binary);
         if (file) {
             file.write(content.data(), content.size());
@@ -422,6 +446,7 @@ int HttpResponse::uploading(const std::map<std::string, std::string>& multiBody,
             std::cout << "File uploaded and saved: " << filename << std::endl;
         } else {
             std::cerr << "Error opening file: " << filename << std::endl;
+            this->statusCode = "500";
             return 1;
         }
     }

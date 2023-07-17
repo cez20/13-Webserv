@@ -46,6 +46,9 @@ class ConfigFile{
 			std::string								_loc_cgi_pass;
 			std::string								_loc_cgi_pass2;
 			std::vector<std::string>				_loc_methods;
+			bool									_loc_upload;
+			bool									_loc_allow_delete;
+			int										_loc_max_body_size;
 		};
 
 		std::string 								get_server_name()const {return (this->_server_name);};
@@ -58,6 +61,7 @@ class ConfigFile{
 		std::map<std::string, std::string>&			get_error_page(){return (this->_error_page);};
 		const std::vector<ConfigFile::location>&	get_location()const{return (this->_location);};
 		std::string 								get_index()const {return (this->_index);};
+		int 										get_max_body_size()const {return (this->_max_body_size);};
 
 		void										set_config(std::string configPath, int nb_of_server);
 		int											find_nb_of_server(std::string path);
@@ -93,6 +97,7 @@ class ConfigFile{
 		std::string								_access_log;
 		std::string								_error_log;
 		std::string								_include_types;
+		int										_max_body_size;
 
 		//PATH TO THE CONFIG FILE
 		std::string 							_fd_path;

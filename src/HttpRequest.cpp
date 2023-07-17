@@ -29,6 +29,9 @@ void HttpRequest::parseRequest(std::string rawRequest) {
             headerValue = line.substr(colonPos + 1);
             headerValue = std::regex_replace(headerValue, std::regex("^\\s+|\\s+$"), "");
             headers[headerName] = headerValue;
+            if(headerName == "Content-Length"){
+                this->contentLength =  std::stoi(headerValue);
+            }
             if (headerName == "Content-Type" && headerValue.find("multipart") != std::string::npos) {
             // Extraire la valeur du paramètre boundary
                 size_t boundaryPos = headerValue.find("boundary=");
@@ -89,9 +92,10 @@ void HttpRequest::checkDownload(const ConfigFile& config){
 void HttpRequest::checkLocation(const ConfigFile& config){
     //checking the if there if a specific locaton for the resquest path
     for (size_t i = 0; i < config.get_location().size(); ++i){
-        if (config.get_location()[i]._loc_location.find(this->path))
+        if (this->path.find(config.get_location()[i]._loc_location) != std::string::npos)
             this->locationRequest = config.get_location()[i];
     }
+    std::cout << "voici lla location utilisee :   " << this->locationRequest._loc_location << std::endl;
     //change the resquest path with the new location
     if (this->locationRequest._loc_location == "/"  && !this->locationRequest._loc_root.empty())
     {
@@ -116,6 +120,9 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         this->autorizedMethods = this->locationRequest._loc_methods;
     if (!this->locationRequest._loc_return.empty())
         this->redir = this->locationRequest._loc_return;
+    else {
+        this->redir = "";
+    }
     if (this->locationRequest._loc_auto_index == "on")
         this->autoIndex = true;
     else
@@ -124,6 +131,13 @@ void HttpRequest::checkLocation(const ConfigFile& config){
         this->redir= locationRequest._loc_return;
         this->reponseStatus = "301";
     }
+    this->allow_delete = this->locationRequest._loc_allow_delete;
+    this->upload = this->locationRequest._loc_upload;
+    if(this->locationRequest._loc_max_body_size != -1)
+        this->max_body= this->locationRequest._loc_max_body_size;
+    else
+        this->max_body= config.get_max_body_size();
+    
    
     
         

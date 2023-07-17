@@ -24,6 +24,9 @@ class HttpRequest {
         bool                                upload;
         std::string                         boundary;
         std::map<std::string, std::string>  multiBody;
+        bool                                allow_delete;
+        int                                 max_body;
+        int                                 contentLength;
 
     public:
         

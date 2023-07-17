@@ -30,13 +30,13 @@ bool	check_double(std::vector<std::string> vec, std::string str){
 ConfigFile::ConfigFile(){}
 
 ConfigFile::ConfigFile(std::string configPath): _server_name(""), _root(""),
-	 _index(""), _access_log(""), _error_log(""), _include_types(""),
+	 _index(""), _access_log(""), _error_log(""), _include_types(""), _max_body_size(-1),
 	 _fd_path(configPath), _server_nb(-1), _max_server_nb(0){
 	extract_config_file();
 }
 
 ConfigFile::ConfigFile(std::string configPath, int index_of_server): _server_name(""), _root(""),
-	 _index(""), _access_log(""), _error_log(""), _include_types(""),
+	 _index(""), _access_log(""), _error_log(""), _include_types(""), _max_body_size(-1),
 	 _fd_path(configPath), _server_nb(index_of_server), _max_server_nb(0){
 	find_nb_of_server(_fd_path);
 	extract_config_file();
@@ -193,6 +193,9 @@ void	set_struct_empty(ConfigFile::location& value){
 	value._loc_server_name = "";
 	value._loc_cgi_pass = "";
 	value._loc_cgi_pass2 = "";
+	value._loc_allow_delete = false;
+	value._loc_upload = false;
+	value._loc_max_body_size = -1;
 }
 
 int	ConfigFile::find_nb_of_server(std::string path){
@@ -252,6 +255,11 @@ void	ConfigFile::extract_config_file(){
 	std::regex	cgi_pass("cgi_pass");
 	std::regex	cgi_pass2("cgi_pass2");
 	std::regex 	server("server \\{");
+	std::regex 	allow_delete("allow_delete");
+	std::regex 	upload("upload");
+	std::regex 	on("on");
+	std::regex 	off("off");
+	std::regex 	max_body_size("max_body_size");
 
 	if (infile.is_open()){
 		int i = 0;
@@ -297,6 +305,25 @@ void	ConfigFile::extract_config_file(){
 						temp_struct._loc_cgi_pass = parse_found_line(matches.str(), buffer);
 					else if (std::regex_search(buffer, matches, cgi_pass2))				
 						temp_struct._loc_cgi_pass2 = parse_found_line(matches.str(), buffer);
+					else if (std::regex_search(buffer, matches, upload)){
+						if (std::regex_search(buffer, matches, on))
+							temp_struct._loc_upload = true;
+						else if (std::regex_search(buffer, matches, off))
+							temp_struct._loc_upload = false;
+					}				
+					else if (std::regex_search(buffer, matches, allow_delete)){
+						if (std::regex_search(buffer, matches, on))
+							temp_struct._loc_allow_delete = true;
+						else if (std::regex_search(buffer, matches, off))
+							temp_struct._loc_allow_delete = false;
+					}				
+					else if (std::regex_search(buffer, matches, max_body_size)){
+						temp = parse_found_line(matches.str(), buffer);
+						if (is_string_digit(temp) == true){
+							std::istringstream val(temp);
+							val >> temp_struct._loc_max_body_size;
+							}
+					}				
 					else if (std::regex_search(buffer, matches, error_page)){
 						temp = parse_found_line(matches.str(), buffer);
 						temp_tab = split_on_space(temp);
@@ -345,6 +372,13 @@ void	ConfigFile::extract_config_file(){
 			}
 			else if (std::regex_search(buffer, matches, include))				
 				_include_types = parse_found_line(matches.str(), buffer);
+			else if (std::regex_search(buffer, matches, max_body_size)){
+						temp = parse_found_line(matches.str(), buffer);
+						if (is_string_digit(temp) == true){
+							std::istringstream val(temp);
+							val >> _max_body_size;
+						}
+			}
 			else if (std::regex_search(buffer, matches, server) && _server_nb != -1)
 				break;
 		}
