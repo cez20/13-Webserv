@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page HTML avec requête personnalisée</title>
+</head>
+<body>
+    <form id="myForm">
+        <input type="submit" value="Cliquez ici pour la requête">
+    </form>
+
+    <script>
+        document.getElementById("myForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const customHostname = "serveur1"; // Remplacez par le nom de serveur personnalisé souhaité
+            const url = "http://127.0.0.1:8080"; // Remplacez par l'adresse IP de votre serveur
+
+            // Effectuer la requête avec fetch
+            fetch(url, {
+                headers: {
+                    "Host": customHostname
+                }
+            }).then(response => {
+                // Gérer la réponse ici si nécessaire
+                console.log(response);
+            }).catch(error => {
+                // Gérer les erreurs ici si nécessaire
+                console.error(error);
+            });
+        });
+    </script>
+</body>
+</html>

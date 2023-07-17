@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sys/socket.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@
 #define GREEN_CL "\033[0;32m"
 #define DEFAULT_CL "\033[0m"
 
-#define BUFFER_MAX 300000000
+#define BUFFER_MAX 3000000
 
 #define MAX_PENDING_CONNECTIONS	20
 
