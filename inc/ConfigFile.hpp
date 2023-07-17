@@ -49,6 +49,7 @@ class ConfigFile{
 			bool									_loc_upload;
 			bool									_loc_allow_delete;
 			int										_loc_max_body_size;
+							
 		};
 
 		std::string 								get_server_name()const {return (this->_server_name);};

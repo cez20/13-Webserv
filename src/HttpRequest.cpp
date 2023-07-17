@@ -32,6 +32,9 @@ void HttpRequest::parseRequest(std::string rawRequest) {
             if(headerName == "Content-Length"){
                 this->contentLength =  std::stoi(headerValue);
             }
+            if(headerName == "Host"){
+                this->serverName =  headerValue;
+            }
             if (headerName == "Content-Type" && headerValue.find("multipart") != std::string::npos) {
             // Extraire la valeur du paramètre boundary
                 size_t boundaryPos = headerValue.find("boundary=");

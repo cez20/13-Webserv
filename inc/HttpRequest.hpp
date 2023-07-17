@@ -27,6 +27,7 @@ class HttpRequest {
         bool                                allow_delete;
         int                                 max_body;
         int                                 contentLength;
+        std::string                         serverName;
 
     public:
         HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
