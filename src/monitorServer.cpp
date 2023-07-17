@@ -27,7 +27,7 @@ while (true) {
     //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
     response.writeOnSocket(clientSocket);
-    close(clientSocket);
+    //close(clientSocket);  // Temporary removed it , because already in infinte loop
 }
 
 /* 
@@ -90,7 +90,7 @@ std::vector<pollfd> createSocketVector(int *serverSocket, ConfigFile config)
 	int nbrServerSockets = config.get_listen().size();
 	std::vector<pollfd> socketFds(nbrServerSockets);
 
-	for (int i = 0; i < nbrServerSockets; i++)
+	for (int i = 0; i < nbrServerSockets; ++i)
 	{
 		socketFds[i].fd = serverSocket[i];
  		socketFds[i].events = POLLIN;

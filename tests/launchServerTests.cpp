@@ -11,7 +11,9 @@
 // TESTING GETNETWORKINFO() FUNCTION 
 TEST(GetNetworkInfoTest, WrongPort) {
 
-    struct addrinfo* result = getNetworkInfo("-1");
+    ConfigFile config("../server.conf");
+
+	struct addrinfo* result = getNetworkInfo(config, "-1");
     EXPECT_EQ(result, nullptr);
 }
 
@@ -66,7 +68,9 @@ TEST(serverSocketSetupTest, ProtocolTooHigh) {
 
 TEST(serverSocketSetupTest, BindingError1) {
    
-  	struct addrinfo *server = getNetworkInfo("80");		
+  	ConfigFile config("../server.conf");
+	
+	struct addrinfo *server = getNetworkInfo(config, "80");		
    	int result = serverSocketSetup(server);	
 
 	EXPECT_EQ(result, -1);
