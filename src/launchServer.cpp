@@ -91,7 +91,7 @@ struct addrinfo 	*getNetworkInfo(const char *port)
 	int				status;
 	
 	memset(&hints, 0, sizeof(hints));		
-	hints.ai_family 	= AF_UNSPEC;			
+	hints.ai_family 	= AF_INET;			
 	hints.ai_socktype 	= SOCK_STREAM;		
 	hints.ai_flags 		= AI_PASSIVE;		// Flag to assign the address of my localhost (127.0.0.1) to the socket structure.  
 	hints.ai_protocol 	= IPPROTO_TCP;		
@@ -119,6 +119,7 @@ int *launchServer(ConfigFile config)
 	std::vector<std::string> ArrayPorts = config.get_listen();
 	size_t invalidSockets = 0;
 
+	std::cout << "The server_name is: " << config.get_server_name() << std::endl;
 	int *socketFds =  new int[ArrayPorts.size()];
 	for (size_t i = 0; i < ArrayPorts.size(); i++) {
 		const char* charPtr = ArrayPorts[i].c_str();
