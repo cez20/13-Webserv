@@ -214,10 +214,10 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         // Processus parent
         close(pipefd[1]);
         if (alarmReceived) {
-                    // Alarm signal received, terminate the child process
-                    kill(pid, SIGTERM);
-                    throw std::runtime_error("Timeout: CGI script took too long to execute.");
-                }
+            kill(pid, SIGTERM);
+            alarmReceived = 0;
+            throw std::runtime_error("Timeout: CGI script took too long to execute.");
+        }
         int status;
         waitpid(pid, &status, 0);
 
@@ -259,8 +259,6 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
     }
     else if (pid == 0) {
         signal(SIGALRM, alarmHandler);
-
-        // Set the alarm for 4 seconds
         alarm(4);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
@@ -299,9 +297,8 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         // Processus parent
         close(pipefd[1]);
         if (alarmReceived) {
-            // Alarm signal received, terminate the child process
             kill(pid, SIGTERM);
-            alarmReceived =0;
+            alarmReceived = 0;
             throw std::runtime_error("Timeout: CGI script took too long to execute.");
         }
 
