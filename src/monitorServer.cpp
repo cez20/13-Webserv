@@ -103,29 +103,29 @@ std::vector<pollfd> createSocketVector(std::vector<int> serverSocket)
 	or to send content(POLLOUT).Once done, new client socket is created, and the dynamic of receiving 
 	and sending information between client and server is started 
  */
-int monitorServer(std::vector<int> serverSocket)
+int monitorServer(std::vector<int> serverSocket, ConfigFile config)
 {
 	std::vector <pollfd> socketFds = createSocketVector(serverSocket);
 	while (true)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
-		// for (size_t i = 0; i < socketFds.size(); ++i) {
-		// 	if (socketFds[i].revents & POLLIN) {						 
-		// 		if (socketFds[i].fd == serverSocket[i]){		
-		// 			std::cout << "Server is ready to read" << std::endl;			 
-		// 			int newSocket = createNewClientSocket(serverSocket[i]);
-		// 			addSocketToVector(&socketFds, newSocket);			
-		// 		}
-		// 		else {
-		// 			std::cout << "Client " << i << " is ready to read";
-		// 			handleClient(socketFds[i].fd, config);
-		// 			std::cout << "Closing the connection" << std::endl;
-		// 			close(socketFds[i].fd); 
-		// 			socketFds.erase(socketFds.begin() + i);
-		// 			--i;
-		// 		}
-		// 	}
-		// }
+		for (size_t i = 0; i < socketFds.size(); ++i) {
+			if (socketFds[i].revents & POLLIN) {						 
+				if (socketFds[i].fd == serverSocket[i]){		
+					std::cout << "Server is ready to read" << std::endl;			 
+					int newSocket = createNewClientSocket(serverSocket[i]);
+					addSocketToVector(&socketFds, newSocket);			
+				}
+				else {
+					std::cout << "Client " << i << " is ready to read";
+					handleClient(socketFds[i].fd, config);
+					std::cout << "Closing the connection" << std::endl;
+					close(socketFds[i].fd); 
+					socketFds.erase(socketFds.begin() + i);
+					--i;
+				}
+			}
+		}
 	}
 	// for (size_t i = 0; i < socketFds.size(); i++)
 	// 	close (serverSocket[i]);
