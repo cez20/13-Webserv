@@ -42,13 +42,13 @@
 //*** LAUNCHSERVER.CPP  ***
 void				printNetworkInfo(struct addrinfo *res);
 int					serverSocketSetup(struct addrinfo *res);
-struct addrinfo 	*getNetworkInfo(ConfigFile config, const char *port);
+struct addrinfo 	*getNetworkInfo(const char *port);
 std::vector<int> 	launchServer(ConfigFile config);
 // int 				*launchServer(ConfigFile config);
 
 //*** MONITORSERVER.CPP ***
 void				handleClient(int clientSocket, const ConfigFile& config);
-void enterAccessLogs(sockaddr_storage clientAddress, ConfigFile config);
+void 				enterAccessLogs(sockaddr_storage clientAddress, ConfigFile config);
 void				addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket);
 int					createNewClientSocket(int serverSocket, ConfigFile config);
 void				launchSocketMonitoring(std::vector<pollfd> *socketFds, std::vector <int> serverSocket);

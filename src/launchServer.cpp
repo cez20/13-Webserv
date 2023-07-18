@@ -84,7 +84,7 @@ int serverSocketSetup(struct addrinfo *res)
 	the TCP/IP protocol, etc. When successful, getaddrinfo() returns a pointer to a linked list of struct addrinfo
 	which each contain an IP address and PORT that can be used for the creation of sockets. 
  */
-struct addrinfo 	*getNetworkInfo(ConfigFile config, const char *port)
+struct addrinfo 	*getNetworkInfo(const char *port)
 {
 	struct addrinfo hints;
 	struct addrinfo *res;
@@ -96,9 +96,7 @@ struct addrinfo 	*getNetworkInfo(ConfigFile config, const char *port)
 	hints.ai_flags 		= AI_PASSIVE;		// Flag to assign the address of my localhost (127.0.0.1) to the socket structure.  
 	hints.ai_protocol 	= IPPROTO_TCP;		
 
-	std::string server_name = config.get_server_name();
-
-	if ((status = getaddrinfo(server_name.c_str(), port, &hints, &res)) != 0) {
+	if ((status = getaddrinfo("localhost", port, &hints, &res)) != 0) {
 		std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
 		return (NULL);						
 	}
@@ -121,7 +119,7 @@ std::vector<int> launchServer(ConfigFile config)
 	std::vector<int> socketFds;
 	for (size_t i = 0; i < ArrayPorts.size(); i++) {
 		const char* charPtr = ArrayPorts[i].c_str();
-		ipAddressList = getNetworkInfo(config, charPtr);
+		ipAddressList = getNetworkInfo(charPtr);
 		socketFds.push_back(serverSocketSetup(ipAddressList));
 		freeaddrinfo(ipAddressList);
 		if (socketFds[i] == -1)
