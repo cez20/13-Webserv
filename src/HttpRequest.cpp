@@ -144,9 +144,8 @@ void HttpRequest::checkLocation(ConfigFile& config){
     
         
     
-    //std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
-    // if (!location->limit_except.empty())
-    //     this->limit_except = location->limit_except;
+    std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
+
 }
 //Check the config file for global parameters et set the variables accordingly 
 void HttpRequest::checkGlobal( ConfigFile& config){
@@ -221,9 +220,7 @@ void  HttpRequest::checkServerName(ConfigFile& config){
             }
         }
      }
-     this->isValid = false;
-    
-    
+     this->isValid = false;   
 }
 
 HttpRequest::~HttpRequest() { return; }

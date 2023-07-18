@@ -32,7 +32,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
-    if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
+    else if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
         this->statusCode = "413";
         return(1);
     }
@@ -45,7 +45,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
     
      else if(isDirectory(path)){
-        if(clientRequest.method == "POST"){
+        if(clientRequest.method == "POST"  && !clientRequest.boundary.empty()){
             if(!clientRequest.upload){
                 this->statusCode = "405";
                 return 1;
