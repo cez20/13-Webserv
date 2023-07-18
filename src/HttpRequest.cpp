@@ -128,10 +128,6 @@ void HttpRequest::checkLocation(ConfigFile& config){
         this->autoIndex = true;
     else
         this->autoIndex = false;  
-    if (!this->locationRequest._loc_return.empty()){
-        this->redir= locationRequest._loc_return;
-        this->reponseStatus = "301";
-    }
     this->allow_delete = this->locationRequest._loc_allow_delete;
     this->upload = this->locationRequest._loc_upload;
     if(this->locationRequest._loc_max_body_size != -1)
@@ -139,6 +135,7 @@ void HttpRequest::checkLocation(ConfigFile& config){
     else
         this->max_body= config.get_max_body_size();
     this->cgiPass = locationRequest._loc_cgi_pass;
+    
     
    
     
@@ -209,18 +206,19 @@ void HttpRequest::parseMultipartFormData() {
 
 void  HttpRequest::checkServerName(ConfigFile& config){
     std::string path = config.get_path();
+    this->isValid = true;
     int nbS = find_nb_of_server(path);
      if(nbS > 1){
         for(int i = 0; i< nbS; i++){
             this->config.set_config(path, i);
             for (std::vector<std::string>::iterator it = this->config.get_listen().begin(); it != this->config.get_listen().end(); ++it) {
                 if(this->config.get_server_name()+ ":" + *it == this->serverName) {
-                 return;
+                 return ;
                 }
             }
         }
      }
-     this->isValid = false;   
+       this->isValid = false; 
 }
 
 HttpRequest::~HttpRequest() { return; }

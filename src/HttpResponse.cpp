@@ -7,6 +7,7 @@
         }
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
+
     this->path = clientRequest.path;
     if(clientRequest.reponseStatus != ""){
         this->statusCode = clientRequest.reponseStatus;
@@ -23,7 +24,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         this->statusCode = "501";    
         return (1);
     }
-    else if (!clientRequest.autorizedMethods.empty()) {
+    if (!clientRequest.autorizedMethods.empty()) {
         std::vector<std::string>::const_iterator it = std::find(
             clientRequest.autorizedMethods.cbegin(), clientRequest.autorizedMethods.cend(), clientRequest.method);
 
@@ -32,15 +33,14 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
-    else if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
+    if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
         this->statusCode = "413";
         return(1);
     }
-
-    else if(clientRequest.redir != "")
+    if(!clientRequest.redir.empty())
     {
             this->statusCode = "301 Moved Permanently";
-            this->headers ["Location"] = clientRequest.redir;
+            std::cout<< "redir var :  " << clientRequest.redir << std::endl;
             return (0);
     }
     
@@ -57,13 +57,14 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             std::cout << "PATH FOR UPLOADING :   " << path << std::endl;
             return (0);
             }
-        else 
-            return 0;
+
         }
         else if(!clientRequest.index.empty())
-        {
+        {   if(isDirectory(this->path) && this->path.back() != '/')
+                this->path= this->path + "/";
             this->path += clientRequest.index;
-                return(responseForStatic(clientRequest));
+            
+            return(responseForStatic(clientRequest));
         }
         else if (clientRequest.autoIndex){
             this->statusCode = "200 OK";
