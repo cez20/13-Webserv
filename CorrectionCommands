@@ -1,2 +1,3 @@
 siege -c20 -t5S http://localhost:8080
 curl --resolve example.com:8080:127.0.0.1 -O http://example.com:8080/test.pdf
+curl -X POST -H "Content-Type:plain/test" --data "Bonjour Comment ca va!" http://localhost:8080
