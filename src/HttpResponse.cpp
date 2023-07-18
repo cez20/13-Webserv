@@ -104,10 +104,10 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             }
         }
         catch(const std::exception& e){
-		std::cerr << e.what() << '\n';
-        error_logs( e.what(), clientRequest.config);
-        this->statusCode = "500";
-        return (1);
+            std::cerr << e.what() << '\n';
+            error_logs( e.what(), clientRequest.config);
+            this->statusCode = "500";
+            return (1);
 	    }
         analyseCgiOutput(output);
         this->statusCode = "200 OK";
@@ -217,6 +217,7 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         if (alarmReceived) {
             kill(pid, SIGTERM);
             alarmReceived = 0;
+            
             throw std::runtime_error("Timeout: CGI script took too long to execute.");
         }
         int status;
@@ -295,6 +296,9 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         }
     }
     else {
+
+        int status;
+        waitpid(pid, &status, 0);
         close(pipefd[1]);
         if (alarmReceived) {
             kill(pid, SIGTERM);
@@ -302,8 +306,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
             throw std::runtime_error("Timeout: CGI script took too long to execute.");
         }
 
-        int status;
-        waitpid(pid, &status, 0);
+        
         
         
         char buffer[5000];
@@ -326,7 +329,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
 
 void HttpResponse::analyseCgiOutput(const std::string& output){
         this->body = (output);
-        //this->headers["contentDispositon"] = "inline";
+        this->headers["contentDispositon"] = "inline";
         this->headers["contentLength"] = std::to_string(this->body.length());
         return;
     }

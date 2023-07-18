@@ -147,3 +147,22 @@ Tue Jul 18 18:20:13 2023: Failed to change the directory to the php directory
 Tue Jul 18 18:20:13 2023: Error Http : 500
 Tue Jul 18 18:20:15 2023: Script returned an error
 Tue Jul 18 18:20:15 2023: Error Http : 500
+Tue Jul 18 19:18:25 2023: Error Http : 404
+Tue Jul 18 19:21:05 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:21:05 2023: Error Http : 500
+Tue Jul 18 19:21:07 2023: Script returned an error
+Tue Jul 18 19:21:07 2023: Error Http : 500
+Tue Jul 18 19:33:27 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:33:27 2023: Error Http : 500
+Tue Jul 18 19:33:29 2023: Script returned an error
+Tue Jul 18 19:33:29 2023: Error Http : 500
+Tue Jul 18 19:33:31 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:33:31 2023: Error Http : 500
+Tue Jul 18 19:33:33 2023: Script returned an error
+Tue Jul 18 19:33:33 2023: Error Http : 500
+Tue Jul 18 19:36:45 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:36:45 2023: Error Http : 500
+Tue Jul 18 19:37:09 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:37:09 2023: Error Http : 500
+Tue Jul 18 19:37:11 2023: Script returned an error
+Tue Jul 18 19:37:11 2023: Error Http : 500
