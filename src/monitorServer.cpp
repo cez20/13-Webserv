@@ -4,7 +4,7 @@
 	Function that receives request (recv) and send (send()) appropriate based
 	on the client's request.
  */
-void handleClient(int clientSocket, const ConfigFile& config) {
+void handleClient(int clientSocket, ConfigFile& config) {
     std::vector<char> buffer(BUFFER_MAX); 
 std::string request;
 while (true) {

@@ -32,6 +32,9 @@ void HttpRequest::parseRequest(std::string rawRequest) {
             if(headerName == "Content-Length"){
                 this->contentLength =  std::stoi(headerValue);
             }
+            if(headerName == "Host"){
+                this->serverName =  headerValue;
+            }
             if (headerName == "Content-Type" && headerValue.find("multipart") != std::string::npos) {
             // Extraire la valeur du paramètre boundary
                 size_t boundaryPos = headerValue.find("boundary=");
@@ -64,11 +67,9 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     // std::cout << "this is the multibody "  << std::endl;
     // printMap(multiBody);
       
-      
+      //ICI JE VAIS VERIFIER QUEL CONFIGFILE PRENDRE
 
 }
-
-
 
 //Check if the path is the CGI
 void HttpRequest::checkCgi() {
@@ -79,7 +80,7 @@ void HttpRequest::checkCgi() {
         this->isCgi = false;
     }
 }
-void HttpRequest::checkDownload(const ConfigFile& config){
+void HttpRequest::checkDownload(ConfigFile& config){
     if(endsWith(this->path, ".pdf")){
         this->toBeDownloaded = true;
     }
@@ -89,13 +90,13 @@ void HttpRequest::checkDownload(const ConfigFile& config){
 
  }
  //Check if the resquest correspond to  location path from de config file and set the variables to reflect those specific configurations
-void HttpRequest::checkLocation(const ConfigFile& config){
+void HttpRequest::checkLocation(ConfigFile& config){
     //checking the if there if a specific locaton for the resquest path
     for (size_t i = 0; i < config.get_location().size(); ++i){
         if (this->path.find(config.get_location()[i]._loc_location) != std::string::npos)
             this->locationRequest = config.get_location()[i];
     }
-    std::cout << "voici lla location utilisee :   " << this->locationRequest._loc_location << std::endl;
+    std::cout << "voici la location utilisee :   " << this->locationRequest._loc_location << std::endl;
     //change the resquest path with the new location
     if (this->locationRequest._loc_location == "/"  && !this->locationRequest._loc_root.empty())
     {
@@ -147,7 +148,7 @@ void HttpRequest::checkLocation(const ConfigFile& config){
     //     this->limit_except = location->limit_except;
 }
 //Check the config file for global parameters et set the variables accordingly 
-void HttpRequest::checkGlobal(const ConfigFile& config){
+void HttpRequest::checkGlobal( ConfigFile& config){
     this->path = config.get_root() + this->path;
     this->autorizedMethods = config.get_methods();
     this->index = config.get_index();
@@ -204,6 +205,26 @@ void HttpRequest::parseMultipartFormData() {
 
         this->multiBody[filename] = content;
     }
+}
+
+void  HttpRequest::checkServerName(ConfigFile& config){
+    std::string path = config.get_path();
+    int nbS = find_nb_of_server(path);
+     if(nbS > 1){
+        for(int i = 0; i< nbS; i++){
+            this->config.set_config(path, i);
+            for (std::vector<std::string>::iterator it = this->config.get_listen().begin(); it != this->config.get_listen().end(); ++it) {
+                if(this->config.get_server_name()+ ":" + *it == this->serverName) {
+                 return;
+                }
+            }
+            // if(this->config.get_server_name().compare(0, this->serverName.length(), this->serverName) == 0) {
+            //     return;
+            // }
+        }
+     }
+    
+    
 }
 
 HttpRequest::~HttpRequest() { return; }

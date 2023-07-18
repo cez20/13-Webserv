@@ -20,22 +20,25 @@ class HttpRequest {
         std::string                         redir;
         bool                                autoIndex;
         std::string                         reponseStatus;
-        const ConfigFile&                   config;
+        ConfigFile&                         config;
         bool                                upload;
         std::string                         boundary;
         std::map<std::string, std::string>  multiBody;
         bool                                allow_delete;
         int                                 max_body;
         int                                 contentLength;
+        std::string                         serverName;
 
     public:
-        HttpRequest(std::string rawRequest, const ConfigFile& config): config(config){
+        HttpRequest(std::string rawRequest, ConfigFile& config): config(config){
             parseRequest(rawRequest);
-            checkGlobal(config);
+            checkServerName(config);
+            std::cout<< "SERVER_NAME ::  " << this->config.get_server_name() << std::endl;;
+            checkGlobal(this->config);
             if(!config.get_location().empty())
-                checkLocation(config);
+                checkLocation(this->config);
             checkCgi();
-            checkDownload(config);
+            checkDownload(this->config);
         }
 
         void showRequest()const {
@@ -46,9 +49,10 @@ class HttpRequest {
     private:
         void parseRequest(std::string rawRequest);
         void checkCgi();
-        void checkGlobal(const ConfigFile& config);
-        void checkLocation(const ConfigFile& config);
-        void checkDownload(const ConfigFile& config);  
+        void checkGlobal( ConfigFile& config);
+        void checkLocation( ConfigFile& config);
+        void checkDownload(ConfigFile& config);  
         void getBoundary();
         void parseMultipartFormData();
+        void checkServerName( ConfigFile& config);
 };

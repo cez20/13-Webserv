@@ -58,6 +58,7 @@ int 				monitorServer(std::vector<int> serverSocket, ConfigFile config);
 //*** UTILS.CPP ***
 int	error_logs(std::string msg, const ConfigFile& config);
 int	access_logs(std::string msg, const ConfigFile& config);
+int	find_nb_of_server(std::string path);
 std::string 		extractFileContent(const std::string& path);
 bool 				endsWith(const std::string& str, const std::string& suffix);
 
