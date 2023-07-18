@@ -138,6 +138,7 @@ void HttpRequest::checkLocation(ConfigFile& config){
         this->max_body= this->locationRequest._loc_max_body_size;
     else
         this->max_body= config.get_max_body_size();
+    this->cgiPass = locationRequest._loc_cgi_pass;
     
    
     
@@ -218,11 +219,9 @@ void  HttpRequest::checkServerName(ConfigFile& config){
                  return;
                 }
             }
-            // if(this->config.get_server_name().compare(0, this->serverName.length(), this->serverName) == 0) {
-            //     return;
-            // }
         }
      }
+     this->isValid = false;
     
     
 }
