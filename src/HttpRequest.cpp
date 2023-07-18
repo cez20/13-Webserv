@@ -80,7 +80,7 @@ void HttpRequest::checkCgi() {
         this->isCgi = false;
     }
 }
-void HttpRequest::checkDownload(const ConfigFile& config){
+void HttpRequest::checkDownload(ConfigFile& config){
     if(endsWith(this->path, ".pdf")){
         this->toBeDownloaded = true;
     }
@@ -90,7 +90,7 @@ void HttpRequest::checkDownload(const ConfigFile& config){
 
  }
  //Check if the resquest correspond to  location path from de config file and set the variables to reflect those specific configurations
-void HttpRequest::checkLocation(const ConfigFile& config){
+void HttpRequest::checkLocation(ConfigFile& config){
     //checking the if there if a specific locaton for the resquest path
     for (size_t i = 0; i < config.get_location().size(); ++i){
         if (this->path.find(config.get_location()[i]._loc_location) != std::string::npos)
@@ -148,7 +148,7 @@ void HttpRequest::checkLocation(const ConfigFile& config){
     //     this->limit_except = location->limit_except;
 }
 //Check the config file for global parameters et set the variables accordingly 
-void HttpRequest::checkGlobal(const ConfigFile& config){
+void HttpRequest::checkGlobal( ConfigFile& config){
     this->path = config.get_root() + this->path;
     this->autorizedMethods = config.get_methods();
     this->index = config.get_index();
@@ -207,17 +207,19 @@ void HttpRequest::parseMultipartFormData() {
     }
 }
 
-void    HttpRequest::checkServerName(const ConfigFile& config){
+void    HttpRequest::checkServerName(ConfigFile& config){
     std::string path = config.get_path();
     int nbS = find_nb_of_server(path);
-    if (nbS > 1)
-    {
-        for(int i = nbS; i > 0; i--){
-            if(this->serverName.compare(0, path.length(), path))
-             config.set_config(path, i);
-             return;
+     if(nbS > 1){
+        for(int i = 0; i< nbS; i++){
+            this->config.set_config(path, i);
+            if(this->config.get_server_name().compare(0, this->serverName.length(), this->serverName) == 0) {
+                return;
+            }
         }
-    }
+     }
     
-}
+    
+    }
+
 HttpRequest::~HttpRequest() { return; }
