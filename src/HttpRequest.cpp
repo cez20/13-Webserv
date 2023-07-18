@@ -207,19 +207,24 @@ void HttpRequest::parseMultipartFormData() {
     }
 }
 
-void    HttpRequest::checkServerName(ConfigFile& config){
+void  HttpRequest::checkServerName(ConfigFile& config){
     std::string path = config.get_path();
     int nbS = find_nb_of_server(path);
      if(nbS > 1){
         for(int i = 0; i< nbS; i++){
             this->config.set_config(path, i);
-            if(this->config.get_server_name().compare(0, this->serverName.length(), this->serverName) == 0) {
-                return;
+            for (std::vector<std::string>::iterator it = this->config.get_listen().begin(); it != this->config.get_listen().end(); ++it) {
+                if(this->config.get_server_name()+ ":" + *it == this->serverName) {
+                 return;
+                }
             }
+            // if(this->config.get_server_name().compare(0, this->serverName.length(), this->serverName) == 0) {
+            //     return;
+            // }
         }
      }
     
     
-    }
+}
 
 HttpRequest::~HttpRequest() { return; }
