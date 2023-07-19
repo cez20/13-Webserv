@@ -1,10 +1,6 @@
 
 #include "HttpResponse.hpp"
 
- volatile sig_atomic_t alarmReceived = 0;
- void alarmHandler(int) {
-            alarmReceived = 1;
-        }
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
 
@@ -173,8 +169,6 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
     }
     else if (pid == 0) {
 
-        signal(SIGALRM, alarmHandler);
-
         // Set the alarm for 4 seconds
         alarm(2);
         dup2(pipefd[1], STDOUT_FILENO);
@@ -208,18 +202,13 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         }
 
         if (execve("php", argv, envp) == -1) {
-            std::cerr << "Error with execve" << std::endl;
+            throw std::runtime_error("Script returned an error");
         }
     }
     else {
         // Processus parent
         close(pipefd[1]);
-        if (alarmReceived) {
-            kill(pid, SIGTERM);
-            alarmReceived = 0;
-            
-            throw std::runtime_error("Timeout: CGI script took too long to execute.");
-        }
+       
         int status;
         waitpid(pid, &status, 0);
 
@@ -259,8 +248,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         throw std::runtime_error("Error while forking");
     }
     else if (pid == 0) {
-        signal(SIGALRM, alarmHandler);
-        alarm(2);
+       
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
@@ -291,22 +279,15 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
             throw std::runtime_error("Failed to change the directory to the php directory");
         }
         if (execve("php", argv, envp) == -1) {
-            std::cerr << "Error with execve" << std::endl;
             throw std::runtime_error("Script returned an error");
         }
     }
     else {
+        close(pipefd[1]);
+     
 
         int status;
         waitpid(pid, &status, 0);
-        close(pipefd[1]);
-        if (alarmReceived) {
-            kill(pid, SIGTERM);
-            alarmReceived = 0;
-            throw std::runtime_error("Timeout: CGI script took too long to execute.");
-        }
-
-        
         
         
         char buffer[5000];

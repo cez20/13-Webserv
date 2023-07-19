@@ -166,3 +166,37 @@ Tue Jul 18 19:37:09 2023: Failed to change the directory to the php directory
 Tue Jul 18 19:37:09 2023: Error Http : 500
 Tue Jul 18 19:37:11 2023: Script returned an error
 Tue Jul 18 19:37:11 2023: Error Http : 500
+Tue Jul 18 19:41:44 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:41:44 2023: Error Http : 500
+Tue Jul 18 19:41:47 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:41:47 2023: Error Http : 500
+Tue Jul 18 19:41:48 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:41:48 2023: Error Http : 500
+Tue Jul 18 19:41:49 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:41:49 2023: Error Http : 500
+Tue Jul 18 19:42:07 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:42:07 2023: Error Http : 500
+Tue Jul 18 19:45:01 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:45:01 2023: Error Http : 500
+Tue Jul 18 19:45:03 2023: Script returned an error
+Tue Jul 18 19:45:03 2023: Error Http : 500
+Tue Jul 18 19:45:05 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:45:05 2023: Error Http : 500
+Tue Jul 18 19:45:07 2023: Script returned an error
+Tue Jul 18 19:45:07 2023: Error Http : 500
+Tue Jul 18 19:47:56 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:47:56 2023: Error Http : 500
+Tue Jul 18 19:47:58 2023: Script returned an error
+Tue Jul 18 19:47:58 2023: Error Http : 500
+Tue Jul 18 19:48:01 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:48:01 2023: Error Http : 500
+Tue Jul 18 19:48:03 2023: Script returned an error
+Tue Jul 18 19:48:03 2023: Error Http : 500
+Tue Jul 18 19:55:48 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:55:48 2023: Error Http : 500
+Tue Jul 18 19:55:50 2023: Script returned an error
+Tue Jul 18 19:55:50 2023: Error Http : 500
+Tue Jul 18 19:55:51 2023: Failed to change the directory to the php directory
+Tue Jul 18 19:55:51 2023: Error Http : 500
+Tue Jul 18 19:55:53 2023: Script returned an error
+Tue Jul 18 19:55:53 2023: Error Http : 500
