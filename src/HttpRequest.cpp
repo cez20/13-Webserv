@@ -129,7 +129,10 @@ void HttpRequest::checkLocation(ConfigFile& config){
     else
         this->max_body= config.get_max_body_size();
     this->cgiPass = locationRequest._loc_cgi_pass;
+<<<<<<< HEAD
+=======
     
+>>>>>>> master
     
    
     
@@ -202,6 +205,7 @@ void  HttpRequest::checkServerName(ConfigFile& config){
     std::string path = config.get_path();
     this->isValid = true;
     int nbS = find_nb_of_server(path);
+	this->isValid = true;
      if(nbS > 1){
         for(int i = 0; i< nbS; i++){
             this->config.set_config(path, i);
@@ -212,7 +216,11 @@ void  HttpRequest::checkServerName(ConfigFile& config){
             }
         }
      }
+<<<<<<< HEAD
+     this->isValid = false;   
+=======
        this->isValid = false; 
+>>>>>>> master
 }
 
 HttpRequest::~HttpRequest() { return; }
