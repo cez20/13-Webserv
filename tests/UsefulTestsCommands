@@ -24,10 +24,6 @@ siege -c20 -t5S http://localhost:8080
 
 
 
-
-
-
-
 <!-- OTHER -->
 <!-- curl -X GET http://127.0.0.1:8081/html/test.php\?NAME\=Cesar\&AGE\=16
 curl -X POST -d "AGE=16&NAME=Cesar" http://127.0.0.1:8081/html/test.php

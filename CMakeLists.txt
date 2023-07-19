@@ -16,7 +16,7 @@ enable_testing()
 
 set(TEST_SOURCES
     #tests/compilationTests.cpp 
-    tests/launchServerTests.cpp
+    tests/googletests/launchServerTests.cpp
 	src/ConfigFile.cpp
     src/HttpRequest.cpp 
     src/HttpResponse.cpp 
