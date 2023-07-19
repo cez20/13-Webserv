@@ -1,8 +1,0 @@
-siege -c20 -t5S http://localhost:8080
-curl --resolve example.com:8080:127.0.0.1 -O http://example.com:8080/test.pdf
-curl -X POST -H "Content-Type:plain/test" --data "Bonjour Comment ca va!" http://localhost:8080
-curl -X DELETE  http://localhost:8080/upload/poulet1
-curl -X PUT http://localhost:8080/upload/poulet1 
-curl -F "file=@/Users/cemenjiv/Desktop/42Quebec/42Projects/13-webserv/README.md" http://localhost:8080/upload/
-curl -X GET http://127.0.0.1:8081/html/test.php\?NAME\=Cesar\&AGE\=16
-curl -X POST -d "AGE=16&NAME=Cesar" http://127.0.0.1:8081/html/test.php

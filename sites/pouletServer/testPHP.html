@@ -4,7 +4,7 @@
     <title>Test de la fonctionnalite CGI</title>
 </head>
 <body>
-    <form action="test.php" method="GET">
+    <form action="cgi/test.php" method="GET">
         <label for="NAME">Nom :</label>
         <input type="text" name="NAME" id="NAME" required><br><br>
         <label for="AGE">Age :</label>
@@ -15,7 +15,7 @@
     <script>
         function generatePostLink() {
             var form = document.createElement('form');
-            form.action = 'test.php';
+            form.action = 'cgi/test.php';
             form.method = 'POST';
 
             var nameInput = document.createElement('input');

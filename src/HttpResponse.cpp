@@ -40,7 +40,6 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     {
             this->statusCode = "301 Moved Permanently";
             this->headers["Location"] = clientRequest.redir;
-            std::cout<< "redir var :  " << clientRequest.redir << std::endl;
             return (0);
     }
     
@@ -51,11 +50,10 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
                 return 1;
             }
             else if(uploading(clientRequest.multiBody, clientRequest.path)== 0){   
-            this->statusCode = "200 OK";
-            this->headers["contentType"] = "text/html";
-            this->body = "File(s) were successfully downloaded";
-            std::cout << "PATH FOR UPLOADING :   " << path << std::endl;
-            return (0);
+                this->statusCode = "200 OK";
+                this->headers["contentType"] = "text/html";
+                this->body = "File(s) were successfully downloaded";
+                return (0);
             }
 
         }
@@ -135,8 +133,7 @@ int HttpResponse::writeOnSocket(const int& clientSocket){
     }
     size_t totalBytesSent =0;
     size_t bytesRemaining = response.length();
-    
-    std::cout << bytesRemaining << std::endl;   
+      
     while(totalBytesSent < response.length()){
       int bytesSent=send(clientSocket, response.c_str(), response.length(), 0);
        if (bytesSent == -1) {
@@ -343,7 +340,6 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
         std::string filePath = this->path;  // Chemin du fichier à télécharger
         std::ifstream fileStream(filePath, std::ios::binary);
         std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
-        std::cout << "to be downloaded!!!" << std::endl;
          std::cout << fileName << std::endl;
         // Définir les en-têtes de la réponse
         this->headers["contentDisposition"] = "attachment; filename=\"" + fileName + "\"";
