@@ -13,7 +13,7 @@ TEST(GetNetworkInfoTest, WrongPort) {
 
     ConfigFile config("../server.conf");
 
-	struct addrinfo* result = getNetworkInfo(config, "-1");
+	struct addrinfo* result = getNetworkInfo("-1");
     EXPECT_EQ(result, nullptr);
 }
 
@@ -70,7 +70,7 @@ TEST(serverSocketSetupTest, BindingError1) {
    
   	ConfigFile config("../server.conf");
 	
-	struct addrinfo *server = getNetworkInfo(config, "80");		
+	struct addrinfo *server = getNetworkInfo("80");		
    	int result = serverSocketSetup(server);	
 
 	EXPECT_EQ(result, -1);
