@@ -245,3 +245,15 @@ Wed Jul 19 13:35:22 2023: Script returned an error
 Wed Jul 19 13:35:23 2023: Error Http : 500
 Wed Jul 19 13:35:25 2023: Script returned an error
 Wed Jul 19 13:35:25 2023: Error Http : 500
+Wed Jul 19 16:04:31 2023: Error Http : 404
+Wed Jul 19 16:05:06 2023: Error Http : 404
+Wed Jul 19 16:20:29 2023: Error Http : 405
+Wed Jul 19 16:22:28 2023: Error Http : 404
+Wed Jul 19 16:33:45 2023: Error Http : 404
+Wed Jul 19 16:33:49 2023: Error Http : 404
+Wed Jul 19 16:33:52 2023: Error Http : 404
+Wed Jul 19 16:37:20 2023: Error Http : 404
+Wed Jul 19 17:01:11 2023: Failed to open file
+Wed Jul 19 17:01:11 2023: Error Http : 404
+Wed Jul 19 17:06:30 2023: Error Http : 501
+Wed Jul 19 17:09:50 2023: Error Http : 413

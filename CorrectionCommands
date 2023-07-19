@@ -1,8 +1,34 @@
-siege -c20 -t5S http://localhost:8080
-curl --resolve example.com:8080:127.0.0.1 -O http://example.com:8080/test.pdf
+
+<!-- UPLOAD OF DOCUMENT -->
+curl -F "file=@/Users/cemenjiv/Desktop/42Quebec/42Projects/13-webserv/README.md" http://localhost:8080/upload/
+
+<!-- DOWNLOAD Of DOCUMENT -->
+curl -O http://localhost:8080/test.pdf
+
+<!-- DELETING A DOCUMENT -->
+curl -X DELETE  http://localhost:8080/upload/README.MD
+
+<!-- TEST CGI SCRIPT -->
+curl --resolve pouletServer:8082:127.0.0.1 -X POST -d "AGE=16&NAME=Cesar" http://pouletServer:8082/cgi/test.php
+curl --resolve pouletServer:8082:127.0.0.1 -X GET http://pouletServer:8082/cgi/test.php\?NAME\=Cesar\&AGE\=16
+
+<!-- TESTING UNKNOWN METHODS -->
+curl -X PUT http://localhost:8080/upload/poulet1 
+
+<!-- LIMITING BODY SIZE  -->
 curl -X POST -H "Content-Type:plain/test" --data "Bonjour Comment ca va!" http://localhost:8080
 curl -X DELETE  http://localhost:8080/upload/poulet1
-curl -X PUT http://localhost:8080/upload/poulet1 
-curl -F "file=@/Users/cemenjiv/Desktop/42Quebec/42Projects/13-webserv/README.md" http://localhost:8080/upload/
-curl -X GET http://127.0.0.1:8081/html/test.php\?NAME\=Cesar\&AGE\=16
+
+<!-- TESTING MULTIPLES CONNECTIONS WITH SIEGE -->
+siege -c20 -t5S http://localhost:8080
+
+
+
+
+
+
+
+<!-- OTHER -->
+<!-- curl -X GET http://127.0.0.1:8081/html/test.php\?NAME\=Cesar\&AGE\=16
 curl -X POST -d "AGE=16&NAME=Cesar" http://127.0.0.1:8081/html/test.php
+curl -O http://localhost:8080/test.pdf -->
