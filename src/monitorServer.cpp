@@ -23,8 +23,16 @@ while (true) {
     // Je devrai vérifier si le corps n'est pas fragmenté aussi. Je le ferai plus tard en utilisant Content-Length dans l'en-tête.
 }
     HttpRequest clientRequest(request, config);
+<<<<<<< HEAD
 	if (!clientRequest.isValid)
 		close(clientSocket);
+=======
+	if (clientRequest.isValid== false){
+		close(clientSocket);
+		return;
+	}
+		
+>>>>>>> master
     //clientRequest.showRequest();
     //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
