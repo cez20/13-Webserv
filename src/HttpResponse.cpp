@@ -1,20 +1,20 @@
 
 #include "HttpResponse.hpp"
-
  volatile sig_atomic_t alarmReceived = 0;
  void alarmHandler(int) {
             alarmReceived = 1;
         }
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
+
     this->path = clientRequest.path;
     if(clientRequest.reponseStatus != ""){
         this->statusCode = clientRequest.reponseStatus;
     }
-    else
-    {
+    else{
        analyseRequest(clientRequest);
-    checkForError(clientRequest); 
+       checkForError(clientRequest);
+       headers["Server"] = "WEBSERV.1";
     }
     
 }
@@ -23,7 +23,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         this->statusCode = "501";    
         return (1);
     }
-    else if (!clientRequest.autorizedMethods.empty()) {
+    if (!clientRequest.autorizedMethods.empty()) {
         std::vector<std::string>::const_iterator it = std::find(
             clientRequest.autorizedMethods.cbegin(), clientRequest.autorizedMethods.cend(), clientRequest.method);
 
@@ -36,16 +36,16 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
         this->statusCode = "413";
         return(1);
     }
-
-    else if(clientRequest.redir != "")
+    if(!clientRequest.redir.empty())
     {
             this->statusCode = "301 Moved Permanently";
-            this->headers ["Location"] = clientRequest.redir;
+            this->headers["Location"] = clientRequest.redir;
+            std::cout<< "redir var :  " << clientRequest.redir << std::endl;
             return (0);
     }
     
      else if(isDirectory(path)){
-        if(clientRequest.method == "POST"){
+        if(clientRequest.method == "POST"  && !clientRequest.boundary.empty()){
             if(!clientRequest.upload){
                 this->statusCode = "405";
                 return 1;
@@ -57,13 +57,18 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             std::cout << "PATH FOR UPLOADING :   " << path << std::endl;
             return (0);
             }
-        else 
-            return 0;
+
         }
-        else if(!clientRequest.index.empty())
-        {
+        else if(!clientRequest.index.empty()){   
+            if(isDirectory(this->path) && this->path.back() != '/')
+                this->path= this->path + "/";
             this->path += clientRequest.index;
-                return(responseForStatic(clientRequest));
+            if (!fileExist(path)){
+                this->statusCode = "404";
+                return (1);
+            }
+            return(responseForStatic(clientRequest));
+            
         }
         else if (clientRequest.autoIndex){
             this->statusCode = "200 OK";
@@ -88,7 +93,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
-    else if (!fileExist(clientRequest.path)){
+    else if (!fileExist(this->path)){
         this->statusCode = "404";
         return (1);
     }
@@ -103,10 +108,10 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             }
         }
         catch(const std::exception& e){
-		std::cerr << e.what() << '\n';
-        error_logs( e.what(), clientRequest.config);
-        this->statusCode = "500";
-        return (1);
+            std::cerr << e.what() << '\n';
+            error_logs( e.what(), clientRequest.config);
+            this->statusCode = "500";
+            return (1);
 	    }
         analyseCgiOutput(output);
         this->statusCode = "200 OK";
@@ -200,13 +205,14 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        int result = chdir("/usr/bin"); 
+        int result = chdir(clientRequest.cgiPass.c_str()); 
         if (result != 0) {
-            std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
+            std::cerr << "Failed to change directory to " << clientRequest.cgiPass << std::endl;
         }
 
         if (execve("php", argv, envp) == -1) {
             std::cerr << "Error with execve" << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
     else {
@@ -282,13 +288,13 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        int result = chdir("/usr/bin"); //change
+        int result = chdir(clientRequest.cgiPass.c_str()); 
         if (result != 0) {
-            std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
+            std::cerr << "Failed to change directory to " << clientRequest.cgiPass << std::endl;
         }
         if (execve("php", argv, envp) == -1) {
             std::cerr << "Error with execve" << std::endl;
-            throw std::runtime_error("Script returned an error");
+            exit(EXIT_FAILURE);
         }
     }
     else {
@@ -322,9 +328,10 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
      return output;
 }
 
+
 void HttpResponse::analyseCgiOutput(const std::string& output){
         this->body = (output);
-        //this->headers["contentDispositon"] = "inline";
+        this->headers["contentDispositon"] = "inline";
         this->headers["contentLength"] = std::to_string(this->body.length());
         return;
     }
@@ -354,8 +361,17 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
     else{
         this->statusCode = "200 OK";
         this->headers["contentType"] = "text/html";
+        try{
         this->body = extractFileContent(this->path);
+        }
+        catch(const std::exception& e){
+            std::cerr << e.what() << '\n';
+            error_logs( e.what(), clientRequest.config);
+            this->statusCode = "500";
+            return 1;
+	    }
         this->headers["contentLength"] = std::to_string(this->body.length());
+        
     } 
         return (0);
 
@@ -369,7 +385,6 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
     if (result != 0) {
         // La suppression a échoué.
         error_logs("Erreur lors de la suppression du fichier", clientRequest.config);
-        std::perror("Erreur lors de la suppression du fichier");
         this->statusCode = "500";
         return 1;
     } else {
@@ -398,7 +413,14 @@ int HttpResponse::checkForCustomErrorFiles(const HttpRequest& clientRequest){
     std::string root= clientRequest.config.get_root();
     for(std::map<std::string, std::string>::iterator it = errorMap.begin(); it!= errorMap.end(); it++){
         if (this->statusCode == it->first && !it->second.empty()){
+            try{
             this->body = extractFileContent(root + it->second);
+            }
+            catch(const std::exception& e){
+            std::cerr << e.what() << '\n';
+            error_logs( e.what(), clientRequest.config);
+            return (0);
+	    }
             return (1);
         }
     } 

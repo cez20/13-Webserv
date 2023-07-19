@@ -5,6 +5,7 @@ std::string extractFileContent(const std::string& path) {
     std::ifstream file(path);
     if (!file) {
         std::cerr << "Failed to open file: " << path << std::endl;
+        throw std::runtime_error("Failed to open file");
         return "";
     }
     std::string content;

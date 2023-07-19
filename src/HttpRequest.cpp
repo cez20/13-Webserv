@@ -59,16 +59,13 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     if (!this->boundary.empty()){
         parseMultipartFormData();
     }
-      //std::cout << "this is the raw request" << rawRequest << std::endl;
+      std::cout << "this is the raw request" << rawRequest << std::endl;
       //std::cout << "this is the map of the headers:  " << std::endl;
       //printMap(this->headers);
       //std::cout << "this is the body of the request " <<this->body << std::endl;
       //std::cout << "this is the boundary " << this->boundary << std::endl;
     // std::cout << "this is the multibody "  << std::endl;
     // printMap(multiBody);
-      
-      //ICI JE VAIS VERIFIER QUEL CONFIGFILE PRENDRE
-
 }
 
 //Check if the path is the CGI
@@ -114,9 +111,6 @@ void HttpRequest::checkLocation(ConfigFile& config){
     if (!this->locationRequest._loc_index.empty()){
         this->index = this->locationRequest._loc_index;
     }
-    else {
-        this->index = "";
-    }
     if (!this->locationRequest._loc_methods.empty())  
         this->autorizedMethods = this->locationRequest._loc_methods;
     if (!this->locationRequest._loc_return.empty())
@@ -128,24 +122,21 @@ void HttpRequest::checkLocation(ConfigFile& config){
         this->autoIndex = true;
     else
         this->autoIndex = false;  
-    if (!this->locationRequest._loc_return.empty()){
-        this->redir= locationRequest._loc_return;
-        this->reponseStatus = "301";
-    }
     this->allow_delete = this->locationRequest._loc_allow_delete;
     this->upload = this->locationRequest._loc_upload;
     if(this->locationRequest._loc_max_body_size != -1)
         this->max_body= this->locationRequest._loc_max_body_size;
     else
         this->max_body= config.get_max_body_size();
+    this->cgiPass = locationRequest._loc_cgi_pass;
+    
     
    
     
         
     
-    //std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
-    // if (!location->limit_except.empty())
-    //     this->limit_except = location->limit_except;
+    std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
+
 }
 //Check the config file for global parameters et set the variables accordingly 
 void HttpRequest::checkGlobal( ConfigFile& config){
@@ -209,22 +200,19 @@ void HttpRequest::parseMultipartFormData() {
 
 void  HttpRequest::checkServerName(ConfigFile& config){
     std::string path = config.get_path();
+    this->isValid = true;
     int nbS = find_nb_of_server(path);
      if(nbS > 1){
         for(int i = 0; i< nbS; i++){
             this->config.set_config(path, i);
             for (std::vector<std::string>::iterator it = this->config.get_listen().begin(); it != this->config.get_listen().end(); ++it) {
                 if(this->config.get_server_name()+ ":" + *it == this->serverName) {
-                 return;
+                 return ;
                 }
             }
-            // if(this->config.get_server_name().compare(0, this->serverName.length(), this->serverName) == 0) {
-            //     return;
-            // }
         }
      }
-    
-    
+       this->isValid = false; 
 }
 
 HttpRequest::~HttpRequest() { return; }
