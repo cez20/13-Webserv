@@ -23,11 +23,8 @@ while (true) {
     // Je devrai vérifier si le corps n'est pas fragmenté aussi. Je le ferai plus tard en utilisant Content-Length dans l'en-tête.
 }
     HttpRequest clientRequest(request, config);
-	if (clientRequest.isValid== false){
+	if (!clientRequest.isValid)
 		close(clientSocket);
-		return;
-	}
-		
     //clientRequest.showRequest();
     //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
@@ -54,7 +51,7 @@ void addSocketToVector(std::vector<pollfd> *socketFds, int newClientSocket)
 	pollfd newClientFd;
 
 	newClientFd.fd = newClientSocket;
-	newClientFd.events = POLLIN;
+	newClientFd.events = POLLIN | POLLOUT;
 	socketFds->push_back(newClientFd);
 }
 
@@ -108,7 +105,7 @@ std::vector<pollfd> createSocketVector(std::vector<int> serverSocket)
 	for (size_t i = 0; i < serverSocket.size(); ++i)
 	{
 		socketFds[i].fd = serverSocket[i];
- 		socketFds[i].events = POLLIN;
+ 		socketFds[i].events = POLLIN | POLLOUT;
 	}
 	return (socketFds);
 }
@@ -126,7 +123,7 @@ int monitorServer(std::vector<int> serverSocket, ConfigFile config)
 	{
 		launchSocketMonitoring(&socketFds, serverSocket);
 		for (size_t i = 0; i < socketFds.size(); ++i) {
-			if (socketFds[i].revents & POLLIN) {						 
+			if (socketFds[i].revents & POLLIN || socketFds[i].revents & POLLOUT) {						 
 				if (socketFds[i].fd == serverSocket[i]){		
 					std::cout << "Server is ready to read" << std::endl;			 
 					int newSocket = createNewClientSocket(serverSocket[i], config);
@@ -143,7 +140,7 @@ int monitorServer(std::vector<int> serverSocket, ConfigFile config)
 			}
 		}
 	}
-	// for (size_t i = 0; i < socketFds.size(); i++)
-	// 	close (serverSocket[i]);
+	for (size_t i = 0; i < socketFds.size(); i++)
+		close (serverSocket[i]);
 	return (0);
 }
