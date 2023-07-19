@@ -1,6 +1,9 @@
 
 #include "HttpResponse.hpp"
-
+ volatile sig_atomic_t alarmReceived = 0;
+ void alarmHandler(int) {
+            alarmReceived = 1;
+        }
 HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     generateStatusMap();
 
@@ -8,10 +11,10 @@ HttpResponse::HttpResponse(const HttpRequest& clientRequest){
     if(clientRequest.reponseStatus != ""){
         this->statusCode = clientRequest.reponseStatus;
     }
-    else
-    {
+    else{
        analyseRequest(clientRequest);
-    checkForError(clientRequest); 
+       checkForError(clientRequest);
+       headers["Server"] = "WEBSERV.1";
     }
     
 }
@@ -36,6 +39,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     if(!clientRequest.redir.empty())
     {
             this->statusCode = "301 Moved Permanently";
+            this->headers["Location"] = clientRequest.redir;
             std::cout<< "redir var :  " << clientRequest.redir << std::endl;
             return (0);
     }
@@ -55,12 +59,16 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             }
 
         }
-        else if(!clientRequest.index.empty())
-        {   if(isDirectory(this->path) && this->path.back() != '/')
+        else if(!clientRequest.index.empty()){   
+            if(isDirectory(this->path) && this->path.back() != '/')
                 this->path= this->path + "/";
             this->path += clientRequest.index;
-            
+            if (!fileExist(path)){
+                this->statusCode = "404";
+                return (1);
+            }
             return(responseForStatic(clientRequest));
+            
         }
         else if (clientRequest.autoIndex){
             this->statusCode = "200 OK";
@@ -85,7 +93,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
 
     //check if the  path exist, if not, fill the HttpResponse with the error 404
-    else if (!fileExist(clientRequest.path)){
+    else if (!fileExist(this->path)){
         this->statusCode = "404";
         return (1);
     }
@@ -169,6 +177,8 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
     }
     else if (pid == 0) {
 
+        signal(SIGALRM, alarmHandler);
+
         // Set the alarm for 4 seconds
         alarm(2);
         dup2(pipefd[1], STDOUT_FILENO);
@@ -195,20 +205,24 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-         int result = chdir(clientRequest.cgiPass.c_str()); //change
+        int result = chdir(clientRequest.cgiPass.c_str()); 
         if (result != 0) {
             std::cerr << "Failed to change directory to " << clientRequest.cgiPass << std::endl;
-            throw std::runtime_error("Failed to change the directory to the php directory");
         }
 
         if (execve("php", argv, envp) == -1) {
-            throw std::runtime_error("Script returned an error");
+            std::cerr << "Error with execve" << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
     else {
         // Processus parent
         close(pipefd[1]);
-       
+        if (alarmReceived) {
+            kill(pid, SIGTERM);
+            alarmReceived = 0;
+            throw std::runtime_error("Timeout: CGI script took too long to execute.");
+        }
         int status;
         waitpid(pid, &status, 0);
 
@@ -248,7 +262,8 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         throw std::runtime_error("Error while forking");
     }
     else if (pid == 0) {
-       
+        signal(SIGALRM, alarmHandler);
+        alarm(2);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
@@ -273,18 +288,23 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        int result = chdir(clientRequest.cgiPass.c_str()); //change
+        int result = chdir(clientRequest.cgiPass.c_str()); 
         if (result != 0) {
             std::cerr << "Failed to change directory to " << clientRequest.cgiPass << std::endl;
-            throw std::runtime_error("Failed to change the directory to the php directory");
         }
         if (execve("php", argv, envp) == -1) {
-            throw std::runtime_error("Script returned an error");
+            std::cerr << "Error with execve" << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
     else {
+        // Processus parent
         close(pipefd[1]);
-     
+        if (alarmReceived) {
+            kill(pid, SIGTERM);
+            alarmReceived = 0;
+            throw std::runtime_error("Timeout: CGI script took too long to execute.");
+        }
 
         int status;
         waitpid(pid, &status, 0);
@@ -307,6 +327,7 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         }
      return output;
 }
+
 
 void HttpResponse::analyseCgiOutput(const std::string& output){
         this->body = (output);
@@ -340,8 +361,17 @@ int HttpResponse::responseForStatic(const HttpRequest& clientRequest){
     else{
         this->statusCode = "200 OK";
         this->headers["contentType"] = "text/html";
+        try{
         this->body = extractFileContent(this->path);
+        }
+        catch(const std::exception& e){
+            std::cerr << e.what() << '\n';
+            error_logs( e.what(), clientRequest.config);
+            this->statusCode = "500";
+            return 1;
+	    }
         this->headers["contentLength"] = std::to_string(this->body.length());
+        
     } 
         return (0);
 
@@ -355,7 +385,6 @@ int HttpResponse::deleteMethod(const HttpRequest& clientRequest){
     if (result != 0) {
         // La suppression a échoué.
         error_logs("Erreur lors de la suppression du fichier", clientRequest.config);
-        std::perror("Erreur lors de la suppression du fichier");
         this->statusCode = "500";
         return 1;
     } else {
@@ -384,7 +413,14 @@ int HttpResponse::checkForCustomErrorFiles(const HttpRequest& clientRequest){
     std::string root= clientRequest.config.get_root();
     for(std::map<std::string, std::string>::iterator it = errorMap.begin(); it!= errorMap.end(); it++){
         if (this->statusCode == it->first && !it->second.empty()){
+            try{
             this->body = extractFileContent(root + it->second);
+            }
+            catch(const std::exception& e){
+            std::cerr << e.what() << '\n';
+            error_logs( e.what(), clientRequest.config);
+            return (0);
+	    }
             return (1);
         }
     } 

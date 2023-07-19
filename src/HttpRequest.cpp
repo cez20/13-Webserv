@@ -59,16 +59,13 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     if (!this->boundary.empty()){
         parseMultipartFormData();
     }
-      //std::cout << "this is the raw request" << rawRequest << std::endl;
+      std::cout << "this is the raw request" << rawRequest << std::endl;
       //std::cout << "this is the map of the headers:  " << std::endl;
       //printMap(this->headers);
       //std::cout << "this is the body of the request " <<this->body << std::endl;
       //std::cout << "this is the boundary " << this->boundary << std::endl;
     // std::cout << "this is the multibody "  << std::endl;
     // printMap(multiBody);
-      
-      //ICI JE VAIS VERIFIER QUEL CONFIGFILE PRENDRE
-
 }
 
 //Check if the path is the CGI
@@ -113,9 +110,6 @@ void HttpRequest::checkLocation(ConfigFile& config){
     }
     if (!this->locationRequest._loc_index.empty()){
         this->index = this->locationRequest._loc_index;
-    }
-    else {
-        this->index = "";
     }
     if (!this->locationRequest._loc_methods.empty())  
         this->autorizedMethods = this->locationRequest._loc_methods;
