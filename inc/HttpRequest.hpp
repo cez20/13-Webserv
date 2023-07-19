@@ -28,6 +28,7 @@ class HttpRequest {
         int                                 max_body;
         int                                 contentLength;
         std::string                         serverName;
+        std::string                         cgiPass;
 
     public:
         HttpRequest(std::string rawRequest, ConfigFile& config): config(config){

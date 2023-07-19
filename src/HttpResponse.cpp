@@ -32,7 +32,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
             return 1;
         } 
     }
-    if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
+    else if(clientRequest.method == "POST" && clientRequest.max_body < clientRequest.contentLength && clientRequest.max_body > 0){
         this->statusCode = "413";
         return(1);
     }
@@ -45,7 +45,7 @@ int HttpResponse::analyseRequest(const HttpRequest& clientRequest){
     }
     
      else if(isDirectory(path)){
-        if(clientRequest.method == "POST"){
+        if(clientRequest.method == "POST"  && !clientRequest.boundary.empty()){
             if(!clientRequest.upload){
                 this->statusCode = "405";
                 return 1;
@@ -135,7 +135,8 @@ int HttpResponse::writeOnSocket(const int& clientSocket){
     while(totalBytesSent < response.length()){
       int bytesSent=send(clientSocket, response.c_str(), response.length(), 0);
        if (bytesSent == -1) {
-            std::cerr << "error while sending response to the client" << std::endl;
+            std::cout << "The error is: " << strerror(errno) << std::endl;
+			std::cerr << "error while sending response to the client" << std::endl;
             return -1;
         }
         totalBytesSent += bytesSent;
@@ -200,9 +201,10 @@ std::string HttpResponse::executeCgiGet(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        int result = chdir("/usr/bin"); 
+         int result = chdir(clientRequest.cgiPass.c_str()); //change
         if (result != 0) {
-            std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
+            std::cerr << "Failed to change directory to " << clientRequest.cgiPass << std::endl;
+            throw std::runtime_error("Failed to change the directory to the php directory");
         }
 
         if (execve("php", argv, envp) == -1) {
@@ -282,9 +284,10 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         envpList.push_back(nullptr);
         char* const* argv = argvList.data();
         char* const* envp = envpList.data();
-        int result = chdir("/usr/bin"); //change
+        int result = chdir(clientRequest.cgiPass.c_str()); //change
         if (result != 0) {
-            std::cerr << "Failed to change directory to " << "/usr/bin" << std::endl;
+            std::cerr << "Failed to change directory to " << clientRequest.cgiPass << std::endl;
+            throw std::runtime_error("Failed to change the directory to the php directory");
         }
         if (execve("php", argv, envp) == -1) {
             std::cerr << "Error with execve" << std::endl;
@@ -292,7 +295,6 @@ std::string HttpResponse::executeCgiPost(const HttpRequest& clientRequest) {
         }
     }
     else {
-        // Processus parent
         close(pipefd[1]);
         if (alarmReceived) {
             kill(pid, SIGTERM);

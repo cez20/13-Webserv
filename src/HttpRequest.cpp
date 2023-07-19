@@ -138,14 +138,14 @@ void HttpRequest::checkLocation(ConfigFile& config){
         this->max_body= this->locationRequest._loc_max_body_size;
     else
         this->max_body= config.get_max_body_size();
+    this->cgiPass = locationRequest._loc_cgi_pass;
     
    
     
         
     
-    //std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
-    // if (!location->limit_except.empty())
-    //     this->limit_except = location->limit_except;
+    std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
+
 }
 //Check the config file for global parameters et set the variables accordingly 
 void HttpRequest::checkGlobal( ConfigFile& config){
@@ -210,6 +210,7 @@ void HttpRequest::parseMultipartFormData() {
 void  HttpRequest::checkServerName(ConfigFile& config){
     std::string path = config.get_path();
     int nbS = find_nb_of_server(path);
+	this->isValid = true;
      if(nbS > 1){
         for(int i = 0; i< nbS; i++){
             this->config.set_config(path, i);
@@ -218,13 +219,9 @@ void  HttpRequest::checkServerName(ConfigFile& config){
                  return;
                 }
             }
-            // if(this->config.get_server_name().compare(0, this->serverName.length(), this->serverName) == 0) {
-            //     return;
-            // }
         }
      }
-    
-    
+     this->isValid = false;   
 }
 
 HttpRequest::~HttpRequest() { return; }
