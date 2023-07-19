@@ -38,7 +38,6 @@ int	error_logs(std::string msg, const ConfigFile& config){
 		return (1);
 	}
 	
-	std::cout << msg << error_log << std::endl;
 	log << timeString << ": " << msg  << std::endl;
 	log.close();
 	return (0);
@@ -69,7 +68,6 @@ int	access_logs(std::string msg, const ConfigFile& config){
 		return (1);
 	}
 	
-	std::cout << msg << access_log << std::endl;
 	log << timeString << ": " << msg  << std::endl;
 	log.close();
 	return (0);

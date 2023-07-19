@@ -59,13 +59,6 @@ void HttpRequest::parseRequest(std::string rawRequest) {
     if (!this->boundary.empty()){
         parseMultipartFormData();
     }
-      std::cout << "this is the raw request" << rawRequest << std::endl;
-      //std::cout << "this is the map of the headers:  " << std::endl;
-      //printMap(this->headers);
-      //std::cout << "this is the body of the request " <<this->body << std::endl;
-      //std::cout << "this is the boundary " << this->boundary << std::endl;
-    // std::cout << "this is the multibody "  << std::endl;
-    // printMap(multiBody);
 }
 
 //Check if the path is the CGI
@@ -93,7 +86,6 @@ void HttpRequest::checkLocation(ConfigFile& config){
         if (this->path.find(config.get_location()[i]._loc_location) != std::string::npos)
             this->locationRequest = config.get_location()[i];
     }
-    std::cout << "voici la location utilisee :   " << this->locationRequest._loc_location << std::endl;
     //change the resquest path with the new location
     if (this->locationRequest._loc_location == "/"  && !this->locationRequest._loc_root.empty())
     {
@@ -130,7 +122,7 @@ void HttpRequest::checkLocation(ConfigFile& config){
         this->max_body= config.get_max_body_size();
     this->cgiPass = locationRequest._loc_cgi_pass;
    
-    std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
+    std::cout << "LE NOUVEAU PATH : " <<this->path << std::endl;
 
 }
 //Check the config file for global parameters et set the variables accordingly 

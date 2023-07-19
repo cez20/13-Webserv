@@ -27,11 +27,8 @@ while (true) {
 		close(clientSocket);
 		return;
 	}
-    //clientRequest.showRequest();
-    //printMap(clientRequest.headers);
     HttpResponse response(clientRequest);
     response.writeOnSocket(clientSocket);
-    //close(clientSocket);  // Temporary removed it , because already in infinte loop
 }
 
 void enterAccessLogs(sockaddr_storage clientAddress, ConfigFile config)
@@ -73,7 +70,7 @@ int	createNewClientSocket(int serverSocket, ConfigFile config)
 		exit(EXIT_FAILURE);
 	}
 	enterAccessLogs(clientAddress, config);
-	std::cout << "New connection accepted." << std::endl;
+	std::cout << GREEN << "New connection accepted." << RESET << std::endl;
 	return (clientSocket);
 }
 
@@ -134,7 +131,7 @@ int monitorServer(std::vector<int> serverSocket, ConfigFile config)
 				else {
 					std::cout << "Client " << i << " is ready to read";
 					handleClient(socketFds[i].fd, config);
-					std::cout << "Closing the connection" << std::endl;
+					std::cout << RED << "Closing the connection" << RESET << std::endl;
 					close(socketFds[i].fd); 
 					socketFds.erase(socketFds.begin() + i);
 					--i;
