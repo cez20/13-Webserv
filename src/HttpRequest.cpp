@@ -129,15 +129,7 @@ void HttpRequest::checkLocation(ConfigFile& config){
     else
         this->max_body= config.get_max_body_size();
     this->cgiPass = locationRequest._loc_cgi_pass;
-<<<<<<< HEAD
-=======
-    
->>>>>>> master
-    
    
-    
-        
-    
     std::cout << "LE NOUVEAU PATH" <<this->path << std::endl;
 
 }
@@ -216,11 +208,7 @@ void  HttpRequest::checkServerName(ConfigFile& config){
             }
         }
      }
-<<<<<<< HEAD
-     this->isValid = false;   
-=======
-       this->isValid = false; 
->>>>>>> master
+this->isValid = false;
 }
 
 HttpRequest::~HttpRequest() { return; }
